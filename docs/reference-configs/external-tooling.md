@@ -15,6 +15,9 @@ Codex.
 ## Detect Safely
 
 Use `bash scripts/check-agent-tooling.sh` for a read-only advisory report.
+Init and migration reports run the detector without update checks by default;
+set `PROJECT_INITIALIZER_CHECK_TOOLING_UPDATES=1` when that advisory pass should
+also compare upstream versions.
 
 Supported flags:
 

@@ -209,8 +209,10 @@ create_structure() {
     TODAY="$(date +%Y-%m-%d)"
     NOW="$(date '+%Y-%m-%d %H:%M')"
 
-    mkdir -p docs/architecture
     mkdir -p docs/reference-configs
+    if pi_should_generate_full_docs; then
+        mkdir -p docs/architecture
+    fi
     mkdir -p tasks/archive
     mkdir -p tasks/contracts
     mkdir -p tasks/reviews
@@ -351,90 +353,18 @@ EOF
     install_hook_assets
 
     if [ -d "$ASSETS_REF_DIR" ]; then
-        cp "$ASSETS_REF_DIR"/*.md docs/reference-configs/
+        pi_install_reference_configs "$PWD" "$ASSETS_REF_DIR" "apply"
     else
-        cat > docs/reference-configs/changelog-versioning.md << 'EOF'
-# Changelog & Versioning Reference
-
-Use this file for detailed release-note and semantic-versioning rules.
-EOF
-
         cat > docs/reference-configs/agentic-development-flow.md << 'EOF'
 # Agentic Development Flow
 
 Use this file for gstack/Waza routing, P1/P2/P3 reporting triggers, and daily agentic development flow.
 EOF
 
-        cat > docs/reference-configs/git-strategy.md << 'EOF'
-# Git Strategy Reference
-
-Use this file for branch model and commit convention details.
-EOF
-
-        cat > docs/reference-configs/release-deploy.md << 'EOF'
-# Release & Deployment Reference
-
-Use this file for release pipeline and deployment trigger details.
-EOF
-
-        cat > docs/reference-configs/ai-workflows.md << 'EOF'
-# AI Workflows Reference
-
-Use this file for extended AI workflow templates, tasks-first session handoff, and milestone-only progress guidance.
-EOF
-
-        cat > docs/reference-configs/coding-standards.md << 'EOF'
-# Coding Standards Reference
-
-Use this file for detailed coding constraints and refactor thresholds.
-EOF
-
-        cat > docs/reference-configs/development-protocol.md << 'EOF'
-# Development Protocol Reference
-
-Use this file for detailed feature/bug flow playbooks, repo-local task sync rules, and final response requirements.
-EOF
-
         cat > docs/reference-configs/external-tooling.md << 'EOF'
 # External Tooling Reference
 
 Use this file for external tool routing, install commands, update commands, and gbrain MCP guidance.
-EOF
-
-        cat > docs/reference-configs/workflow-orchestration.md << 'EOF'
-# Workflow Orchestration Reference
-
-Use this file for advanced plan/execution orchestration patterns.
-EOF
-
-        cat > docs/reference-configs/spa-day-protocol.md << 'EOF'
-# Spa Day Protocol
-
-Periodic cleanup protocol to reduce context bloat and rule conflicts.
-
-## 1. Rule Consolidation
-- Merge overlapping rules in `docs/reference-configs/`.
-- Remove contradictory instructions and keep one canonical rule per topic.
-
-## 2. CLAUDE/AGENTS Routing Freshness
-- Verify all routed paths still exist.
-- Remove stale references from CLAUDE.md/AGENTS.md indexes.
-
-## 3. Lessons Graduation
-- Promote repeated lessons from `tasks/lessons.md` into durable rules.
-- Archive one-off or obsolete lessons.
-
-## 4. Research Pruning
-- Remove already-implemented investigation items from `tasks/research.md`.
-- Keep only unresolved findings and open questions.
-
-## 5. Docs Reality Check
-- Sync `docs/architecture.md` and `docs/tech-stack.md` with current codebase.
-- Flag drift for immediate correction.
-
-## 6. Contract Hygiene
-- Move fulfilled contracts from `tasks/contracts/` into an archive folder if needed.
-- Keep active contracts only for in-flight tasks.
 EOF
     fi
 

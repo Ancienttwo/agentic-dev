@@ -32,6 +32,7 @@ This repository dogfoods the `project-initializer` workflow. Treat it as a Bun +
 - Preserve the distinction between milestone tracking in `docs/PROGRESS.md` and active work tracking in `tasks/`.
 - Keep `assets/workflow-contract.v1.json` and `.ai/harness/workflow-contract.json` aligned.
 - Treat Codex auto-compact as a fallback only; long-task rollover belongs in `.ai/harness/handoff/current.md` and `.ai/harness/handoff/resume.md`.
+- If current repo state conflicts with the task, open an isolated `codex/<task-slug>` worktree, finish there, run Waza `/check`-style validation, then merge back to `main` without absorbing unrelated dirty changes.
 
 ## Verification Defaults
 

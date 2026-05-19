@@ -12,12 +12,13 @@
 - `tasks/contracts/`: active sprint done definitions
 - `tasks/reviews/`: evaluator verdicts
 - `.ai/harness/checks/latest.json`: structured verification evidence
-- `.ai/context/context-map.json`: progressive context index for nested AGENTS.md files
+- `.ai/context/context-map.json`: progressive context index for primary functional-block `CLAUDE.md` and `AGENTS.md` files
 - `plans/archive/`: archived plans and outcomes
 - `tasks/archive/`: archived todo snapshots
 - `docs/reference-configs/agentic-development-flow.md`: gstack/Waza routing, P1/P2/P3 reporting triggers, and daily flow
 - `docs/reference-configs/harness-overview.md`: orchestration playbook
 - `docs/reference-configs/external-tooling.md`: gstack/Waza/gbrain routing, Codex-first Waza sync, and advisory install/update commands
+- `docs/reference-configs/document-generation.md`: minimal docs profile and on-demand document rules
 - `docs/reference-configs/sprint-contracts.md`: contract rules
 - `docs/reference-configs/evaluator-rubric.md`: review thresholds
 - `docs/reference-configs/handoff-protocol.md`: handoff expectations

@@ -390,7 +390,13 @@ RESUME_EOF
   },
   "context": {
     "profile": "stable-root-progressive-subdir",
-    "map_file": ".ai/context/context-map.json"
+    "map_file": ".ai/context/context-map.json",
+    "functional_block_selector": {
+      "script": "scripts/select-agent-context-blocks.sh",
+      "config_file": ".ai/context/agent-context-blocks.txt",
+      "env": "PROJECT_INITIALIZER_CONTEXT_BLOCKS",
+      "rule": "explicit functional blocks only; do not infer from apps/packages/services globs"
+    }
   },
   "harness": {
     "policy_file": ".ai/harness/policy.json",
@@ -428,6 +434,35 @@ RESUME_EOF
     "output_file": "tasks/research.md",
     "preferred_runners": ["subagent", "codex exec --json"],
     "main_thread_policy": "consume conclusions and evidence paths, not raw logs"
+  },
+  "documentation": {
+    "profile": "minimal-agentic",
+    "required": ["docs/spec.md", "docs/PROGRESS.md"],
+    "on_demand": ["docs/brief.md", "docs/tech-stack.md", "docs/decisions.md", "docs/architecture.md", "docs/packages.md"],
+    "reference_configs": ["harness-overview.md", "agentic-development-flow.md", "external-tooling.md", "sprint-contracts.md", "handoff-protocol.md", "document-generation.md"],
+    "rule": "create optional docs only when the agent has concrete repo evidence or the user asks"
+  },
+  "lsp_profiles": {
+    "default": "typescript-lsp",
+    "selection": "functional-block-first",
+    "rule": "use block-level LSP/tooling hints before broad repo assumptions"
+  },
+  "worktree_strategy": {
+    "auto_on_conflict": true,
+    "branch_prefix": "codex/",
+    "base_branch": "main",
+    "conflict_signals": [
+      "dirty_worktree_overlaps_task_files",
+      "current_branch_not_suitable_for_task",
+      "existing_changes_unrelated_but_would_block_review",
+      "task_requires_clean_validation_surface"
+    ],
+    "validation_route": "waza:check",
+    "merge_back": {
+      "target": "main",
+      "requires_clean_check": true,
+      "preserve_unrelated_changes": true
+    }
   },
   "profiles": {
     "orchestration": "shared-long-running-harness",
@@ -490,6 +525,16 @@ POLICY_EOF
 {
   "version": 1,
   "profile": "stable-root-progressive-subdir",
+  "functional_block_selector": {
+    "script": "scripts/select-agent-context-blocks.sh",
+    "config_file": ".ai/context/agent-context-blocks.txt",
+    "env": "PROJECT_INITIALIZER_CONTEXT_BLOCKS",
+    "rule": "explicit functional blocks only; do not infer from apps/packages/services globs"
+  },
+  "lsp_profiles": {
+    "default": "typescript-lsp",
+    "selection": "functional-block-first"
+  },
   "root_context_files": [
     "CLAUDE.md",
     "AGENTS.md",
@@ -499,24 +544,6 @@ POLICY_EOF
     ".ai/harness/policy.json"
   ],
   "discoverable_contexts": [
-    {
-      "path": "apps/*/AGENTS.md",
-      "priority": "high",
-      "char_budget": 1200,
-      "purpose": "subdir-contract"
-    },
-    {
-      "path": "packages/*/AGENTS.md",
-      "priority": "medium",
-      "char_budget": 1000,
-      "purpose": "package-contract"
-    },
-    {
-      "path": "services/*/AGENTS.md",
-      "priority": "medium",
-      "char_budget": 1000,
-      "purpose": "service-contract"
-    },
     {
       "path": "docs/reference-configs/*.md",
       "priority": "low",

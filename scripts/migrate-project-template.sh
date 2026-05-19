@@ -513,11 +513,11 @@ install_reference_configs() {
   run_or_echo "mkdir -p \"$ref_dir\""
 
   if [[ -d "$ref_assets_dir" ]]; then
-    while IFS= read -r ref_file; do
-      local file_name
-      file_name="$(basename "$ref_file")"
-      run_or_echo "cp \"$ref_file\" \"$ref_dir/$file_name\""
-    done < <(find "$ref_assets_dir" -maxdepth 1 -type f -name '*.md' | sort)
+    if [[ "$MODE" == "apply" ]]; then
+      pi_install_reference_configs "$repo" "$ref_assets_dir" "apply"
+    else
+      pi_install_reference_configs "$repo" "$ref_assets_dir" "dry-run"
+    fi
   fi
 }
 
@@ -740,17 +740,6 @@ migrate_workflow() {
   ensure_gitignore_entry "$repo_gitignore" ".DS_Store"
   ensure_runtime_gitignore_block "$repo_gitignore"
 
-  local ref_assets_dir="$SKILL_ROOT/assets/reference-configs"
-  local spa_protocol_repo="$repo/docs/reference-configs/spa-day-protocol.md"
-  if [[ -d "$ref_assets_dir" ]]; then
-    run_or_echo "cp \"$ref_assets_dir\"/*.md \"$repo/docs/reference-configs/\""
-  elif [[ "$MODE" == "apply" && ! -f "$spa_protocol_repo" ]]; then
-    cat > "$spa_protocol_repo" <<'SPA_DAY_EOF'
-# Spa Day Protocol
-
-Periodic cleanup protocol to reduce context bloat and rule conflicts.
-SPA_DAY_EOF
-  fi
 }
 
 verify_migration_contract() {

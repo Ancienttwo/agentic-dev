@@ -258,6 +258,10 @@ PI_STATE_PROFILE_DEFAULT="file-backed"
 PI_ORCHESTRATION_PROFILE_DEFAULT="shared-long-running-harness"
 PI_EVALUATION_PROFILE_DEFAULT="browser-qa"
 PI_HANDOFF_PROFILE_DEFAULT="artifact-aware"
+PI_DOCUMENTATION_PROFILE_DEFAULT="minimal-agentic"
+PI_DEFAULT_LSP_PROFILE="typescript-lsp"
+PI_MINIMAL_REFERENCE_CONFIGS="harness-overview.md agentic-development-flow.md external-tooling.md sprint-contracts.md handoff-protocol.md document-generation.md"
+PI_FULL_REFERENCE_CONFIGS="agentic-development-flow.md ai-workflows.md changelog-versioning.md coding-standards.md development-protocol.md document-generation.md evaluator-rubric.md external-tooling.md git-strategy.md handoff-protocol.md harness-overview.md hook-operations.md release-deploy.md spa-day-protocol.md sprint-contracts.md workflow-orchestration.md"
 
 pi_write_file_if_apply() {
   local mode="${1:-apply}"
@@ -506,7 +510,7 @@ pi_install_helpers() {
   local target_dir="$1"
   local helpers_dir="$2"
   local mode="${3:-apply}"
-  local helper_names="${4:-new-plan.sh plan-to-todo.sh archive-workflow.sh prepare-handoff.sh verify-contract.sh summarize-failures.sh check-task-sync.sh check-agent-tooling.sh ensure-task-workflow.sh check-task-workflow.sh context-budget.ts prepare-codex-handoff.sh codex-handoff-resume.sh}"
+  local helper_names="${4:-new-plan.sh plan-to-todo.sh archive-workflow.sh prepare-handoff.sh verify-contract.sh summarize-failures.sh check-task-sync.sh check-agent-tooling.sh check-context-files.sh select-agent-context-blocks.sh ensure-task-workflow.sh check-task-workflow.sh context-budget.ts prepare-codex-handoff.sh codex-handoff-resume.sh}"
   local scripts_dir="$target_dir/scripts"
   local helper_name
 
@@ -523,7 +527,7 @@ pi_install_helpers() {
         cp "$helpers_dir/$helper_name" "$scripts_dir/$helper_name"
       fi
     done
-    pi_ensure_executable_if_apply "$mode" "$scripts_dir"/new-spec.sh "$scripts_dir"/new-sprint.sh "$scripts_dir"/new-plan.sh "$scripts_dir"/plan-to-todo.sh "$scripts_dir"/archive-workflow.sh "$scripts_dir"/prepare-handoff.sh "$scripts_dir"/prepare-codex-handoff.sh "$scripts_dir"/codex-handoff-resume.sh "$scripts_dir"/verify-contract.sh "$scripts_dir"/summarize-failures.sh "$scripts_dir"/verify-sprint.sh "$scripts_dir"/check-task-sync.sh "$scripts_dir"/check-agent-tooling.sh "$scripts_dir"/ensure-task-workflow.sh "$scripts_dir"/check-task-workflow.sh "$scripts_dir"/switch-plan.sh
+    pi_ensure_executable_if_apply "$mode" "$scripts_dir"/new-spec.sh "$scripts_dir"/new-sprint.sh "$scripts_dir"/new-plan.sh "$scripts_dir"/plan-to-todo.sh "$scripts_dir"/archive-workflow.sh "$scripts_dir"/prepare-handoff.sh "$scripts_dir"/prepare-codex-handoff.sh "$scripts_dir"/codex-handoff-resume.sh "$scripts_dir"/verify-contract.sh "$scripts_dir"/summarize-failures.sh "$scripts_dir"/verify-sprint.sh "$scripts_dir"/check-task-sync.sh "$scripts_dir"/check-agent-tooling.sh "$scripts_dir"/check-context-files.sh "$scripts_dir"/select-agent-context-blocks.sh "$scripts_dir"/ensure-task-workflow.sh "$scripts_dir"/check-task-workflow.sh "$scripts_dir"/switch-plan.sh
     return 0
   fi
 
@@ -560,6 +564,25 @@ pi_evaluation_profile() {
 
 pi_handoff_profile() {
   printf '%s' "${PROJECT_INITIALIZER_HANDOFF_PROFILE:-$PI_HANDOFF_PROFILE_DEFAULT}"
+}
+
+pi_documentation_profile() {
+  printf '%s' "${PROJECT_INITIALIZER_DOCUMENTATION_PROFILE:-$PI_DOCUMENTATION_PROFILE_DEFAULT}"
+}
+
+pi_lsp_profile() {
+  printf '%s' "${PROJECT_INITIALIZER_LSP_PROFILE:-$PI_DEFAULT_LSP_PROFILE}"
+}
+
+pi_should_generate_full_docs() {
+  case "$(pi_documentation_profile)" in
+    full|full-docs|legacy-full)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
 }
 
 pi_external_tooling_hosts_json() {
@@ -616,7 +639,12 @@ pi_print_external_tooling_report() {
     return 0
   fi
 
-  if output="$(cd "$repo_dir" && bash "$detector" --host both --check-updates 2>&1)"; then
+  local detector_args=(--host both)
+  if [[ "${PROJECT_INITIALIZER_CHECK_TOOLING_UPDATES:-0}" == "1" ]]; then
+    detector_args+=(--check-updates)
+  fi
+
+  if output="$(cd "$repo_dir" && bash "$detector" "${detector_args[@]}" 2>&1)"; then
     if [[ "$mode" == "apply" ]]; then
       echo "- Advisory report:"
     else
@@ -630,17 +658,180 @@ pi_print_external_tooling_report() {
   printf '%s\n' "$output" | sed 's/^/  /'
 }
 
+pi_reference_config_names() {
+  local ref_assets_dir="$1"
+  local name
+
+  if pi_should_generate_full_docs; then
+    find "$ref_assets_dir" -maxdepth 1 -type f -name '*.md' -print 2>/dev/null | sort | while IFS= read -r ref_file; do
+      basename "$ref_file"
+    done
+    return 0
+  fi
+
+  for name in $PI_MINIMAL_REFERENCE_CONFIGS; do
+    [[ -f "$ref_assets_dir/$name" ]] || continue
+    printf '%s\n' "$name"
+  done
+}
+
+pi_install_reference_configs() {
+  local target_dir="$1"
+  local ref_assets_dir="$2"
+  local mode="${3:-apply}"
+  local ref_dir="$target_dir/docs/reference-configs"
+  local name
+
+  if [[ "$mode" != "apply" ]]; then
+    echo "[dry-run] install $(pi_documentation_profile) reference configs into $ref_dir"
+    return 0
+  fi
+
+  mkdir -p "$ref_dir"
+  if [[ ! -d "$ref_assets_dir" ]]; then
+    return 0
+  fi
+
+  while IFS= read -r name; do
+    [[ -n "$name" ]] || continue
+    cp "$ref_assets_dir/$name" "$ref_dir/$name"
+  done < <(pi_reference_config_names "$ref_assets_dir")
+}
+
+pi_policy_reference_config_names() {
+  if pi_should_generate_full_docs; then
+    printf '%s\n' $PI_FULL_REFERENCE_CONFIGS
+    return 0
+  fi
+
+  printf '%s\n' $PI_MINIMAL_REFERENCE_CONFIGS
+}
+
+pi_json_string_array_from_lines() {
+  local first=1
+  local item
+
+  while IFS= read -r item; do
+    [[ -n "$item" ]] || continue
+    if [[ "$first" -eq 0 ]]; then
+      printf ', '
+    fi
+    first=0
+    printf '"%s"' "$item"
+  done
+}
+
+pi_context_block_config_file() {
+  local target_dir="$1"
+  printf '%s' "${PROJECT_INITIALIZER_CONTEXT_BLOCKS_FILE:-$target_dir/.ai/context/agent-context-blocks.txt}"
+}
+
+pi_context_block_candidates() {
+  local target_dir="$1"
+  local selector
+  local config_file
+
+  if [[ -n "${PROJECT_INITIALIZER_CONTEXT_BLOCKS:-}" ]]; then
+    printf '%s\n' "$PROJECT_INITIALIZER_CONTEXT_BLOCKS" | tr ',:' '\n'
+    return 0
+  fi
+
+  selector="${PROJECT_INITIALIZER_CONTEXT_BLOCK_SELECTOR:-}"
+  if [[ -z "$selector" && -x "$target_dir/scripts/select-agent-context-blocks.sh" ]]; then
+    selector="$target_dir/scripts/select-agent-context-blocks.sh"
+  fi
+
+  if [[ -n "$selector" && -x "$selector" ]]; then
+    (cd "$target_dir" && "$selector" "$target_dir")
+    return 0
+  fi
+
+  config_file="$(pi_context_block_config_file "$target_dir")"
+  if [[ -f "$config_file" ]]; then
+    sed -e 's/#.*$//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$config_file" | sed '/^$/d'
+    return 0
+  fi
+
+  find "$target_dir" \
+    \( -path "$target_dir/.git" -o -path "$target_dir/node_modules" -o -path "$target_dir/.ai" -o -path "$target_dir/.claude" \) -prune -o \
+    \( -type f \( -name 'CLAUDE.md' -o -name 'AGENTS.md' \) \) -print 2>/dev/null | while IFS= read -r context_file; do
+      local context_dir
+      local rel_dir
+      context_dir="$(dirname "$context_file")"
+      rel_dir="${context_dir#$target_dir/}"
+      [[ "$rel_dir" == "$context_dir" || "$rel_dir" == "." ]] && continue
+      printf '%s\n' "$rel_dir"
+    done
+}
+
+pi_context_block_dirs() {
+  local target_dir="$1"
+  local raw_path
+  local rel_path
+
+  pi_context_block_candidates "$target_dir" | while IFS= read -r raw_path; do
+    rel_path="$(printf '%s' "$raw_path" | sed -e 's/#.*$//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    rel_path="${rel_path#./}"
+    rel_path="${rel_path%/}"
+    [[ -z "$rel_path" || "$rel_path" == "." ]] && continue
+    case "$rel_path" in
+      /*|../*|*/../*|*\"*)
+        continue
+        ;;
+    esac
+    [[ -d "$target_dir/$rel_path" ]] || continue
+    printf '%s\n' "$rel_path"
+  done | sort -u
+}
+
 pi_should_generate_directory_context() {
   local target_dir="$1"
-  local dir
+  [[ -n "$(pi_context_block_dirs "$target_dir" | head -n 1)" ]]
+}
 
-  for dir in apps packages services; do
-    if [[ -d "$target_dir/$dir" ]] && find "$target_dir/$dir" -mindepth 1 -maxdepth 1 -type d -print -quit 2>/dev/null | grep -q .; then
-      return 0
-    fi
-  done
+pi_context_map_discoverable_entries() {
+  local target_dir="$1"
+  local first_entry=1
+  local rel_dir
+  local file_name
+  local target_agent
 
-  return 1
+  while IFS= read -r rel_dir; do
+    [[ -n "$rel_dir" ]] || continue
+    for file_name in CLAUDE.md AGENTS.md; do
+      if [[ "$first_entry" -eq 0 ]]; then
+        printf ',\n'
+      fi
+      first_entry=0
+      target_agent="codex"
+      [[ "$file_name" == "CLAUDE.md" ]] && target_agent="claude"
+      cat <<EOF_CONTEXT_ENTRY
+    {
+      "path": "$rel_dir/$file_name",
+      "priority": "high",
+      "char_budget": 1000,
+      "purpose": "functional-block-contract",
+      "target_agent": "$target_agent",
+      "lsp_profile": "$(pi_lsp_profile)",
+      "doc_scope": "local-contract",
+      "verification_hint": "record local commands here before implementation"
+    }
+EOF_CONTEXT_ENTRY
+    done
+  done < <(pi_context_block_dirs "$target_dir")
+
+  if [[ "$first_entry" -eq 0 ]]; then
+    printf ',\n'
+  fi
+
+  cat <<'EOF_CONTEXT_ENTRY'
+    {
+      "path": "docs/reference-configs/*.md",
+      "priority": "low",
+      "char_budget": 900,
+      "purpose": "deep-doc"
+    }
+EOF_CONTEXT_ENTRY
 }
 
 pi_write_harness_policy() {
@@ -681,7 +872,13 @@ pi_write_harness_policy() {
   },
   "context": {
     "profile": "$(pi_context_profile)",
-    "map_file": ".ai/context/context-map.json"
+    "map_file": ".ai/context/context-map.json",
+    "functional_block_selector": {
+      "script": "scripts/select-agent-context-blocks.sh",
+      "config_file": ".ai/context/agent-context-blocks.txt",
+      "env": "PROJECT_INITIALIZER_CONTEXT_BLOCKS",
+      "rule": "explicit functional blocks only; do not infer from apps/packages/services globs"
+    }
   },
   "harness": {
     "policy_file": ".ai/harness/policy.json",
@@ -719,6 +916,35 @@ pi_write_harness_policy() {
     "output_file": "tasks/research.md",
     "preferred_runners": ["subagent", "codex exec --json"],
     "main_thread_policy": "consume conclusions and evidence paths, not raw logs"
+  },
+  "documentation": {
+    "profile": "$(pi_documentation_profile)",
+    "required": ["docs/spec.md", "docs/PROGRESS.md"],
+    "on_demand": ["docs/brief.md", "docs/tech-stack.md", "docs/decisions.md", "docs/architecture.md", "docs/packages.md"],
+    "reference_configs": [$(pi_policy_reference_config_names | pi_json_string_array_from_lines)],
+    "rule": "create optional docs only when the agent has concrete repo evidence or the user asks"
+  },
+  "lsp_profiles": {
+    "default": "$(pi_lsp_profile)",
+    "selection": "functional-block-first",
+    "rule": "use block-level LSP/tooling hints before broad repo assumptions"
+  },
+  "worktree_strategy": {
+    "auto_on_conflict": true,
+    "branch_prefix": "codex/",
+    "base_branch": "main",
+    "conflict_signals": [
+      "dirty_worktree_overlaps_task_files",
+      "current_branch_not_suitable_for_task",
+      "existing_changes_unrelated_but_would_block_review",
+      "task_requires_clean_validation_surface"
+    ],
+    "validation_route": "waza:check",
+    "merge_back": {
+      "target": "main",
+      "requires_clean_check": true,
+      "preserve_unrelated_changes": true
+    }
   },
   "profiles": {
     "orchestration": "$(pi_orchestration_profile)",
@@ -790,34 +1016,7 @@ pi_write_context_map() {
   local output_file="$target_dir/.ai/context/context-map.json"
   local discoverable_entries
 
-  discoverable_entries=$(
-    cat <<'EOF_DISCOVERABLE'
-    {
-      "path": "apps/*/AGENTS.md",
-      "priority": "high",
-      "char_budget": 1200,
-      "purpose": "subdir-contract"
-    },
-    {
-      "path": "packages/*/AGENTS.md",
-      "priority": "medium",
-      "char_budget": 1000,
-      "purpose": "package-contract"
-    },
-    {
-      "path": "services/*/AGENTS.md",
-      "priority": "medium",
-      "char_budget": 1000,
-      "purpose": "service-contract"
-    },
-    {
-      "path": "docs/reference-configs/*.md",
-      "priority": "low",
-      "char_budget": 900,
-      "purpose": "deep-doc"
-    }
-EOF_DISCOVERABLE
-  )
+  discoverable_entries="$(pi_context_map_discoverable_entries "$target_dir")"
 
   if [[ "$mode" != "apply" ]]; then
     echo "[dry-run] write $output_file"
@@ -829,6 +1028,16 @@ EOF_DISCOVERABLE
 {
   "version": 1,
   "profile": "$(pi_context_profile)",
+  "functional_block_selector": {
+    "script": "scripts/select-agent-context-blocks.sh",
+    "config_file": ".ai/context/agent-context-blocks.txt",
+    "env": "PROJECT_INITIALIZER_CONTEXT_BLOCKS",
+    "rule": "explicit functional blocks only; do not infer from apps/packages/services globs"
+  },
+  "lsp_profiles": {
+    "default": "$(pi_lsp_profile)",
+    "selection": "functional-block-first"
+  },
   "root_context_files": [
     "CLAUDE.md",
     "AGENTS.md",
@@ -852,42 +1061,53 @@ pi_install_directory_context_files() {
   local target_dir="$1"
   local mode="${2:-apply}"
   local directory_agents_content
-  local dir
+  local selected_dirs
+  local rel_dir
   local module_dir
 
-  if ! pi_should_generate_directory_context "$target_dir"; then
+  selected_dirs="$(pi_context_block_dirs "$target_dir")"
+  if [[ -z "$selected_dirs" ]]; then
     return 0
   fi
 
   if [[ "$mode" != "apply" ]]; then
-    echo "[dry-run] install nested AGENTS.md files in $target_dir"
+    echo "[dry-run] install selected CLAUDE.md/AGENTS.md files in $target_dir"
     return 0
   fi
 
   directory_agents_content=$(cat <<'EOF_DIRECTORY_AGENTS'
-# Directory AGENTS.md
+# Functional Block Agent Context
 
-Keep this file focused on the local module contract for this subtree.
+Keep this file focused on the local contract for this primary functional block.
 
 ## Local Context Contract
 
-- Describe only the ownership, boundaries, and stable entrypoints for this subtree.
-- Route deep implementation detail into nearby docs instead of inflating the root AGENTS.md.
+- Describe only the ownership, boundaries, stable entrypoints, and local verification commands for this functional block.
+- Keep sibling `CLAUDE.md` and `AGENTS.md` files aligned. Claude Code consumes `CLAUDE.md`; Codex consumes `AGENTS.md`.
+- Record the local LSP/tooling profile here when it differs from the repo default.
+- Route deep implementation detail into nearby docs instead of inflating root agent context files.
 - Treat `.ai/context/context-map.json` as the index of discoverable context files.
+- Do not keep pushing context files deeper by default; add lower-level files only for a separately owned functional block with its own commands and invariants.
 - Prefer repo-local workflow artifacts over tool-specific chat memory.
 EOF_DIRECTORY_AGENTS
 )
 
-  for dir in apps packages services; do
-    [[ -d "$target_dir/$dir" ]] || continue
-
-    while IFS= read -r module_dir; do
-      [[ -n "$module_dir" ]] || continue
+  while IFS= read -r rel_dir; do
+    [[ -n "$rel_dir" ]] || continue
+    module_dir="$target_dir/$rel_dir"
+    if [[ -f "$module_dir/AGENTS.md" && ! -f "$module_dir/CLAUDE.md" ]]; then
+      cp "$module_dir/AGENTS.md" "$module_dir/CLAUDE.md"
+    elif [[ -f "$module_dir/CLAUDE.md" && ! -f "$module_dir/AGENTS.md" ]]; then
+      cp "$module_dir/CLAUDE.md" "$module_dir/AGENTS.md"
+    else
+      if [[ ! -f "$module_dir/CLAUDE.md" ]]; then
+        printf '%s\n' "$directory_agents_content" > "$module_dir/CLAUDE.md"
+      fi
       if [[ ! -f "$module_dir/AGENTS.md" ]]; then
         printf '%s\n' "$directory_agents_content" > "$module_dir/AGENTS.md"
       fi
-    done < <(find "$target_dir/$dir" -mindepth 1 -maxdepth 1 -type d | sort)
-  done
+    fi
+  done <<< "$selected_dirs"
 }
 
 pi_ensure_harness_state_surface() {

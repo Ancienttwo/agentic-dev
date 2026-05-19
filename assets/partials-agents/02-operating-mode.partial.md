@@ -31,5 +31,6 @@
 - Advisory environment check: `bash scripts/check-agent-tooling.sh --host both --check-updates`.
 - After substantive repo changes, run `bash scripts/check-task-sync.sh` and `bash scripts/check-task-workflow.sh --strict`.
 - Primary worktree warns by default; enforce via `.claude/.require-worktree`.
+- If repo state conflicts with the task, use an isolated `codex/<task-slug>` worktree, validate with Waza `/check`, and merge back to `main` without unrelated dirty changes.
 
 ---

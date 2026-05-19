@@ -53,8 +53,8 @@
 - Generated helper installation lists are duplicated across `project-init-lib.sh`, `create-project-dirs.sh`, and `migrate-project-template.sh`, so new helper scripts must be wired in at multiple layers.
 - `summarize-failures.sh` is Bun-first for repo consistency, but it now needs an explicit Node fallback because generated repos may not have Bun on PATH.
 - Hook failures write to `.ai/harness/failures/latest.jsonl`, while `.claude/.trace.jsonl` captures surrounding tool activity. They complement each other; neither replaces the other.
-- The progressive-loading contract only works when directory AGENTS files land on immediate module paths like `apps/web/AGENTS.md`; writing to `apps/AGENTS.md` or other container roots is effectively invisible to the context map.
-- Custom plan `K` must stay layout-agnostic; nested context files should only appear when the target repo already has real `apps/*`, `packages/*`, or `services/*` modules.
+- The progressive-loading contract should not infer functional boundaries from physical layout globs like `apps/*`, `packages/*`, or `services/*`; those directories can be too broad in large repos.
+- Functional-block context files are selected by `scripts/select-agent-context-blocks.sh`, `PROJECT_INITIALIZER_CONTEXT_BLOCKS`, `.ai/context/agent-context-blocks.txt`, or pre-existing nested `CLAUDE.md`/`AGENTS.md` files.
 - Once helper installation moves behind `assets/workflow-contract.v1.json`, regression tests should assert helper presence via the manifest instead of string-matching explicit shell argument lists.
 - `SessionStart` context injection should only emit a real generated resume packet containing `## Resume Prompt`; a bootstrap placeholder must stay silent to avoid context pollution.
 - `workflow_write_handoff()` runs under `set -euo pipefail` via `prepare-handoff.sh`, so optional grep-based event extraction must tolerate no-match pipelines.
@@ -81,7 +81,7 @@
 - The shared hook model where `.claude/settings.json` invokes `.ai/hooks/run-hook.sh`.
 - Clean repo-local defaults: generate `.ai/hooks/` only, and reserve `.claude/*` for adapter config plus explicit user-owned overrides.
 - The current multi-file control surface (`plans/`, `tasks/`, `tasks/contracts/`, `tasks/reviews/`, `.ai/harness/*`) instead of collapsing into a single charter artifact.
-- The new split between stable root context and discoverable nested context, because it keeps root prompt mass predictable while still letting deeper modules speak for themselves.
+- The split between stable root context and explicitly selected functional-block context, because it keeps root prompt mass predictable while still letting real ownership blocks speak for themselves.
 
 ### What to Change
 - Keep helper installation, workflow verification, and migration rules anchored to `assets/workflow-contract.v1.json` and `.ai/harness/policy.json`.
@@ -134,3 +134,17 @@
 ### What to Preserve
 - Keep `docs/reference-configs/agentic-development-flow.md` as the detailed routing contract so root `AGENTS.md` and `CLAUDE.md` stay concise.
 - Keep host install/update detection in `external_tooling`; keep task routing in `agentic_development`.
+
+## 2026-05-19 Minimal Docs, LSP Profiles, and Worktree Policy Notes
+
+### What Changed
+- Default scaffolding now uses `minimal-agentic` documentation: `docs/spec.md`, `docs/PROGRESS.md`, `tasks/`, `.ai/harness/`, and a small reference-config set are required; `docs/brief.md`, `docs/tech-stack.md`, `docs/decisions.md`, `docs/architecture/`, `docs/api/`, `docs/guides/`, `docs/archives/`, and the full reference-config corpus require `PROJECT_INITIALIZER_DOCUMENTATION_PROFILE=full`.
+- `docs/reference-configs/document-generation.md` is the reference for the new document boundary: generate the smallest skeleton, let the Agent decide when a domain doc is warranted, and keep generated placeholders out of default repos.
+- `lsp_profiles` became explicit policy/context metadata. The root default is `typescript-lsp`; selected functional-block context entries can carry `lsp_profile`, `doc_scope`, and `verification_hint` without expanding root context.
+- `worktree_strategy` became explicit policy. If the current repo state conflicts with the task, the agent should open an isolated `codex/<task-slug>` worktree, complete there, run Waza `/check`-style validation, and only merge back to `main` after checks pass.
+- Init/migration external-tooling reports now skip update checks unless `PROJECT_INITIALIZER_CHECK_TOOLING_UPDATES=1`; update checks remain available but should be an explicit advisory action, not part of every scaffold/migration verification path.
+
+### What to Preserve
+- Keep `assets/workflow-contract.v1.json` and `.ai/harness/workflow-contract.json` in sync whenever required files change.
+- Keep reference-config installation profile-driven through `pi_install_reference_configs`; do not reintroduce unconditional `cp "$ASSETS_REF_DIR"/*.md`.
+- Keep functional-block context selection explicit. Physical layout globs are hints only after a repo declares selected blocks.

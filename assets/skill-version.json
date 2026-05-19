@@ -1,6 +1,6 @@
 {
-  "version": "3.5.0",
-  "templateVersion": "3.5.0",
+  "version": "3.6.0",
+  "templateVersion": "3.6.0",
   "compatibility": {
     "minClaudeCodeVersion": "1.0.0",
     "minBunVersion": "1.0.0"
@@ -44,7 +44,11 @@
     },
     {
       "version": "3.5.0",
-      "description": "Added agentic development routing for gstack and Waza, removed repo-local Claude hook shim generation, and hardened workflow migration checks"
+      "description": "Added agentic development routing, selector-hooked functional-block CLAUDE/AGENTS context generation, removed repo-local Claude hook shims, and hardened workflow migration checks"
+    },
+    {
+      "version": "3.6.0",
+      "description": "Added minimal-agentic documentation generation, functional-block LSP profile metadata, and conflict-triggered Codex worktree validation policy"
     }
   ],
   "generatedProjectStamp": {

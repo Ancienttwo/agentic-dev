@@ -1,6 +1,16 @@
 {
   "version": 1,
   "profile": "stable-root-progressive-subdir",
+  "functional_block_selector": {
+    "script": "scripts/select-agent-context-blocks.sh",
+    "config_file": ".ai/context/agent-context-blocks.txt",
+    "env": "PROJECT_INITIALIZER_CONTEXT_BLOCKS",
+    "rule": "explicit functional blocks only; do not infer from apps/packages/services globs"
+  },
+  "lsp_profiles": {
+    "default": "typescript-lsp",
+    "selection": "functional-block-first"
+  },
   "root_context_files": [
     "CLAUDE.md",
     "AGENTS.md",
@@ -10,24 +20,6 @@
     ".ai/harness/policy.json"
   ],
   "discoverable_contexts": [
-    {
-      "path": "apps/*/AGENTS.md",
-      "priority": "high",
-      "char_budget": 1200,
-      "purpose": "subdir-contract"
-    },
-    {
-      "path": "packages/*/AGENTS.md",
-      "priority": "medium",
-      "char_budget": 1000,
-      "purpose": "package-contract"
-    },
-    {
-      "path": "services/*/AGENTS.md",
-      "priority": "medium",
-      "char_budget": 1000,
-      "purpose": "service-contract"
-    },
     {
       "path": "docs/reference-configs/*.md",
       "priority": "low",

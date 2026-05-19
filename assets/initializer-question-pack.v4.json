@@ -71,7 +71,17 @@
       "batch": 3,
       "questions": [
         "Choose context profile: stable-root + progressive-subdir (default) or flat-root",
-        "Confirm whether directory-level AGENTS.md files should be generated for multi-module repos"
+        "Confirm whether paired CLAUDE.md and AGENTS.md files should be generated only for primary functional blocks in multi-module repos"
+      ],
+      "required": false
+    },
+    {
+      "id": "documentation_profile",
+      "title": "Documentation Profile",
+      "batch": 3,
+      "questions": [
+        "Use minimal-agentic docs by default",
+        "Generate optional product, stack, decision, architecture, and package docs only when evidence exists"
       ],
       "required": false
     },
@@ -156,7 +166,8 @@
     "handoffProfile": "artifact-aware",
     "recoveryProfile": "hybrid",
     "stateProfile": "file-backed",
-    "contextProfile": "stable-root-progressive-subdir"
+    "contextProfile": "stable-root-progressive-subdir",
+    "documentationProfile": "minimal-agentic"
   },
   "runtimeProfiles": {
     "permissionless": {
@@ -232,11 +243,11 @@
   "contextProfiles": {
     "stable-root-progressive-subdir": {
       "label": "Stable root + progressive subdir",
-      "description": "Keep the root contract small and expose subdirectory AGENTS.md files through a context map."
+      "description": "Keep the root contract small and expose paired CLAUDE.md and AGENTS.md files for primary functional blocks through a context map."
     },
     "flat-root": {
       "label": "Flat root",
-      "description": "Keep a single root context surface for smaller repos that do not need nested context files."
+      "description": "Keep a single root context surface for smaller repos that do not need functional-block context files."
     }
   }
 }

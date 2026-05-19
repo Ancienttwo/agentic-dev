@@ -85,6 +85,7 @@ describe("Bootstrap Script Contracts", () => {
     expect(contract.helpers.scripts).toContain("codex-handoff-resume.sh");
     expect(contract.helpers.scripts).toContain("check-agent-tooling.sh");
     expect(contract.helpers.scripts).toContain("check-context-files.sh");
+    expect(contract.helpers.scripts).toContain("select-agent-context-blocks.sh");
     expect(sharedLib).toContain("ensure-task-workflow.sh");
     expect(sharedLib).toContain("check-task-workflow.sh");
     expect(sharedLib).not.toContain("skill-factory-create.sh");
@@ -93,7 +94,8 @@ describe("Bootstrap Script Contracts", () => {
     expect(sharedLib).toContain("check:task-sync");
     expect(sharedLib).toContain("check:task-workflow");
     expect(sharedLib).toContain("contract.template.md");
-    expect(content).toContain("spa-day-protocol.md");
+    expect(content).toContain("pi_install_reference_configs");
+    expect(contract.artifacts.requiredFiles).toContain("docs/reference-configs/document-generation.md");
     expect(content).toContain("install_workflow_contract");
     expect(content).toContain('cp "$ASSETS_HOOKS_DIR/settings.template.json" .claude/settings.json');
     expect(content).toContain("mkdir -p .ai/hooks");
@@ -151,6 +153,7 @@ describe("Bootstrap Script Contracts", () => {
     expect(contract.helpers.scripts).toContain("codex-handoff-resume.sh");
     expect(contract.helpers.scripts).toContain("check-agent-tooling.sh");
     expect(contract.helpers.scripts).toContain("check-context-files.sh");
+    expect(contract.helpers.scripts).toContain("select-agent-context-blocks.sh");
     expect(contract.artifacts.requiredFiles).toContain("docs/reference-configs/agentic-development-flow.md");
     expect(contract.agenticDevelopment.routing.postImplementationReview).toBe("waza:check");
     expect(content).not.toContain("pi_install_skill_factory");
@@ -159,7 +162,8 @@ describe("Bootstrap Script Contracts", () => {
     expect(sharedLib).toContain("pi_workflow_contract_query_lines");
     expect(sharedLib).toContain("check:task-sync");
     expect(sharedLib).toContain("check:task-workflow");
-    expect(content).toContain("spa-day-protocol.md");
+    expect(content).toContain("pi_install_reference_configs");
+    expect(contract.artifacts.requiredFiles).toContain("docs/reference-configs/document-generation.md");
     expect(content).toContain('cp "$ASSETS_HOOKS_DIR/settings.template.json" .claude/settings.json');
     expect(content).toContain("settings.template.json");
     expect(content).toContain("mkdir -p .ai/hooks");
@@ -176,7 +180,8 @@ describe("Bootstrap Script Contracts", () => {
     expect(content).toContain("install_hook_settings_template");
     expect(content).not.toContain("\"$TOOL_INPUT\"");
     expect(content).not.toContain("\"$PROMPT\"");
-    expect(content).toContain("cp \"$ASSETS_REF_DIR\"/*.md docs/reference-configs/");
+    expect(content).toContain("pi_install_reference_configs");
+    expect(content).not.toContain("cp \"$ASSETS_REF_DIR\"/*.md docs/reference-configs/");
     expect(content).toContain("pi_print_external_tooling_report");
   });
 

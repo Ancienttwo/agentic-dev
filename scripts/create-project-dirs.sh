@@ -81,11 +81,13 @@ mkdir -p tests/e2e
 mkdir -p src/modules
 
 # ===== SUPPORTING (支撑层) =====
-mkdir -p docs/architecture
-mkdir -p docs/api
-mkdir -p docs/guides
-mkdir -p docs/archives
 mkdir -p docs/reference-configs
+if pi_should_generate_full_docs; then
+  mkdir -p docs/architecture
+  mkdir -p docs/api
+  mkdir -p docs/guides
+  mkdir -p docs/archives
+fi
 mkdir -p scripts
 mkdir -p .ai/hooks
 mkdir -p .ai/context
@@ -101,19 +103,11 @@ create_contract_directories
 
 # ===== Initial Files =====
 touch docs/CHANGELOG.md
-touch docs/brief.md
-touch docs/tech-stack.md
-touch docs/decisions.md
-
-touch docs/reference-configs/changelog-versioning.md
-touch docs/reference-configs/agentic-development-flow.md
-touch docs/reference-configs/git-strategy.md
-touch docs/reference-configs/release-deploy.md
-touch docs/reference-configs/ai-workflows.md
-touch docs/reference-configs/coding-standards.md
-touch docs/reference-configs/development-protocol.md
-touch docs/reference-configs/external-tooling.md
-touch docs/reference-configs/workflow-orchestration.md
+if pi_should_generate_full_docs; then
+  touch docs/brief.md
+  touch docs/tech-stack.md
+  touch docs/decisions.md
+fi
 
 cat > docs/PROGRESS.md << 'PROGRESS_EOF'
 # Project Milestones
@@ -274,67 +268,19 @@ bun test --watch      # Watch mode
 TESTS_README_EOF
 
 if [[ -d "$ASSETS_REF_DIR" ]]; then
-  cp "$ASSETS_REF_DIR"/*.md docs/reference-configs/
+  pi_install_reference_configs "$PWD" "$ASSETS_REF_DIR" "apply"
 else
-  cat > docs/reference-configs/changelog-versioning.md << 'REF_CHANGELOG_EOF'
-# Changelog & Versioning Reference
-
-Use this file for detailed release-note and semantic-versioning rules.
-REF_CHANGELOG_EOF
-
   cat > docs/reference-configs/agentic-development-flow.md << 'REF_AGENTIC_FLOW_EOF'
 # Agentic Development Flow
 
 Use this file for gstack/Waza routing, P1/P2/P3 reporting triggers, and daily agentic development flow.
 REF_AGENTIC_FLOW_EOF
 
-  cat > docs/reference-configs/git-strategy.md << 'REF_GIT_EOF'
-# Git Strategy Reference
-
-Use this file for branch model and commit convention details.
-REF_GIT_EOF
-
-  cat > docs/reference-configs/release-deploy.md << 'REF_RELEASE_EOF'
-# Release & Deployment Reference
-
-Use this file for release pipeline and deployment trigger details.
-REF_RELEASE_EOF
-
-  cat > docs/reference-configs/ai-workflows.md << 'REF_AIWF_EOF'
-# AI Workflows Reference
-
-Use this file for extended AI workflow templates, tasks-first session handoff, and milestone-only progress guidance.
-REF_AIWF_EOF
-
-  cat > docs/reference-configs/coding-standards.md << 'REF_CODING_STANDARDS_EOF'
-# Coding Standards Reference
-
-Use this file for detailed coding constraints and refactor thresholds.
-REF_CODING_STANDARDS_EOF
-
-  cat > docs/reference-configs/development-protocol.md << 'REF_DEV_PROTOCOL_EOF'
-# Development Protocol Reference
-
-Use this file for detailed feature/bug flow playbooks, repo-local task sync rules, and final response requirements.
-REF_DEV_PROTOCOL_EOF
-
   cat > docs/reference-configs/external-tooling.md << 'REF_EXTERNAL_TOOLING_EOF'
 # External Tooling Reference
 
 Use this file for external tool routing, install commands, update commands, and gbrain MCP guidance.
 REF_EXTERNAL_TOOLING_EOF
-
-  cat > docs/reference-configs/workflow-orchestration.md << 'REF_WORKFLOW_ORCH_EOF'
-# Workflow Orchestration Reference
-
-Use this file for advanced plan/execution orchestration patterns.
-REF_WORKFLOW_ORCH_EOF
-
-  cat > docs/reference-configs/spa-day-protocol.md << 'SPA_DAY_EOF'
-# Spa Day Protocol
-
-Periodic cleanup protocol to reduce context bloat and rule conflicts.
-SPA_DAY_EOF
 fi
 
 cat > scripts/regenerate.sh << 'REGENERATE_EOF'

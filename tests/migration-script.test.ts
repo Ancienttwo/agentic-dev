@@ -81,7 +81,8 @@ describe("Migration script contract", () => {
     expect(sharedLib).toContain("check:task-sync");
     expect(sharedLib).toContain("check:task-workflow");
     expect(script).toContain("tasks/contracts");
-    expect(script).toContain("spa-day-protocol.md");
+    expect(script).toContain("pi_install_reference_configs");
+    expect(workflowContract).toContain("document-generation.md");
     expect(sharedLib).toContain("claude-runtime-temp");
     expect(script).toContain("docs/reference-configs");
     expect(script).toContain("Existing external_tooling overrides are preserved");
@@ -189,14 +190,15 @@ describe("Migration script contract", () => {
       expect(existsSync(join(repo, "tasks/todo.md"))).toBe(true);
       expect(existsSync(join(repo, "tasks/lessons.md"))).toBe(true);
       expect(existsSync(join(repo, "tasks/contracts"))).toBe(true);
-      expect(existsSync(join(repo, "docs/reference-configs/spa-day-protocol.md"))).toBe(true);
       expect(existsSync(join(repo, "docs/reference-configs/handoff-protocol.md"))).toBe(true);
       expect(existsSync(join(repo, "docs/reference-configs/harness-overview.md"))).toBe(true);
-      expect(existsSync(join(repo, "docs/reference-configs/hook-operations.md"))).toBe(true);
-      expect(existsSync(join(repo, "docs/reference-configs/evaluator-rubric.md"))).toBe(true);
+      expect(existsSync(join(repo, "docs/reference-configs/document-generation.md"))).toBe(true);
       expect(existsSync(join(repo, "docs/reference-configs/agentic-development-flow.md"))).toBe(true);
       expect(existsSync(join(repo, "docs/reference-configs/external-tooling.md"))).toBe(true);
       expect(existsSync(join(repo, "docs/reference-configs/sprint-contracts.md"))).toBe(true);
+      expect(existsSync(join(repo, "docs/reference-configs/spa-day-protocol.md"))).toBe(false);
+      expect(existsSync(join(repo, "docs/reference-configs/hook-operations.md"))).toBe(false);
+      expect(existsSync(join(repo, "docs/reference-configs/evaluator-rubric.md"))).toBe(false);
       expect(existsSync(join(repo, ".claude/skill-factory/rubric.template.json"))).toBe(false);
       expect(existsSync(join(repo, ".claude/skill-factory/registry.json"))).toBe(false);
 
@@ -244,6 +246,9 @@ describe("Migration script contract", () => {
       });
       expect(policy.context_budget.status_file).toBe(".ai/harness/context-budget/latest.json");
       expect(policy.handoff_resume.resume_packet_file).toBe(".ai/harness/handoff/resume.md");
+      expect(policy.documentation.profile).toBe("minimal-agentic");
+      expect(policy.lsp_profiles.default).toBe("typescript-lsp");
+      expect(policy.worktree_strategy.validation_route).toBe("waza:check");
       expect(policy.sidecar_research.main_thread_policy).toContain("consume conclusions");
       const workflowContract = JSON.parse(readFileSync(join(repo, ".ai/harness/workflow-contract.json"), "utf-8"));
       expect(workflowContract.helpers.scripts).toContain("check-agent-tooling.sh");
@@ -252,6 +257,7 @@ describe("Migration script contract", () => {
       expect(workflowContract.helpers.scripts).toContain("maintenance-triage.sh");
       expect(workflowContract.helpers.scripts).toContain("context-budget.ts");
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/agentic-development-flow.md");
+      expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/document-generation.md");
       expect(workflowContract.agenticDevelopment.routing.designPlan).toBe("gstack:plan-design-review");
       expect(workflowContract.artifacts.requiredFiles).not.toContain(".ai/harness/checks/latest.json");
       expect(workflowContract.artifacts.runtimeFiles).toContain(".ai/harness/checks/latest.json");
