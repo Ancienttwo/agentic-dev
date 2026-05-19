@@ -29,6 +29,21 @@ run_continuous_contract_verification() {
   fi
 }
 
+run_architecture_drift_sync() {
+  local drift_output
+
+  [[ -x "scripts/architecture-drift.sh" ]] || return 0
+
+  drift_output="$(bash "scripts/architecture-drift.sh" record --file "$FILE_PATH" 2>&1 || true)"
+  [[ -n "$drift_output" ]] && printf '%s\n' "$drift_output"
+
+  if printf '%s\n' "$drift_output" | grep -q '^\[ArchitectureDrift\] Request:'; then
+    if [[ -x "scripts/context-contract-sync.sh" ]]; then
+      bash "scripts/context-contract-sync.sh" sync-latest || true
+    fi
+  fi
+}
+
 FILE_PATH="$(hook_get_file_path "${1:-}")"
 [[ -z "$FILE_PATH" ]] && exit 0
 
@@ -74,6 +89,8 @@ if [[ "$BASENAME" =~ ^wrangler.*\.toml$ ]]; then
   echo "[DocDrift] Wrangler config changed: $BASENAME"
   echo "  Check: docs/guides/cf-deployment.md bindings/routes may need updating"
 fi
+
+run_architecture_drift_sync
 
 run_continuous_contract_verification
 

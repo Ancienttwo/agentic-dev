@@ -27,7 +27,20 @@ is_plan_creation_intent() {
   echo "$PROMPT_TEXT" | grep -qEi "(new plan|create plan|write plan|draft plan|新建计划|创建计划|写计划|制定计划|补计划)"
 }
 
+emit_waza_route_hint() {
+  if echo "$PROMPT_TEXT" | grep -qEi "(agent|agents|codex|claude|hook|hooks|workflow|tooling|config|AGENTS\\.md|CLAUDE\\.md|健康度|健康检查|配置检查|配置|钩子|工作流|技能配置|AI coding|agent instructions)"; then
+    echo "[WazaRoute] Agent workflow/tooling intent detected. Default route: Waza /health."
+    return
+  fi
+
+  if echo "$PROMPT_TEXT" | grep -qEi "(review|check|pre-merge|before merge|release|publish|push|验收|检查|提交|发布|推送|合并前)"; then
+    echo "[WazaRoute] Review/release intent detected. Default route: Waza /check."
+  fi
+}
+
 PROMPT_TEXT="$(hook_get_prompt "${1:-}")"
+
+emit_waza_route_hint
 
 implement_intent=0
 if is_implement_intent; then

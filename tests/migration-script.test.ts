@@ -76,6 +76,10 @@ describe("Migration script contract", () => {
     expect(workflowContract).toContain("check-task-workflow.sh");
     expect(workflowContract).toContain("maintenance-triage.sh");
     expect(workflowContract).toContain("context-budget.ts");
+    expect(workflowContract).toContain("capability-resolver.ts");
+    expect(workflowContract).toContain("architecture-drift.sh");
+    expect(workflowContract).toContain("context-contract-sync.sh");
+    expect(workflowContract).toContain("workstream-sync.sh");
     expect(workflowContract).toContain("prepare-codex-handoff.sh");
     expect(workflowContract).toContain("codex-handoff-resume.sh");
     expect(workflowContract).toContain("implementation-notes.template.md");
@@ -83,6 +87,10 @@ describe("Migration script contract", () => {
     expect(sharedLib).toContain("check:task-sync");
     expect(sharedLib).toContain("check:task-workflow");
     expect(script).toContain("tasks/contracts");
+    expect(workflowContract).toContain("docs/architecture/index.md");
+    expect(workflowContract).toContain(".ai/context/capabilities.json");
+    expect(workflowContract).toContain(".ai/harness/architecture/events.jsonl");
+    expect(workflowContract).not.toContain(".ai/harness/workstreams/events.jsonl");
     expect(script).toContain("pi_install_reference_configs");
     expect(workflowContract).toContain("document-generation.md");
     expect(sharedLib).toContain("claude-runtime-temp");
@@ -240,6 +248,10 @@ describe("Migration script contract", () => {
       expect(policy.external_tooling.mode).toBe("guidance-only");
       expect(policy.external_tooling.waza.primary_host).toBe("codex");
       expect(policy.external_tooling.waza.sync_mode).toBe("stage-upstream-then-copy-to-codex");
+      expect(policy.external_tooling.codex_automation_profile.required_skills).toEqual(["health", "check", "diagram-design"]);
+      expect(policy.external_tooling.codex_automation_profile.mode).toBe("codex-runtime-reference");
+      expect(policy.external_tooling.codex_automation_profile.routes.architecture_diagram).toBe("diagram-design");
+      expect(policy.external_tooling.codex_automation_profile.vendoring_policy).toBe("do-not-vendor-skill-body");
       expect(policy.external_tooling.gbrain.mcp).toBe("candidate-disabled");
       expect(policy.agentic_development.routing).toEqual({
         product_discovery: "gstack:office-hours",
@@ -252,6 +264,8 @@ describe("Migration script contract", () => {
       expect(policy.context_budget.status_file).toBe(".ai/harness/context-budget/latest.json");
       expect(policy.handoff_resume.resume_packet_file).toBe(".ai/harness/handoff/resume.md");
       expect(policy.tasks.notes_dir).toBe("tasks/notes");
+      expect(policy.tasks.workstreams_dir).toBe("tasks/workstreams");
+      expect(policy.workstreams.scope).toBe("capability");
       expect(policy.information_lifecycle.notes.dir).toBe("tasks/notes");
       expect(policy.information_lifecycle.evidence.snapshots_dir).toBe(".ai/harness/runs");
       expect(policy.information_lifecycle.assets.promotion_rule).toContain("verified reuse across tasks");
@@ -265,13 +279,18 @@ describe("Migration script contract", () => {
       expect(workflowContract.helpers.scripts).toContain("check-context-files.sh");
       expect(workflowContract.helpers.scripts).toContain("maintenance-triage.sh");
       expect(workflowContract.helpers.scripts).toContain("context-budget.ts");
+      expect(workflowContract.helpers.scripts).toContain("capability-resolver.ts");
+      expect(workflowContract.helpers.scripts).toContain("workstream-sync.sh");
+      expect(workflowContract.artifacts.requiredFiles).toContain(".ai/context/capabilities.json");
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/agentic-development-flow.md");
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/document-generation.md");
       expect(workflowContract.artifacts.requiredFiles).toContain(".claude/templates/implementation-notes.template.md");
       expect(workflowContract.artifacts.requiredDirectories).toContain("tasks/notes");
+      expect(workflowContract.artifacts.requiredDirectories).toContain("tasks/workstreams");
       expect(workflowContract.agenticDevelopment.routing.designPlan).toBe("gstack:plan-design-review");
       expect(workflowContract.artifacts.requiredFiles).not.toContain(".ai/harness/checks/latest.json");
       expect(workflowContract.artifacts.runtimeFiles).toContain(".ai/harness/checks/latest.json");
+      expect(workflowContract.artifacts.runtimeFiles).not.toContain(".ai/harness/workstreams/events.jsonl");
 
       const pkg = JSON.parse(readFileSync(join(repo, "package.json"), "utf-8"));
       expect(pkg.scripts["check:context-files"]).toBe("bash scripts/check-context-files.sh");
@@ -397,6 +416,8 @@ describe("Migration script contract", () => {
       expect(policy.external_tooling.mode).toBe("strict-local");
       expect(policy.external_tooling.waza.primary_host).toBe("codex");
       expect(policy.external_tooling.waza.staging_cache_path).toBe("~/.agents/skills");
+      expect(policy.external_tooling.codex_automation_profile.required_skills).toEqual(["health", "check", "diagram-design"]);
+      expect(policy.external_tooling.codex_automation_profile.source).toBe("~/.codex/skills");
       expect(policy.external_tooling.gbrain.mcp).toBe("configured");
       expect(policy.agentic_development.routing.complex_engineering_plan).toBe("gstack:plan-eng-review");
     } finally {

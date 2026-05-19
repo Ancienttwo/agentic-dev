@@ -27,6 +27,7 @@
 - Claude adapter layer: `.claude/settings.json` calls `.ai/hooks/run-hook.sh`.
 - Agentic skill routing: product discovery -> gstack `office-hours`; complex engineering plans -> gstack `plan-eng-review`; design plans -> gstack `plan-design-review`; daily small/medium planning, bug hunts, and checks -> Waza `/think`, `/hunt`, `/check`.
 - Knowledge sync and handoff retrieval -> `gbrain`.
+- Codex automation profile: required `health`, `check`, and `diagram-design` from `~/.codex/skills`; do not vendor skill bodies.
 - External tooling reference: `docs/reference-configs/agentic-development-flow.md` for routing details, `docs/reference-configs/external-tooling.md` for install/update guidance.
 - Waza runtime boundary: Codex reads `~/.codex/skills`; `~/.agents/skills` is only skills CLI staging/cache and must be copied into Codex with verification after updates.
 - Advisory environment check: `bash scripts/check-agent-tooling.sh --host both --check-updates`.

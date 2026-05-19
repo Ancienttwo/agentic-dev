@@ -39,6 +39,11 @@ extract_status() {
   awk '/\*\*Status\*\*:/ {sub(/^.*\*\*Status\*\*: */, ""); gsub(/\r/, ""); print; exit}' "$file" | xargs
 }
 
+extract_capability_id() {
+  local file="$1"
+  awk -F': ' '/^\> \*\*Capability ID\*\*:/ {print $2; exit}' "$file" | xargs
+}
+
 set_plan_status() {
   local file="$1"
   local status="$2"
@@ -80,6 +85,7 @@ render_contract_file() {
   local contract_file="$2"
   local slug="$3"
   local timestamp="$4"
+  local capability_id="$5"
   local owner="${USER:-AI Agent}"
   local template_file=".claude/templates/contract.template.md"
   local tmp_file
@@ -92,6 +98,7 @@ render_contract_file() {
 > **Status**: Pending
 > **Plan**: {{PLAN_FILE}}
 > **Owner**: {{OWNER}}
+> **Capability ID**: {{CAPABILITY_ID}}
 > **Last Updated**: {{TIMESTAMP}}
 > **Review File**: `tasks/reviews/{{TASK_SLUG}}.review.md`
 > **Notes File**: `tasks/notes/{{TASK_SLUG}}.notes.md`
@@ -114,6 +121,7 @@ allowed_paths:
   - tasks/contracts/{{TASK_SLUG}}.contract.md
   - tasks/reviews/{{TASK_SLUG}}.review.md
   - tasks/notes/{{TASK_SLUG}}.notes.md
+  - .ai/context/capabilities.json
   - src/
   - tests/
 ```
@@ -151,6 +159,7 @@ CONTRACT_TEMPLATE_EOF
   sed \
     -e "s/{{TASK_SLUG}}/${slug}/g" \
     -e "s|{{PLAN_FILE}}|${plan_file}|g" \
+    -e "s|{{CAPABILITY_ID}}|${capability_id}|g" \
     -e "s/{{OWNER}}/${owner}/g" \
     -e "s/{{TIMESTAMP}}/${timestamp}/g" \
     "$template_file" > "$tmp_file"
@@ -353,6 +362,8 @@ review_file="tasks/reviews/${slug}.review.md"
 notes_file="tasks/notes/${slug}.notes.md"
 previous_source_plan="$(get_todo_source_plan || true)"
 parent_run_id="${HOOK_RUN_ID:-${CLAUDE_RUN_ID:-${CODEX_RUN_ID:-run-${timestamp}}}}"
+capability_id="$(extract_capability_id "$plan_file")"
+capability_id="${capability_id:-root}"
 
 if [[ -f "tasks/todo.md" ]] && grep -q '[^[:space:]]' tasks/todo.md; then
   archive_file="$(unique_archive_path "tasks/archive/todo-${timestamp}-${slug}.md")"
@@ -391,6 +402,7 @@ fi
   echo "> **Source Plan Slug**: ${slug}"
   echo "> **Review File**: ${review_file}"
   echo "> **Notes File**: ${notes_file}"
+  echo "> **Capability ID**: ${capability_id}"
   echo "> **Parent Run ID**: ${parent_run_id}"
   echo "> **Supersedes**: ${previous_source_plan:-"(none)"}"
   echo
@@ -461,7 +473,7 @@ else
 REVIEW_TEMPLATE_EOF
 fi
 
-render_contract_file "$plan_file" "$contract_file" "$slug" "$timestamp_human"
+render_contract_file "$plan_file" "$contract_file" "$slug" "$timestamp_human" "$capability_id"
 render_implementation_notes_file "$plan_file" "$contract_file" "$review_file" "$notes_file" "$slug" "$timestamp_human"
 sed \
   -e "s/{{TASK_SLUG}}/${slug}/g" \

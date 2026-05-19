@@ -41,6 +41,7 @@ PI_DEFAULT_RUNTIME_ENTRIES=$(cat <<'EOF_RUNTIME'
 .ai/harness/handoff/current.md
 .ai/harness/handoff/resume.md
 .ai/harness/context-budget/latest.json
+.ai/harness/architecture/events.jsonl
 .ai/harness/runs/
 EOF_RUNTIME
 )
@@ -156,6 +157,7 @@ PI_TEMPLATE_CONTRACT=$(cat <<'EOF_TEMPLATE_CONTRACT'
 > **Status**: Pending
 > **Plan**: {{PLAN_FILE}}
 > **Owner**: {{OWNER}}
+> **Capability ID**: {{CAPABILITY_ID}}
 > **Last Updated**: {{TIMESTAMP}}
 > **Review File**: `tasks/reviews/{{TASK_SLUG}}.review.md`
 > **Notes File**: `tasks/notes/{{TASK_SLUG}}.notes.md`
@@ -178,6 +180,7 @@ allowed_paths:
   - tasks/contracts/{{TASK_SLUG}}.contract.md
   - tasks/reviews/{{TASK_SLUG}}.review.md
   - tasks/notes/{{TASK_SLUG}}.notes.md
+  - .ai/context/capabilities.json
   - src/
   - tests/
 ```
@@ -562,7 +565,7 @@ pi_install_helpers() {
   local target_dir="$1"
   local helpers_dir="$2"
   local mode="${3:-apply}"
-  local helper_names="${4:-new-plan.sh plan-to-todo.sh archive-workflow.sh prepare-handoff.sh verify-contract.sh summarize-failures.sh check-task-sync.sh check-agent-tooling.sh check-context-files.sh select-agent-context-blocks.sh ensure-task-workflow.sh check-task-workflow.sh context-budget.ts prepare-codex-handoff.sh codex-handoff-resume.sh}"
+  local helper_names="${4:-new-plan.sh plan-to-todo.sh archive-workflow.sh prepare-handoff.sh verify-contract.sh summarize-failures.sh check-task-sync.sh check-agent-tooling.sh check-context-files.sh select-agent-context-blocks.sh ensure-task-workflow.sh check-task-workflow.sh context-budget.ts capability-resolver.ts architecture-drift.sh context-contract-sync.sh workstream-sync.sh prepare-codex-handoff.sh codex-handoff-resume.sh}"
   local scripts_dir="$target_dir/scripts"
   local helper_name
 
@@ -579,7 +582,7 @@ pi_install_helpers() {
         cp "$helpers_dir/$helper_name" "$scripts_dir/$helper_name"
       fi
     done
-    pi_ensure_executable_if_apply "$mode" "$scripts_dir"/new-spec.sh "$scripts_dir"/new-sprint.sh "$scripts_dir"/new-plan.sh "$scripts_dir"/plan-to-todo.sh "$scripts_dir"/archive-workflow.sh "$scripts_dir"/prepare-handoff.sh "$scripts_dir"/prepare-codex-handoff.sh "$scripts_dir"/codex-handoff-resume.sh "$scripts_dir"/verify-contract.sh "$scripts_dir"/summarize-failures.sh "$scripts_dir"/verify-sprint.sh "$scripts_dir"/check-task-sync.sh "$scripts_dir"/check-agent-tooling.sh "$scripts_dir"/check-context-files.sh "$scripts_dir"/select-agent-context-blocks.sh "$scripts_dir"/ensure-task-workflow.sh "$scripts_dir"/check-task-workflow.sh "$scripts_dir"/switch-plan.sh
+    pi_ensure_executable_if_apply "$mode" "$scripts_dir"/new-spec.sh "$scripts_dir"/new-sprint.sh "$scripts_dir"/new-plan.sh "$scripts_dir"/plan-to-todo.sh "$scripts_dir"/archive-workflow.sh "$scripts_dir"/prepare-handoff.sh "$scripts_dir"/prepare-codex-handoff.sh "$scripts_dir"/codex-handoff-resume.sh "$scripts_dir"/verify-contract.sh "$scripts_dir"/summarize-failures.sh "$scripts_dir"/verify-sprint.sh "$scripts_dir"/check-task-sync.sh "$scripts_dir"/check-agent-tooling.sh "$scripts_dir"/check-context-files.sh "$scripts_dir"/select-agent-context-blocks.sh "$scripts_dir"/architecture-drift.sh "$scripts_dir"/context-contract-sync.sh "$scripts_dir"/workstream-sync.sh "$scripts_dir"/ensure-task-workflow.sh "$scripts_dir"/check-task-workflow.sh "$scripts_dir"/switch-plan.sh
     return 0
   fi
 
@@ -652,6 +655,7 @@ pi_external_tooling_defaults_summary() {
 - Mode: guidance-only
 - Detection: init-migrate
 - Waza: Codex-first, managed skills check/design/health/hunt/learn/read/think/write, stage upstream in ~/.agents/skills, sync verified copies into ~/.codex/skills
+- Codex automation profile: required health/check/diagram-design from ~/.codex/skills; do not vendor skill bodies
 - gbrain MCP: candidate-disabled
 - Auto-actions: never install, upgrade, serve, sync, or enable MCP automatically
 EOF_EXTERNAL_TOOLING_DEFAULTS
@@ -778,23 +782,24 @@ pi_context_block_config_file() {
   printf '%s' "${PROJECT_INITIALIZER_CONTEXT_BLOCKS_FILE:-$target_dir/.ai/context/agent-context-blocks.txt}"
 }
 
-pi_context_block_candidates() {
+pi_capability_registry_file() {
   local target_dir="$1"
-  local selector
+  printf '%s' "$target_dir/.ai/context/capabilities.json"
+}
+
+pi_safe_token() {
+  local value="$1"
+  value="$(printf '%s' "$value" | tr '[:upper:]' '[:lower:]')"
+  value="$(printf '%s' "$value" | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//; s/-{2,}/-/g')"
+  printf '%s' "${value:-capability}"
+}
+
+pi_legacy_context_block_candidates() {
+  local target_dir="$1"
   local config_file
 
   if [[ -n "${PROJECT_INITIALIZER_CONTEXT_BLOCKS:-}" ]]; then
     printf '%s\n' "$PROJECT_INITIALIZER_CONTEXT_BLOCKS" | tr ',:' '\n'
-    return 0
-  fi
-
-  selector="${PROJECT_INITIALIZER_CONTEXT_BLOCK_SELECTOR:-}"
-  if [[ -z "$selector" && -x "$target_dir/scripts/select-agent-context-blocks.sh" ]]; then
-    selector="$target_dir/scripts/select-agent-context-blocks.sh"
-  fi
-
-  if [[ -n "$selector" && -x "$selector" ]]; then
-    (cd "$target_dir" && "$selector" "$target_dir")
     return 0
   fi
 
@@ -814,6 +819,59 @@ pi_context_block_candidates() {
       [[ "$rel_dir" == "$context_dir" || "$rel_dir" == "." ]] && continue
       printf '%s\n' "$rel_dir"
     done
+}
+
+pi_context_block_candidates() {
+  local target_dir="$1"
+  local registry_file
+  local selector
+
+  registry_file="$(pi_capability_registry_file "$target_dir")"
+  if [[ -f "$registry_file" ]]; then
+    if command -v bun >/dev/null 2>&1 && [[ -f "$target_dir/scripts/capability-resolver.ts" ]]; then
+      (cd "$target_dir" && bun scripts/capability-resolver.ts list --format prefixes 2>/dev/null || true)
+      return 0
+    fi
+
+    if command -v node >/dev/null 2>&1; then
+      node - "$registry_file" <<'JS_EOF'
+const fs = require("fs");
+const registry = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+for (const capability of registry.capabilities || []) {
+  for (const prefix of capability.prefixes || []) console.log(prefix);
+}
+JS_EOF
+      return 0
+    fi
+  fi
+
+  selector="${PROJECT_INITIALIZER_CONTEXT_BLOCK_SELECTOR:-}"
+  if [[ -n "$selector" && -x "$selector" ]]; then
+    (cd "$target_dir" && "$selector" "$target_dir")
+    return 0
+  fi
+
+  pi_legacy_context_block_candidates "$target_dir"
+}
+
+pi_legacy_context_block_dirs() {
+  local target_dir="$1"
+  local raw_path
+  local rel_path
+
+  pi_legacy_context_block_candidates "$target_dir" | while IFS= read -r raw_path; do
+    rel_path="$(printf '%s' "$raw_path" | sed -e 's/#.*$//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    rel_path="${rel_path#./}"
+    rel_path="${rel_path%/}"
+    [[ -z "$rel_path" || "$rel_path" == "." ]] && continue
+    case "$rel_path" in
+      /*|../*|*/../*|*\"*)
+        continue
+        ;;
+    esac
+    [[ -d "$target_dir/$rel_path" ]] || continue
+    printf '%s\n' "$rel_path"
+  done | sort -u
 }
 
 pi_context_block_dirs() {
@@ -836,6 +894,75 @@ pi_context_block_dirs() {
   done | sort -u
 }
 
+pi_write_capability_registry() {
+  local target_dir="$1"
+  local mode="${2:-apply}"
+  local output_file
+  local rel_dir
+  local first=1
+
+  output_file="$(pi_capability_registry_file "$target_dir")"
+
+  if [[ "$mode" != "apply" ]]; then
+    echo "[dry-run] write $output_file"
+    return 0
+  fi
+
+  if [[ -f "$output_file" ]]; then
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$output_file")"
+  {
+    printf '{\n  "version": 1,\n  "capabilities": [\n'
+    while IFS= read -r rel_dir; do
+      [[ -n "$rel_dir" ]] || continue
+      local domain
+      local name
+      local id
+      local parts_count
+      local last_part
+
+      parts_count="$(awk -F'/' '{print NF}' <<< "$rel_dir")"
+      last_part="${rel_dir##*/}"
+      if [[ "$parts_count" -ge 2 ]]; then
+        domain="$(pi_safe_token "$(cut -d/ -f1-2 <<< "$rel_dir" | tr '/' '-')")"
+      else
+        domain="$(pi_safe_token "$rel_dir")"
+      fi
+      if [[ "$parts_count" -gt 2 ]]; then
+        name="$(pi_safe_token "$last_part")"
+        id="${domain}-${name}"
+      else
+        name="$(pi_safe_token "$last_part")"
+        id="$domain"
+      fi
+
+      if [[ "$first" -eq 0 ]]; then
+        printf ',\n'
+      fi
+      first=0
+      cat <<EOF_CAPABILITY
+    {
+      "id": "$id",
+      "domain": "$domain",
+      "name": "$name",
+      "prefixes": ["$rel_dir"],
+      "contract_files": {
+        "agents": "$rel_dir/AGENTS.md",
+        "claude": "$rel_dir/CLAUDE.md"
+      },
+      "architecture_module": "docs/architecture/modules/$domain/$name.md",
+      "workstream_dir": "tasks/workstreams/$domain/$name",
+      "lsp_profile": "$(pi_lsp_profile)",
+      "verification_hints": ["record local commands here before implementation"]
+    }
+EOF_CAPABILITY
+    done < <(pi_legacy_context_block_dirs "$target_dir")
+    printf '\n  ]\n}\n'
+  } > "$output_file"
+}
+
 pi_should_generate_directory_context() {
   local target_dir="$1"
   [[ -n "$(pi_context_block_dirs "$target_dir" | head -n 1)" ]]
@@ -847,6 +974,59 @@ pi_context_map_discoverable_entries() {
   local rel_dir
   local file_name
   local target_agent
+  local registry_file
+  local capability_entries
+
+  registry_file="$(pi_capability_registry_file "$target_dir")"
+  if [[ -f "$registry_file" ]] && command -v node >/dev/null 2>&1; then
+    capability_entries="$(node - "$registry_file" <<'JS_EOF'
+const fs = require("fs");
+const registry = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+const entries = [];
+for (const capability of registry.capabilities || []) {
+  const prefix = (capability.prefixes || [])[0];
+  if (!prefix || !capability.contract_files) continue;
+  for (const [fileName, targetAgent] of [["CLAUDE.md", "claude"], ["AGENTS.md", "codex"]]) {
+    const path = fileName === "CLAUDE.md" ? capability.contract_files.claude : capability.contract_files.agents;
+    entries.push({
+      path,
+      priority: "high",
+      char_budget: 1000,
+      purpose: "capability-contract",
+      capability_id: capability.id,
+      functional_block: prefix,
+      matched_prefix: prefix,
+      architecture_domain: capability.domain,
+      architecture_capability: capability.name,
+      target_agent: targetAgent,
+      lsp_profile: capability.lsp_profile || "typescript-lsp",
+      doc_scope: "capability-contract",
+      verification_hint: (capability.verification_hints || [])[0] || "record local commands here before implementation"
+    });
+  }
+}
+process.stdout.write(entries.map((entry) => JSON.stringify(entry, null, 6).replace(/^/gm, "    ")).join(",\n"));
+JS_EOF
+)"
+    if [[ -n "$capability_entries" ]]; then
+      printf '%s,\n' "$capability_entries"
+    fi
+    cat <<'EOF_CONTEXT_ENTRY'
+    {
+      "path": "docs/reference-configs/*.md",
+      "priority": "low",
+      "char_budget": 900,
+      "purpose": "deep-doc"
+    },
+    {
+      "path": "tasks/workstreams/**/*.md",
+      "priority": "high",
+      "char_budget": 1200,
+      "purpose": "capability-workstream"
+    }
+EOF_CONTEXT_ENTRY
+    return 0
+  fi
 
   while IFS= read -r rel_dir; do
     [[ -n "$rel_dir" ]] || continue
@@ -862,10 +1042,11 @@ pi_context_map_discoverable_entries() {
       "path": "$rel_dir/$file_name",
       "priority": "high",
       "char_budget": 1000,
-      "purpose": "functional-block-contract",
+      "purpose": "capability-contract",
+      "functional_block": "$rel_dir",
       "target_agent": "$target_agent",
       "lsp_profile": "$(pi_lsp_profile)",
-      "doc_scope": "local-contract",
+      "doc_scope": "capability-contract",
       "verification_hint": "record local commands here before implementation"
     }
 EOF_CONTEXT_ENTRY
@@ -882,6 +1063,12 @@ EOF_CONTEXT_ENTRY
       "priority": "low",
       "char_budget": 900,
       "purpose": "deep-doc"
+    },
+    {
+      "path": "tasks/workstreams/**/*.md",
+      "priority": "high",
+      "char_budget": 1200,
+      "purpose": "capability-workstream"
     }
 EOF_CONTEXT_ENTRY
 }
@@ -915,6 +1102,7 @@ pi_write_harness_policy() {
     "todo_file": "tasks/todo.md",
     "lessons_file": "tasks/lessons.md",
     "research_file": "tasks/research.md",
+    "workstreams_dir": "tasks/workstreams",
     "contracts_dir": "tasks/contracts",
     "reviews_dir": "tasks/reviews",
     "notes_dir": "tasks/notes"
@@ -926,11 +1114,14 @@ pi_write_harness_policy() {
   "context": {
     "profile": "$(pi_context_profile)",
     "map_file": ".ai/context/context-map.json",
+    "capability_registry_file": ".ai/context/capabilities.json",
+    "capability_resolver": "scripts/capability-resolver.ts",
+    "capability_match_rule": "longest-prefix; same-length ambiguity fails",
     "functional_block_selector": {
       "script": "scripts/select-agent-context-blocks.sh",
       "config_file": ".ai/context/agent-context-blocks.txt",
       "env": "PROJECT_INITIALIZER_CONTEXT_BLOCKS",
-      "rule": "explicit functional blocks only; do not infer from apps/packages/services globs"
+      "rule": "compatibility selector; capability registry is the source of truth"
     }
   },
   "harness": {
@@ -939,7 +1130,29 @@ pi_write_harness_policy() {
     "handoff_file": ".ai/harness/handoff/current.md",
     "failure_log_file": ".ai/harness/failures/latest.jsonl",
     "events_file": ".ai/harness/events.jsonl",
+    "architecture_events_file": ".ai/harness/architecture/events.jsonl",
     "runs_dir": ".ai/harness/runs"
+  },
+  "architecture": {
+    "index_file": "docs/architecture/index.md",
+    "requests_dir": "docs/architecture/requests",
+    "snapshots_dir": "docs/architecture/snapshots",
+    "diagrams_dir": "docs/architecture/diagrams",
+    "domains_dir": "docs/architecture/domains",
+    "modules_dir": "docs/architecture/modules",
+    "diagram_skill": "diagram-design",
+    "diagram_skill_source": "~/.codex/skills/diagram-design",
+    "vendoring_policy": "do-not-vendor-diagram-skill-assets",
+    "contract_block_begin": "<!-- BEGIN ARCHITECTURE CONTRACT -->",
+    "contract_block_end": "<!-- END ARCHITECTURE CONTRACT -->",
+    "rule": "hooks record drift and sync controlled local context blocks; agents author semantic snapshots and diagrams"
+  },
+  "workstreams": {
+    "dir": "tasks/workstreams",
+    "scope": "capability",
+    "projection": "local-contract-active-pointer-and-current-slice",
+    "todo_projection": "tasks/todo.md",
+    "rule": "durable multi-session progress lives under tasks/workstreams/<domain>/<capability>; local contracts only project pointers"
   },
   "information_lifecycle": {
     "notes": {
@@ -992,7 +1205,7 @@ pi_write_harness_policy() {
   },
   "documentation": {
     "profile": "$(pi_documentation_profile)",
-    "required": ["docs/spec.md", "docs/PROGRESS.md"],
+    "required": ["docs/spec.md", "docs/PROGRESS.md", "docs/architecture/index.md"],
     "on_demand": ["docs/brief.md", "docs/tech-stack.md", "docs/decisions.md", "docs/architecture.md", "docs/packages.md"],
     "reference_configs": [$(pi_policy_reference_config_names | pi_json_string_array_from_lines)],
     "rule": "create optional docs only when the agent has concrete repo evidence or the user asks"
@@ -1044,6 +1257,25 @@ pi_write_harness_policy() {
       "staging_cache_path": "~/.agents/skills",
       "sync_mode": "stage-upstream-then-copy-to-codex",
       "host_drift_policy": "report-per-host-version-staging-and-upstream-drift"
+    },
+    "codex_automation_profile": {
+      "required_skills": ["health", "check", "diagram-design"],
+      "optional_skills": [],
+      "mode": "codex-runtime-reference",
+      "source": "~/.codex/skills",
+      "routes": {
+        "workflow_health": "waza:health",
+        "review_gate": "waza:check",
+        "architecture_diagram": "diagram-design"
+      },
+      "vendoring_policy": "do-not-vendor-skill-body"
+    },
+    "diagram_design": {
+      "skill_name": "diagram-design",
+      "primary_host": "codex",
+      "codex_primary_path": "~/.codex/skills/diagram-design",
+      "sync_mode": "external-installed-skill",
+      "vendoring_policy": "do-not-vendor"
     },
     "gbrain": {
       "mcp": "$(pi_external_tooling_gbrain_mcp)"
@@ -1105,7 +1337,7 @@ pi_write_context_map() {
     "script": "scripts/select-agent-context-blocks.sh",
     "config_file": ".ai/context/agent-context-blocks.txt",
     "env": "PROJECT_INITIALIZER_CONTEXT_BLOCKS",
-    "rule": "explicit functional blocks only; do not infer from apps/packages/services globs"
+    "rule": "compatibility selector; capability registry is the source of truth"
   },
   "lsp_profiles": {
     "default": "$(pi_lsp_profile)",
@@ -1117,6 +1349,7 @@ pi_write_context_map() {
     "docs/spec.md",
     "tasks/todo.md",
     "tasks/lessons.md",
+    ".ai/context/capabilities.json",
     ".ai/harness/policy.json"
   ],
   "discoverable_contexts": [
@@ -1194,11 +1427,18 @@ pi_ensure_harness_state_surface() {
 
   mkdir -p \
     "$target_dir/tasks/notes" \
+    "$target_dir/tasks/workstreams" \
     "$target_dir/.ai/context" \
     "$target_dir/.ai/harness/checks" \
     "$target_dir/.ai/harness/handoff" \
     "$target_dir/.ai/harness/context-budget" \
     "$target_dir/.ai/harness/failures" \
+    "$target_dir/.ai/harness/architecture" \
+    "$target_dir/docs/architecture/domains" \
+    "$target_dir/docs/architecture/modules" \
+    "$target_dir/docs/architecture/requests" \
+    "$target_dir/docs/architecture/snapshots" \
+    "$target_dir/docs/architecture/diagrams" \
     "$target_dir/.ai/harness/runs"
 
   [[ -f "$target_dir/.ai/harness/checks/latest.json" ]] || printf "{}\n" > "$target_dir/.ai/harness/checks/latest.json"
@@ -1206,11 +1446,42 @@ pi_ensure_harness_state_surface() {
   [[ -f "$target_dir/.ai/harness/handoff/resume.md" ]] || printf "# Codex Resume Packet\n\n> **Reason**: bootstrap\n" > "$target_dir/.ai/harness/handoff/resume.md"
   [[ -f "$target_dir/.ai/harness/context-budget/latest.json" ]] || printf "{}\n" > "$target_dir/.ai/harness/context-budget/latest.json"
   [[ -f "$target_dir/.ai/harness/events.jsonl" ]] || : > "$target_dir/.ai/harness/events.jsonl"
+  [[ -f "$target_dir/.ai/harness/architecture/events.jsonl" ]] || : > "$target_dir/.ai/harness/architecture/events.jsonl"
+  [[ -f "$target_dir/.ai/harness/architecture/.gitkeep" ]] || : > "$target_dir/.ai/harness/architecture/.gitkeep"
   [[ -f "$target_dir/.ai/harness/failures/latest.jsonl" ]] || : > "$target_dir/.ai/harness/failures/latest.jsonl"
   [[ -f "$target_dir/.ai/harness/runs/.gitkeep" ]] || : > "$target_dir/.ai/harness/runs/.gitkeep"
+  [[ -f "$target_dir/tasks/workstreams/.gitkeep" ]] || : > "$target_dir/tasks/workstreams/.gitkeep"
+  [[ -f "$target_dir/docs/architecture/domains/.gitkeep" ]] || : > "$target_dir/docs/architecture/domains/.gitkeep"
+  [[ -f "$target_dir/docs/architecture/modules/.gitkeep" ]] || : > "$target_dir/docs/architecture/modules/.gitkeep"
+  [[ -f "$target_dir/docs/architecture/requests/.gitkeep" ]] || : > "$target_dir/docs/architecture/requests/.gitkeep"
+  [[ -f "$target_dir/docs/architecture/snapshots/.gitkeep" ]] || : > "$target_dir/docs/architecture/snapshots/.gitkeep"
+  [[ -f "$target_dir/docs/architecture/diagrams/.gitkeep" ]] || : > "$target_dir/docs/architecture/diagrams/.gitkeep"
+  if [[ ! -f "$target_dir/docs/architecture/index.md" ]]; then
+    cat > "$target_dir/docs/architecture/index.md" <<'ARCHITECTURE_INDEX_EOF'
+# Architecture Index
 
-  pi_write_harness_policy "$target_dir" "$mode"
-  pi_write_context_map "$target_dir" "$mode"
+> Umbrella architecture ledger for current boundaries, drift requests, snapshots, and diagrams.
+
+## Current Snapshot
+
+- Latest snapshot: (none yet)
+- Latest diagram: (none yet)
+
+## Architecture Drift Flow
+
+- `scripts/architecture-drift.sh` records architecture-sensitive edits as requests.
+- `scripts/context-contract-sync.sh` keeps only the controlled architecture block in functional-block `AGENTS.md` and `CLAUDE.md` files aligned.
+- `scripts/workstream-sync.sh` keeps durable multi-session progress under `tasks/workstreams/<domain>/<capability>/` and projects only pointers into local contracts.
+- Architecture diagrams are standalone HTML files in `docs/architecture/diagrams/`; when generated by an agent, use the `diagram-design` architecture type and keep the diagram self-contained.
+
+## Pending Requests
+
+ARCHITECTURE_INDEX_EOF
+  fi
+
+	  pi_write_capability_registry "$target_dir" "$mode"
+	  pi_write_harness_policy "$target_dir" "$mode"
+	  pi_write_context_map "$target_dir" "$mode"
   pi_install_directory_context_files "$target_dir" "$mode"
 }
 

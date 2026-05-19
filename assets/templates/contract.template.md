@@ -3,6 +3,7 @@
 > **Status**: Active
 > **Plan**: {{PLAN_FILE}}
 > **Owner**: {{OWNER}}
+> **Capability ID**: {{CAPABILITY_ID}}
 > **Last Updated**: {{TIMESTAMP}}
 > **Review File**: `tasks/reviews/{{TASK_SLUG}}.review.md`
 > **Notes File**: `tasks/notes/{{TASK_SLUG}}.notes.md`
@@ -26,6 +27,7 @@ allowed_paths:
   - tasks/contracts/{{TASK_SLUG}}.contract.md
   - tasks/reviews/{{TASK_SLUG}}.review.md
   - tasks/notes/{{TASK_SLUG}}.notes.md
+  - .ai/context/capabilities.json
   - src/
   - tests/
 ```

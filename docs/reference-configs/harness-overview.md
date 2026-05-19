@@ -20,12 +20,13 @@ This repo uses a shared long-running harness. The durable workflow lives in repo
 8. `information_lifecycle` inside `.ai/harness/policy.json` separates notes, raw evidence, reusable assets, and advisory memory.
 9. `agentic_development` inside `.ai/harness/policy.json` captures product, engineering, design, bug-hunt, and review routing.
 10. `external_tooling` inside `.ai/harness/policy.json` captures host install/update defaults for gstack, Waza, and gbrain.
-11. `.ai/context/context-map.json` indexes stable root context and explicitly selected functional-block context.
-12. `documentation` inside `.ai/harness/policy.json` keeps generated docs minimal and moves optional docs to agent-created, evidence-backed output.
-13. `lsp_profiles` inside policy and context-map files select tooling hints per functional block.
-14. `worktree_strategy` inside policy tells agents when to isolate work in `codex/<slug>` worktrees and validate with Waza `/check` before merging back.
-15. `.ai/harness/handoff/current.md` preserves resumable state across sessions.
-16. `.ai/harness/events.jsonl` and `.ai/harness/runs/*.json` retain lightweight execution traces.
+11. `.ai/context/capabilities.json` declares capability prefixes, contract files, architecture modules, and workstream directories.
+12. `.ai/context/context-map.json` indexes stable root context and discoverable capability context derived from the registry.
+13. `documentation` inside `.ai/harness/policy.json` keeps generated docs minimal and moves optional docs to agent-created, evidence-backed output.
+14. `lsp_profiles` inside policy and context-map files select tooling hints per capability.
+15. `worktree_strategy` inside policy tells agents when to isolate work in `codex/<slug>` worktrees and validate with Waza `/check` before merging back.
+16. `.ai/harness/handoff/current.md` preserves resumable state across sessions.
+17. `.ai/harness/events.jsonl` and `.ai/harness/runs/*.json` retain lightweight execution traces.
 
 ## Session Boundaries
 
@@ -50,9 +51,10 @@ This repo uses a shared long-running harness. The durable workflow lives in repo
 - Memory: `tasks/research.md`, `tasks/lessons.md`, and gbrain are advisory. Current repo state and evidence override summaries.
 - Assets: policies, hooks, scripts, templates, and reference configs only change when a pattern has evidence across tasks or fixtures.
 
-## Functional Block Context
+## Capability Context
 
 - Do not infer agent context boundaries from physical layout globs such as `apps/*`, `packages/*`, or `services/*`.
-- Select functional blocks through `scripts/select-agent-context-blocks.sh`, `.ai/context/agent-context-blocks.txt`, `PROJECT_INITIALIZER_CONTEXT_BLOCKS`, or existing nested `CLAUDE.md`/`AGENTS.md` files.
-- Selected blocks receive paired `CLAUDE.md` and `AGENTS.md` files so Claude Code and Codex share the same local contract.
-- Functional-block context entries may carry `lsp_profile`, `doc_scope`, and `verification_hint` metadata.
+- Declare capabilities in `.ai/context/capabilities.json`; each capability owns prefixes, paired contract files, an architecture module, a workstream directory, and local verification hints.
+- Resolve edited paths through `scripts/capability-resolver.ts match --path <path>`; longest prefix wins and equal-length ambiguity fails.
+- Treat `.ai/context/agent-context-blocks.txt`, `PROJECT_INITIALIZER_CONTEXT_BLOCKS`, and existing nested `CLAUDE.md`/`AGENTS.md` files as migration inputs or compatibility fallbacks only.
+- Selected capabilities receive paired `CLAUDE.md` and `AGENTS.md` files so Claude Code and Codex share the same local contract.

@@ -37,9 +37,10 @@ describe("Hook contracts", () => {
     expect(script).toContain(".ai/harness/failures/latest.jsonl");
   });
 
-  test("pre-code-change should protect contracts/specs/tests paths", () => {
+  test("pre-code-change should protect interfaces/specs/tests paths and slice contracts", () => {
     const script = read("assets/hooks/pre-code-change.sh");
-    expect(script).toContain("(contracts|specs|tests)");
+    expect(script).toContain("(interfaces|specs|tests)");
+    expect(script).toContain("tasks/contracts");
     expect(script).toContain(".spec");
   });
 
@@ -74,6 +75,13 @@ describe("Hook contracts", () => {
 
   test("prompt-guard should cover Chinese bug/feature keywords and avoid emoji", () => {
     const script = read("assets/hooks/prompt-guard.sh");
+    expect(script).toContain("emit_waza_route_hint");
+    expect(script).toContain("[WazaRoute]");
+    expect(script).toContain("Waza /check");
+    expect(script).toContain("Waza /health");
+    expect(script).not.toContain("Waza /hunt");
+    expect(script).not.toContain("Waza /think");
+    expect(script).not.toContain("Waza /learn");
     expect(script).toContain("修复");
     expect(script).toContain("修bug");
     expect(script).toContain("新功能");
@@ -104,9 +112,29 @@ describe("Hook contracts", () => {
     const script = read("assets/hooks/post-edit-guard.sh");
     expect(script).toContain("[DocDrift]");
     expect(script).toContain("[TaskHandoff]");
+    expect(script).toContain("architecture-drift.sh");
+    expect(script).toContain("context-contract-sync.sh");
+    expect(read("assets/templates/helpers/workstream-sync.sh")).toContain("tasks/workstreams");
     expect(script).toContain("tasks/todo.md");
     expect(script).toContain("--quiet");
     expect(script).toContain("contract_references_path");
+  });
+
+  test("architecture drift helpers should keep detection and context sync separated", () => {
+    const drift = read("assets/templates/helpers/architecture-drift.sh");
+    const sync = read("assets/templates/helpers/context-contract-sync.sh");
+    const workstream = read("assets/templates/helpers/workstream-sync.sh");
+
+    expect(drift).toContain("docs/architecture/requests");
+    expect(drift).toContain(".ai/harness/architecture/events.jsonl");
+    expect(drift).toContain("workstream-sync.sh");
+    expect(drift).not.toContain("BEGIN ARCHITECTURE CONTRACT");
+    expect(sync).toContain("BEGIN ARCHITECTURE CONTRACT");
+    expect(sync).toContain("Active Workstreams");
+    expect(sync).toContain("discoverable_contexts");
+    expect(sync).not.toContain("docs/architecture/diagrams/");
+    expect(workstream).toContain("tasks/workstreams");
+    expect(workstream).toContain("context-contract-sync.sh");
   });
 
   test("tdd-guard should use extension-based BDD/TDD heuristic", () => {

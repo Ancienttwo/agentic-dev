@@ -40,6 +40,17 @@ bash scripts/summarize-failures.sh --run-id <run_id>
 | `ContractGuard` | Completion was claimed without a contract, or contract verification failed | Create or regenerate `tasks/contracts/<slug>.contract.md`, then run `bash scripts/verify-contract.sh --contract tasks/contracts/<slug>.contract.md --strict` |
 | `WorktreeGuard` | Writes were attempted from the primary worktree while `.claude/.require-worktree` is enforced | `git worktree add ../<repo>-wt-<branch> -b <branch>` and retry from the linked worktree |
 
+## Architecture Drift Hooks
+
+Architecture maintenance is split across two helpers:
+
+- `scripts/architecture-drift.sh` detects architecture-sensitive edits and writes a human request under `docs/architecture/requests/` plus a machine event in `.ai/harness/architecture/events.jsonl`.
+- `scripts/capability-resolver.ts` resolves changed paths against `.ai/context/capabilities.json` using longest-prefix matching.
+- `scripts/workstream-sync.sh` maintains durable multi-session progress under `tasks/workstreams/<domain>/<capability>/` for a selected capability.
+- `scripts/context-contract-sync.sh` consumes architecture or workstream events and updates only the controlled `<!-- BEGIN ARCHITECTURE CONTRACT -->` block in matched capability `CLAUDE.md` and `AGENTS.md` files.
+
+The helpers keep hook boundaries explicit: drift detection never writes agent context files, workstream sync writes its event to `.ai/harness/events.jsonl` instead of a separate workstream event log, and context sync only projects pointers/current-slice metadata into local contracts. Agents produce snapshots under `docs/architecture/snapshots/` and standalone `diagram-design` HTML under `docs/architecture/diagrams/`.
+
 ## When to Check Tests or Migration
 
 - Check `tests/` when the hook output is wrong or the workflow contract no longer matches expected behavior.

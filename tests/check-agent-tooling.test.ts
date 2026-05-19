@@ -171,6 +171,7 @@ describe("check-agent-tooling", () => {
       writeFileSync(join(envRoot.home, ".codex", "config.toml"), "# no gbrain mcp\n");
       writeWazaBundle(join(envRoot.home, ".agents", "skills"), "3.0.0");
       writeWazaBundle(join(envRoot.home, ".codex", "skills"), "3.0.0");
+      writeSkill(join(envRoot.home, ".codex", "skills"), "diagram-design", "1.0.0");
       symlinkClaudeWazaToAgents(envRoot.home);
       writeWazaLock(envRoot.home);
       writeFakeNpx(envRoot.fakeBin);
@@ -197,6 +198,14 @@ describe("check-agent-tooling", () => {
       expect(report.tools.waza.hosts.claude.skills[0].symlink_target).toBe("../../.agents/skills/check");
       expect(report.tools.waza.hosts.codex.staging_sync).toBe("synced");
       expect(report.tools.waza.hosts.codex.stale_status).toBe("not-checked");
+      expect(report.tools.codex_automation_profile.status).toBe("present");
+      expect(report.tools.codex_automation_profile.required_skills).toEqual(["health", "check", "diagram-design"]);
+      expect(report.tools.codex_automation_profile.routes).toEqual({
+        workflow_health: "waza:health",
+        review_gate: "waza:check",
+        architecture_diagram: "diagram-design",
+      });
+      expect(report.tools.codex_automation_profile.vendoring_policy).toBe("do-not-vendor-skill-body");
       expect(report.tools.gbrain.status).toBe("warning");
       expect(report.tools.gbrain.mcp_hosts.claude.status).toBe("disabled");
       expect(report.tools.gbrain.mcp_hosts.codex.status).toBe("disabled");
@@ -218,6 +227,7 @@ describe("check-agent-tooling", () => {
       writeFileSync(join(envRoot.home, ".codex", "config.toml"), "# no gbrain mcp\n");
       writeWazaBundle(join(envRoot.home, ".agents", "skills"), "3.0.0");
       writeWazaBundle(join(envRoot.home, ".codex", "skills"), "3.0.0");
+      writeSkill(join(envRoot.home, ".codex", "skills"), "diagram-design", "1.0.0");
       symlinkClaudeWazaToAgents(envRoot.home);
       writeWazaLock(envRoot.home);
 
@@ -305,6 +315,7 @@ describe("check-agent-tooling", () => {
       writeFileSync(join(envRoot.home, ".codex", "config.toml"), "# no gbrain mcp\n");
       writeWazaBundle(join(envRoot.home, ".agents", "skills"), "9.0.0");
       writeWazaBundle(join(envRoot.home, ".codex", "skills"), "1.0.0");
+      writeSkill(join(envRoot.home, ".codex", "skills"), "diagram-design", "1.0.0");
       symlinkClaudeWazaToAgents(envRoot.home);
       writeWazaLock(envRoot.home);
       writeFakeNpx(envRoot.fakeBin);

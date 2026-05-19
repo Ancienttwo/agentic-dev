@@ -16,6 +16,8 @@ describe("create-project-dirs runtime smoke", () => {
       });
       expect(res.status).toBe(0);
 
+      expect(existsSync(join(cwd, "interfaces/types.ts"))).toBe(true);
+      expect(existsSync(join(cwd, "contracts"))).toBe(false);
       expect(existsSync(join(cwd, "tasks/contracts"))).toBe(true);
       expect(existsSync(join(cwd, "tasks/notes"))).toBe(true);
       expect(existsSync(join(cwd, ".claude/templates/contract.template.md"))).toBe(true);
@@ -34,15 +36,25 @@ describe("create-project-dirs runtime smoke", () => {
       expect(existsSync(join(cwd, "docs/brief.md"))).toBe(false);
       expect(existsSync(join(cwd, "docs/tech-stack.md"))).toBe(false);
       expect(existsSync(join(cwd, "docs/decisions.md"))).toBe(false);
+      expect(existsSync(join(cwd, "docs/architecture/index.md"))).toBe(true);
+      expect(existsSync(join(cwd, "docs/architecture/domains/.gitkeep"))).toBe(true);
+      expect(existsSync(join(cwd, "docs/architecture/modules/.gitkeep"))).toBe(true);
+      expect(existsSync(join(cwd, "docs/architecture/requests/.gitkeep"))).toBe(true);
+      expect(existsSync(join(cwd, "docs/architecture/snapshots/.gitkeep"))).toBe(true);
+      expect(existsSync(join(cwd, "docs/architecture/diagrams/.gitkeep"))).toBe(true);
       expect(existsSync(join(cwd, "docs/api"))).toBe(false);
       expect(existsSync(join(cwd, "scripts/verify-contract.sh"))).toBe(true);
       expect(existsSync(join(cwd, "docs/spec.md"))).toBe(true);
       expect(existsSync(join(cwd, "tasks/reviews"))).toBe(true);
+      expect(existsSync(join(cwd, "tasks/workstreams/.gitkeep"))).toBe(true);
       expect(existsSync(join(cwd, ".ai/context/context-map.json"))).toBe(true);
+      expect(existsSync(join(cwd, ".ai/context/capabilities.json"))).toBe(true);
       expect(existsSync(join(cwd, ".ai/harness/checks/latest.json"))).toBe(true);
       expect(existsSync(join(cwd, ".ai/harness/workflow-contract.json"))).toBe(true);
       expect(existsSync(join(cwd, ".ai/harness/policy.json"))).toBe(true);
       expect(existsSync(join(cwd, ".ai/harness/events.jsonl"))).toBe(true);
+      expect(existsSync(join(cwd, ".ai/harness/architecture/events.jsonl"))).toBe(true);
+      expect(existsSync(join(cwd, ".ai/harness/workstreams/events.jsonl"))).toBe(false);
       expect(existsSync(join(cwd, ".ai/harness/failures/latest.jsonl"))).toBe(true);
       expect(existsSync(join(cwd, ".ai/harness/handoff/current.md"))).toBe(true);
       expect(existsSync(join(cwd, ".ai/harness/handoff/resume.md"))).toBe(true);
@@ -57,6 +69,10 @@ describe("create-project-dirs runtime smoke", () => {
       expect(existsSync(join(cwd, "scripts/check-task-sync.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/check-context-files.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/select-agent-context-blocks.sh"))).toBe(true);
+      expect(existsSync(join(cwd, "scripts/capability-resolver.ts"))).toBe(true);
+      expect(existsSync(join(cwd, "scripts/architecture-drift.sh"))).toBe(true);
+      expect(existsSync(join(cwd, "scripts/context-contract-sync.sh"))).toBe(true);
+      expect(existsSync(join(cwd, "scripts/workstream-sync.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/ensure-task-workflow.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/check-task-workflow.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/maintenance-triage.sh"))).toBe(true);
@@ -102,22 +118,37 @@ describe("create-project-dirs runtime smoke", () => {
       expect(workflowContract.helpers.scripts).toContain("check-task-workflow.sh");
       expect(workflowContract.helpers.scripts).toContain("select-agent-context-blocks.sh");
       expect(workflowContract.helpers.scripts).toContain("context-budget.ts");
+      expect(workflowContract.helpers.scripts).toContain("capability-resolver.ts");
+      expect(workflowContract.helpers.scripts).toContain("architecture-drift.sh");
+      expect(workflowContract.helpers.scripts).toContain("context-contract-sync.sh");
+      expect(workflowContract.helpers.scripts).toContain("workstream-sync.sh");
       expect(workflowContract.artifacts.requiredFiles).not.toContain(".ai/harness/context-budget/latest.json");
       expect(workflowContract.artifacts.requiredFiles).not.toContain(".ai/harness/handoff/resume.md");
       expect(workflowContract.artifacts.runtimeFiles).toContain(".ai/harness/context-budget/latest.json");
       expect(workflowContract.artifacts.runtimeFiles).toContain(".ai/harness/handoff/resume.md");
+      expect(workflowContract.artifacts.runtimeFiles).toContain(".ai/harness/architecture/events.jsonl");
+      expect(workflowContract.artifacts.runtimeFiles).not.toContain(".ai/harness/workstreams/events.jsonl");
+      expect(workflowContract.artifacts.requiredFiles).toContain("docs/architecture/index.md");
+      expect(workflowContract.artifacts.requiredFiles).toContain(".ai/context/capabilities.json");
+      expect(workflowContract.artifacts.requiredFiles).toContain("scripts/capability-resolver.ts");
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/agentic-development-flow.md");
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/external-tooling.md");
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/document-generation.md");
       expect(workflowContract.artifacts.requiredFiles).toContain(".claude/templates/implementation-notes.template.md");
       expect(workflowContract.artifacts.requiredDirectories).toContain("tasks/notes");
+      expect(workflowContract.artifacts.requiredDirectories).toContain("tasks/workstreams");
+      expect(workflowContract.artifacts.requiredDirectories).toContain("docs/architecture/domains");
+      expect(workflowContract.artifacts.requiredDirectories).toContain("docs/architecture/modules");
       expect(workflowContract.agenticDevelopment.routing.complexEngineeringPlan).toBe("gstack:plan-eng-review");
       expect(workflowContract.agenticDevelopment.routing.smallOrMediumPlan).toBe("waza:think");
       const contextMap = JSON.parse(readFileSync(join(cwd, ".ai/context/context-map.json"), "utf-8"));
       expect(contextMap.root_context_files).not.toContain("tasks/research.md");
+      expect(contextMap.root_context_files).toContain(".ai/context/capabilities.json");
       expect(contextMap.functional_block_selector.script).toBe("scripts/select-agent-context-blocks.sh");
       expect(contextMap.lsp_profiles.default).toBe("typescript-lsp");
       expect(contextMap.discoverable_contexts.map((entry: { path: string }) => entry.path)).not.toContain("apps/*/AGENTS.md");
+      expect(contextMap.discoverable_contexts.map((entry: { path: string }) => entry.path)).toContain("tasks/workstreams/**/*.md");
+      expect(contextMap.discoverable_contexts.find((entry: { path: string }) => entry.path === "tasks/workstreams/**/*.md").purpose).toBe("capability-workstream");
       const policy = JSON.parse(readFileSync(join(cwd, ".ai/harness/policy.json"), "utf-8"));
       expect(policy.external_tooling.routing).toEqual({
         complex: "gstack",
@@ -129,8 +160,18 @@ describe("create-project-dirs runtime smoke", () => {
       expect(policy.external_tooling.waza.primary_host).toBe("codex");
       expect(policy.external_tooling.waza.managed_skills).toEqual(["check", "design", "health", "hunt", "learn", "read", "think", "write"]);
       expect(policy.external_tooling.waza.codex_primary_path).toBe("~/.codex/skills");
+      expect(policy.external_tooling.codex_automation_profile.required_skills).toEqual(["health", "check", "diagram-design"]);
+      expect(policy.external_tooling.codex_automation_profile.mode).toBe("codex-runtime-reference");
+      expect(policy.external_tooling.codex_automation_profile.source).toBe("~/.codex/skills");
+      expect(policy.external_tooling.codex_automation_profile.routes).toEqual({
+        workflow_health: "waza:health",
+        review_gate: "waza:check",
+        architecture_diagram: "diagram-design",
+      });
+      expect(policy.external_tooling.codex_automation_profile.vendoring_policy).toBe("do-not-vendor-skill-body");
       expect(policy.external_tooling.gbrain.mcp).toBe("candidate-disabled");
       expect(policy.tasks.notes_dir).toBe("tasks/notes");
+      expect(policy.tasks.workstreams_dir).toBe("tasks/workstreams");
       expect(policy.information_lifecycle.notes.dir).toBe("tasks/notes");
       expect(policy.information_lifecycle.evidence.snapshots_dir).toBe(".ai/harness/runs");
       expect(policy.agentic_development.routing).toEqual({
@@ -147,7 +188,17 @@ describe("create-project-dirs runtime smoke", () => {
         "P3_DESIGN_DECISION",
       ]);
       expect(policy.context.functional_block_selector.script).toBe("scripts/select-agent-context-blocks.sh");
+      expect(policy.context.capability_registry_file).toBe(".ai/context/capabilities.json");
+      expect(policy.context.capability_resolver).toBe("scripts/capability-resolver.ts");
       expect(policy.documentation.profile).toBe("minimal-agentic");
+      expect(policy.documentation.required).toContain("docs/architecture/index.md");
+      expect(policy.architecture.diagram_skill).toBe("diagram-design");
+      expect(policy.architecture.vendoring_policy).toBe("do-not-vendor-diagram-skill-assets");
+      expect(policy.external_tooling.diagram_design.sync_mode).toBe("external-installed-skill");
+      expect(policy.harness.architecture_events_file).toBe(".ai/harness/architecture/events.jsonl");
+      expect(policy.harness.workstream_events_file).toBeUndefined();
+      expect(policy.workstreams.scope).toBe("capability");
+      expect(policy.workstreams.projection).toBe("local-contract-active-pointer-and-current-slice");
       expect(policy.documentation.on_demand).toContain("docs/architecture.md");
       expect(policy.lsp_profiles.selection).toBe("functional-block-first");
       expect(policy.worktree_strategy.auto_on_conflict).toBe(true);
@@ -201,10 +252,13 @@ describe("create-project-dirs runtime smoke", () => {
         readFileSync(join(cwd, "apps/web/AGENTS.md"), "utf-8")
       );
       const contextMap = JSON.parse(readFileSync(join(cwd, ".ai/context/context-map.json"), "utf-8"));
+      const capabilities = JSON.parse(readFileSync(join(cwd, ".ai/context/capabilities.json"), "utf-8"));
+      expect(capabilities.capabilities.map((entry: { id: string }) => entry.id)).toContain("apps-web");
       expect(contextMap.functional_block_selector.script).toBe("scripts/select-agent-context-blocks.sh");
       const webClaudeEntry = contextMap.discoverable_contexts.find((entry: { path: string }) => entry.path === "apps/web/CLAUDE.md");
       expect(webClaudeEntry.lsp_profile).toBe("typescript-lsp");
-      expect(webClaudeEntry.doc_scope).toBe("local-contract");
+      expect(webClaudeEntry.doc_scope).toBe("capability-contract");
+      expect(webClaudeEntry.capability_id).toBe("apps-web");
       expect(contextMap.discoverable_contexts.map((entry: { path: string }) => entry.path)).toContain("apps/web/CLAUDE.md");
       expect(contextMap.discoverable_contexts.map((entry: { path: string }) => entry.path)).toContain("apps/web/AGENTS.md");
       expect(contextMap.discoverable_contexts.map((entry: { path: string }) => entry.path)).not.toContain("packages/ui/CLAUDE.md");

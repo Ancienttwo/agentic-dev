@@ -69,6 +69,7 @@ const WAZA_SOURCE_REPO = "tw93/Waza";
 const WAZA_SOURCE_URL = "https://github.com/tw93/Waza.git";
 const WAZA_RAW_BASE_URL = "https://raw.githubusercontent.com/tw93/Waza/main";
 const WAZA_MANAGED_SKILLS = ["check", "design", "health", "hunt", "learn", "read", "think", "write"];
+const CODEX_AUTOMATION_SKILLS = ["health", "check", "diagram-design"];
 const WAZA_STAGING_DIR = path.join(HOME, ".agents", "skills");
 const HOSTS = {
   claude: {
@@ -517,6 +518,50 @@ function detectWaza() {
   };
 }
 
+function inspectCodexAutomationSkill(skill) {
+  const skillFile = path.join(HOSTS.codex.skillsDir, skill, "SKILL.md");
+  const local = readSkillFile(skillFile);
+
+  return {
+    name: skill,
+    path: skillFile,
+    real_path: resolveRealPath(skillFile),
+    present: local.exists,
+    version: local.version,
+    hash: local.hash,
+  };
+}
+
+function detectCodexAutomationProfile() {
+  const skills = CODEX_AUTOMATION_SKILLS.map((skill) => inspectCodexAutomationSkill(skill));
+  const installedSkills = skills.filter((entry) => entry.present).map((entry) => entry.name);
+  const missingSkills = skills.filter((entry) => !entry.present).map((entry) => entry.name);
+  const status = missingSkills.length === 0 ? "present" : installedSkills.length > 0 ? "partial" : "missing";
+
+  return {
+    name: "codex_automation_profile",
+    status,
+    reason: status === "present"
+      ? "Detected all required Codex automation skills from the Codex runtime path."
+      : status === "partial"
+        ? `Detected ${installedSkills.length}/${CODEX_AUTOMATION_SKILLS.length} required Codex automation skills; missing ${missingSkills.join(", ")}.`
+        : "No required Codex automation skills were found in the Codex runtime path.",
+    required_skills: CODEX_AUTOMATION_SKILLS,
+    optional_skills: [],
+    mode: "codex-runtime-reference",
+    source: HOSTS.codex.skillsDir,
+    routes: {
+      workflow_health: "waza:health",
+      review_gate: "waza:check",
+      architecture_diagram: "diagram-design",
+    },
+    vendoring_policy: "do-not-vendor-skill-body",
+    installed_skills: installedSkills,
+    missing_skills: missingSkills,
+    skills,
+  };
+}
+
 function detectGbrainMcp(host) {
   const meta = HOSTS[host];
   const content = readText(meta.configPath);
@@ -634,6 +679,7 @@ const report = {
   tools: {
     gstack: detectGstack(),
     waza: detectWaza(),
+    codex_automation_profile: detectCodexAutomationProfile(),
     gbrain: detectGbrain(),
   },
 };
@@ -688,6 +734,18 @@ function printText(result) {
   console.log(`  - Stage: ${waza.stage_command}`);
   console.log(`  - Sync Codex: ${waza.sync_command}`);
   console.log(`  - Verify: ${waza.verify_command}`);
+  console.log("");
+
+  const codexAutomation = result.tools.codex_automation_profile;
+  console.log(`Codex automation profile [${codexAutomation.status}]`);
+  console.log(`  - Required: ${codexAutomation.required_skills.join(", ")}`);
+  console.log(`  - Source: ${codexAutomation.source}`);
+  console.log(`  - Mode: ${codexAutomation.mode}`);
+  if (codexAutomation.missing_skills.length) {
+    console.log(`  - Missing: ${codexAutomation.missing_skills.join(", ")}`);
+  }
+  console.log(`  - Routes: health=${codexAutomation.routes.workflow_health}, check=${codexAutomation.routes.review_gate}, diagram=${codexAutomation.routes.architecture_diagram}`);
+  console.log(`  - Vendoring: ${codexAutomation.vendoring_policy}`);
   console.log("");
 
   const gbrain = result.tools.gbrain;

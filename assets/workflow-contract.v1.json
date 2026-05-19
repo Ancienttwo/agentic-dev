@@ -2,18 +2,53 @@
   "version": "1.0.0",
   "contractId": "tasks-first-harness-v1",
   "compatibility": {
-    "agents": ["claude", "codex"],
+    "agents": [
+      "claude",
+      "codex"
+    ],
     "repoLocalFirst": true
   },
   "externalTooling": {
     "waza": {
       "sourceRepo": "tw93/Waza",
-      "managedSkills": ["check", "design", "health", "hunt", "learn", "read", "think", "write"],
+      "managedSkills": [
+        "check",
+        "design",
+        "health",
+        "hunt",
+        "learn",
+        "read",
+        "think",
+        "write"
+      ],
       "primaryHost": "codex",
       "codexPrimaryPath": "~/.codex/skills",
       "stagingCachePath": "~/.agents/skills",
       "syncMode": "stage-upstream-then-copy-to-codex",
       "hostDriftPolicy": "report-per-host-version-staging-and-upstream-drift"
+    },
+    "codexAutomationProfile": {
+      "requiredSkills": [
+        "health",
+        "check",
+        "diagram-design"
+      ],
+      "optionalSkills": [],
+      "mode": "codex-runtime-reference",
+      "source": "~/.codex/skills",
+      "routes": {
+        "workflowHealth": "waza:health",
+        "reviewGate": "waza:check",
+        "architectureDiagram": "diagram-design"
+      },
+      "vendoringPolicy": "do-not-vendor-skill-body"
+    },
+    "diagramDesign": {
+      "skillName": "diagram-design",
+      "primaryHost": "codex",
+      "codexPrimaryPath": "~/.codex/skills/diagram-design",
+      "syncMode": "external-installed-skill",
+      "vendoringPolicy": "do-not-vendor"
     }
   },
   "agenticDevelopment": {
@@ -26,8 +61,19 @@
       "postImplementationReview": "waza:check"
     },
     "dueDiligence": {
-      "levels": ["P1_GLOBAL_ARCHITECTURE", "P2_DATA_FLOW_TRACE", "P3_DESIGN_DECISION"],
-      "explicitReportRequiredFor": ["plan-eng-review", "hunt", "risky_refactor", "deployment", "auth_payment_data", "shared_contract"]
+      "levels": [
+        "P1_GLOBAL_ARCHITECTURE",
+        "P2_DATA_FLOW_TRACE",
+        "P3_DESIGN_DECISION"
+      ],
+      "explicitReportRequiredFor": [
+        "plan-eng-review",
+        "hunt",
+        "risky_refactor",
+        "deployment",
+        "auth_payment_data",
+        "shared_contract"
+      ]
     }
   },
   "helpers": {
@@ -50,6 +96,10 @@
       "maintenance-triage.sh",
       "switch-plan.sh",
       "context-budget.ts",
+      "capability-resolver.ts",
+      "architecture-drift.sh",
+      "context-contract-sync.sh",
+      "workstream-sync.sh",
       "prepare-codex-handoff.sh",
       "codex-handoff-resume.sh"
     ]
@@ -64,6 +114,7 @@
       "tasks/contracts",
       "tasks/reviews",
       "tasks/notes",
+      "tasks/workstreams",
       ".claude/templates",
       ".ai/context",
       ".ai/harness",
@@ -71,7 +122,14 @@
       ".ai/harness/failures",
       ".ai/harness/handoff",
       ".ai/harness/context-budget",
+      ".ai/harness/architecture",
       ".ai/harness/runs",
+      "docs/architecture",
+      "docs/architecture/domains",
+      "docs/architecture/modules",
+      "docs/architecture/requests",
+      "docs/architecture/snapshots",
+      "docs/architecture/diagrams",
       "docs/reference-configs"
     ],
     "requiredFiles": [
@@ -100,13 +158,19 @@
       "scripts/maintenance-triage.sh",
       "scripts/switch-plan.sh",
       "scripts/context-budget.ts",
+      "scripts/capability-resolver.ts",
+      "scripts/architecture-drift.sh",
+      "scripts/context-contract-sync.sh",
+      "scripts/workstream-sync.sh",
       "scripts/prepare-codex-handoff.sh",
       "scripts/codex-handoff-resume.sh",
       "tasks/todo.md",
       "tasks/lessons.md",
       "tasks/research.md",
       "docs/PROGRESS.md",
+      "docs/architecture/index.md",
       ".ai/context/context-map.json",
+      ".ai/context/capabilities.json",
       ".ai/harness/policy.json",
       ".ai/harness/workflow-contract.json",
       "docs/reference-configs/harness-overview.md",
@@ -123,6 +187,7 @@
       ".ai/harness/handoff/current.md",
       ".ai/harness/handoff/resume.md",
       ".ai/harness/context-budget/latest.json",
+      ".ai/harness/architecture/events.jsonl",
       ".ai/harness/runs/.gitkeep"
     ]
   },

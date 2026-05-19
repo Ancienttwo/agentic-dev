@@ -161,3 +161,18 @@
 - Keep `tasks/notes/` task-local. Archive it on workflow close; promote only repeated corrections, durable repo facts, or cross-task verified patterns.
 - Keep raw run snapshots as evidence, not prose summaries. Reviews and future promotions should be checked against `.ai/harness/runs/` when available.
 - Keep harness assets conservative: scripts, hooks, templates, workflow contracts, and reference configs should change only when a pattern has been verified beyond one local task.
+
+## 2026-05-20 Capability-First Context Harness Notes
+
+### What Changed
+- `.ai/context/capabilities.json` is now the explicit source of truth for capability prefixes, local contract files, architecture modules, workstream directories, LSP profile, and verification hints.
+- `scripts/capability-resolver.ts` owns longest-prefix matching. `agent-context-blocks.txt`, `PROJECT_INITIALIZER_CONTEXT_BLOCKS`, and existing nested `AGENTS.md` / `CLAUDE.md` files are compatibility inputs only when the registry is absent.
+- `architecture-drift.sh`, `context-contract-sync.sh`, and `workstream-sync.sh` now carry `capability_id` and `matched_prefix` fields while preserving `functional_block` for one compatibility cycle.
+- Workstream sync writes to `.ai/harness/events.jsonl`; the separate `.ai/harness/workstreams/events.jsonl` surface was removed to keep event state atomic.
+- Slice contracts now include `Capability ID`, while capability contracts remain the paired local `AGENTS.md` / `CLAUDE.md` files.
+
+### What to Preserve
+- Do not reintroduce implicit `apps/*`, `packages/*`, or `services/*` context generation.
+- Keep capability registry validation in `check-task-workflow.sh --strict`; stale prefixes should fail early instead of letting agents guess.
+- Keep source and template mirrors aligned whenever resolver, drift, context-sync, workstream-sync, or workflow manifest files change.
+- Keep `contracts` reserved for slice/capability workflow language. Runtime API schemas, event schemas, DTOs, and cross-boundary types belong under `interfaces/` when a scaffold needs a durable machine-consumed boundary surface.

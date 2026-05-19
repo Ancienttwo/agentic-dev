@@ -4,6 +4,7 @@ set -euo pipefail
 repo="${1:-.}"
 repo="$(cd "$repo" && pwd)"
 config_file="${PROJECT_INITIALIZER_CONTEXT_BLOCKS_FILE:-$repo/.ai/context/agent-context-blocks.txt}"
+registry_file="$repo/.ai/context/capabilities.json"
 
 emit_lines() {
   sed -e 's/#.*$//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | sed '/^$/d'
@@ -23,6 +24,26 @@ emit_existing_dirs() {
     printf '%s\n' "$rel_dir"
   done | sort -u
 }
+
+if [[ -f "$registry_file" ]]; then
+  if command -v bun >/dev/null 2>&1 && [[ -f "$repo/scripts/capability-resolver.ts" ]]; then
+    (cd "$repo" && bun scripts/capability-resolver.ts list --format prefixes 2>/dev/null || true) | emit_existing_dirs
+    exit 0
+  fi
+
+  if command -v node >/dev/null 2>&1; then
+    node - "$registry_file" <<'JS_EOF' | emit_existing_dirs
+const fs = require("fs");
+const registry = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+for (const capability of registry.capabilities || []) {
+  for (const prefix of capability.prefixes || []) {
+    console.log(prefix);
+  }
+}
+JS_EOF
+    exit 0
+  fi
+fi
 
 if [[ -n "${PROJECT_INITIALIZER_CONTEXT_BLOCKS:-}" ]]; then
   printf '%s\n' "$PROJECT_INITIALIZER_CONTEXT_BLOCKS" | tr ',:' '\n' | emit_lines | emit_existing_dirs

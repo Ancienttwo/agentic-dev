@@ -5,12 +5,18 @@ skill routing lives in `docs/reference-configs/agentic-development-flow.md`.
 
 - `gstack` supplies `office-hours`, `plan-eng-review`, and `plan-design-review`
 - `Waza` supplies `/think`, `/hunt`, and `/check` for daily small/medium work
+- Codex automation requires `health`, `check`, and `diagram-design` from `~/.codex/skills`
 - `gbrain` supports knowledge capture, repo sync, and handoff retrieval
 
 Waza is Codex-first in this contract. `~/.codex/skills` is the Codex runtime
 source, while `~/.agents/skills` is only the skills CLI staging/cache path used
 to receive upstream `tw93/Waza` updates before syncing verified copies into
 Codex.
+
+The Codex automation profile is a runtime reference, not a vendored copy. It
+requires Waza `health`, Waza `check`, and the standalone `diagram-design` skill
+to exist under `~/.codex/skills`; the skill bodies stay owned by their original
+installations.
 
 ## Detect Safely
 

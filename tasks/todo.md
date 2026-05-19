@@ -12,3 +12,9 @@
 - [x] Added lightweight `lsp_profiles` metadata for selected functional blocks
 - [x] Added conflict-triggered Codex worktree policy with Waza `/check` validation and merge-back requirements
 - [x] Run workflow and regression checks for scaffold, migration, self-host parity, and Waza-style review
+- [x] Added umbrella architecture drift requests and controlled local agent context contract sync hooks
+- [x] Added explicit `.ai/context/capabilities.json` capability registry and longest-prefix resolver
+- [x] Bound architecture drift, context contract sync, and workstream sync to capability IDs
+- [x] Removed standalone `.ai/harness/workstreams/events.jsonl` in favor of `.ai/harness/events.jsonl`
+- [x] Added capability registry validation to strict workflow checks
+- [x] Renamed default runtime interface scaffold from `contracts/` to `interfaces/`

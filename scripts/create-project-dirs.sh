@@ -72,7 +72,7 @@ ensure_task_sync_package_script() {
 
 # ===== IMMUTABLE LAYER (资产层) =====
 mkdir -p specs/modules
-mkdir -p contracts/modules
+mkdir -p interfaces/modules
 mkdir -p tests/unit
 mkdir -p tests/integration
 mkdir -p tests/e2e
@@ -208,6 +208,7 @@ DOCS_SPEC_EOF
 # - .ai/harness/policy.json
 # - .ai/harness/checks/latest.json
 # - .ai/harness/events.jsonl
+# - .ai/harness/architecture/events.jsonl
 # - .ai/harness/handoff/current.md
 # - .ai/harness/handoff/resume.md
 # - .ai/harness/context-budget/latest.json
@@ -232,16 +233,16 @@ cat > specs/overview.md << 'SPECS_OVERVIEW_EOF'
 - Format: `{module-name}.spec.md`
 SPECS_OVERVIEW_EOF
 
-cat > contracts/types.ts << 'CONTRACTS_TYPES_EOF'
+cat > interfaces/types.ts << 'INTERFACES_TYPES_EOF'
 /**
- * Shared Type Definitions
+ * Shared Runtime Interface Definitions
  *
  * IMMUTABLE: Changes here require downstream rewrites
  */
 
-// Add shared types here
+// Add shared API schemas, event schemas, DTOs, or boundary types here
 export {}
-CONTRACTS_TYPES_EOF
+INTERFACES_TYPES_EOF
 
 cat > tests/README.md << 'TESTS_README_EOF'
 # Test Directory Structure
@@ -309,7 +310,7 @@ echo "Module $MODULE cleared. Ready for rewrite."
 echo ""
 echo "Preserved assets:"
 echo "  - specs/modules/$MODULE.spec.md"
-echo "  - contracts/modules/$MODULE.contract.ts"
+echo "  - interfaces/modules/$MODULE.interface.ts"
 echo "  - tests/unit/$MODULE/"
 echo "  - tests/integration/$MODULE/"
 REGENERATE_EOF

@@ -54,7 +54,7 @@ if [[ "$FILE_PATH" =~ ^plans/plan-.*\.md$ ]] && [[ -f "$FILE_PATH" || -n "$WRITE
   fi
 fi
 
-if echo "$FILE_PATH" | grep -qE "(^|/)(contracts|specs|tests)(/|$)|(\.contract\.|\.spec\.)"; then
+if echo "$FILE_PATH" | grep -qE "(^|/)(interfaces|specs|tests)(/|$)|(^|/)tasks/contracts/|(\.contract\.|\.spec\.)"; then
   echo "[AssetLayer] Immutable file detected: $FILE_PATH"
   echo "  资产层文件被修改，需同步重写下游实现。"
 fi

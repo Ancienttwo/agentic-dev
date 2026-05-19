@@ -13,6 +13,7 @@ root prompt concise; this file owns the detailed routing.
 | Small or medium feature/fix plan | Waza `/think` | Concise approved plan, then implementation on request |
 | Bug, regression, error, crash, failing test | Waza `/hunt` | Root cause sentence with evidence before any fix |
 | Implemented diff, pre-merge, release follow-through | Waza `/check` | Review findings, safe fixes, verification, and shipment state |
+| Architecture diagram or system-flow diagram | `diagram-design` | Mermaid or structured diagram artifact grounded in repo context |
 
 ## Due Diligence Levels
 
@@ -38,5 +39,5 @@ work, or shared contracts, report the P1/P2/P3 evidence explicitly.
 
 - Do not route large architecture decisions through Waza `/think` by default.
 - Do not use gstack plan review for routine local edits where `/think` or direct execution is enough.
-- Do not let hooks infer semantic intent. Hooks enforce file, contract, and verification state only.
+- Hooks may emit advisory Waza `/check` and `/health` route hints on prompt submit, but must not block, mutate files, or auto-run skills based on semantic intent.
 - Keep `office-hours` for product-demand shaping; use `plan-eng-review` when engineering execution needs to be locked.

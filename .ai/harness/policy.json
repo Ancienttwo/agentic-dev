@@ -11,6 +11,7 @@
     "todo_file": "tasks/todo.md",
     "lessons_file": "tasks/lessons.md",
     "research_file": "tasks/research.md",
+    "workstreams_dir": "tasks/workstreams",
     "contracts_dir": "tasks/contracts",
     "reviews_dir": "tasks/reviews",
     "notes_dir": "tasks/notes"
@@ -22,11 +23,14 @@
   "context": {
     "profile": "stable-root-progressive-subdir",
     "map_file": ".ai/context/context-map.json",
+    "capability_registry_file": ".ai/context/capabilities.json",
+    "capability_resolver": "scripts/capability-resolver.ts",
+    "capability_match_rule": "longest-prefix; same-length ambiguity fails",
     "functional_block_selector": {
       "script": "scripts/select-agent-context-blocks.sh",
       "config_file": ".ai/context/agent-context-blocks.txt",
       "env": "PROJECT_INITIALIZER_CONTEXT_BLOCKS",
-      "rule": "explicit functional blocks only; do not infer from apps/packages/services globs"
+      "rule": "compatibility selector; capability registry is the source of truth"
     }
   },
   "harness": {
@@ -35,7 +39,29 @@
     "handoff_file": ".ai/harness/handoff/current.md",
     "failure_log_file": ".ai/harness/failures/latest.jsonl",
     "events_file": ".ai/harness/events.jsonl",
+    "architecture_events_file": ".ai/harness/architecture/events.jsonl",
     "runs_dir": ".ai/harness/runs"
+  },
+  "architecture": {
+    "index_file": "docs/architecture/index.md",
+    "requests_dir": "docs/architecture/requests",
+    "snapshots_dir": "docs/architecture/snapshots",
+    "diagrams_dir": "docs/architecture/diagrams",
+    "domains_dir": "docs/architecture/domains",
+    "modules_dir": "docs/architecture/modules",
+    "diagram_skill": "diagram-design",
+    "diagram_skill_source": "~/.codex/skills/diagram-design",
+    "vendoring_policy": "do-not-vendor-diagram-skill-assets",
+    "contract_block_begin": "<!-- BEGIN ARCHITECTURE CONTRACT -->",
+    "contract_block_end": "<!-- END ARCHITECTURE CONTRACT -->",
+    "rule": "hooks record drift and sync controlled local context blocks; agents author semantic snapshots and diagrams"
+  },
+  "workstreams": {
+    "dir": "tasks/workstreams",
+    "scope": "capability",
+    "projection": "local-contract-active-pointer-and-current-slice",
+    "todo_projection": "tasks/todo.md",
+    "rule": "durable multi-session progress lives under tasks/workstreams/<domain>/<capability>; local contracts only project pointers"
   },
   "information_lifecycle": {
     "notes": {
@@ -107,7 +133,8 @@
     "profile": "minimal-agentic",
     "required": [
       "docs/spec.md",
-      "docs/PROGRESS.md"
+      "docs/PROGRESS.md",
+      "docs/architecture/index.md"
     ],
     "on_demand": [
       "docs/brief.md",
@@ -185,6 +212,29 @@
       "staging_cache_path": "~/.agents/skills",
       "sync_mode": "stage-upstream-then-copy-to-codex",
       "host_drift_policy": "report-per-host-version-staging-and-upstream-drift"
+    },
+    "codex_automation_profile": {
+      "required_skills": [
+        "health",
+        "check",
+        "diagram-design"
+      ],
+      "optional_skills": [],
+      "mode": "codex-runtime-reference",
+      "source": "~/.codex/skills",
+      "routes": {
+        "workflow_health": "waza:health",
+        "review_gate": "waza:check",
+        "architecture_diagram": "diagram-design"
+      },
+      "vendoring_policy": "do-not-vendor-skill-body"
+    },
+    "diagram_design": {
+      "skill_name": "diagram-design",
+      "primary_host": "codex",
+      "codex_primary_path": "~/.codex/skills/diagram-design",
+      "sync_mode": "external-installed-skill",
+      "vendoring_policy": "do-not-vendor"
     },
     "gbrain": {
       "mcp": "candidate-disabled"

@@ -19,6 +19,25 @@ export type WorkflowContract = {
       syncMode: string;
       hostDriftPolicy: string;
     };
+    codexAutomationProfile?: {
+      requiredSkills: string[];
+      optionalSkills: string[];
+      mode: string;
+      source: string;
+      routes: {
+        workflowHealth: string;
+        reviewGate: string;
+        architectureDiagram: string;
+      };
+      vendoringPolicy: string;
+    };
+    diagramDesign?: {
+      skillName: string;
+      primaryHost: string;
+      codexPrimaryPath: string;
+      syncMode: string;
+      vendoringPolicy: string;
+    };
   };
   agenticDevelopment?: {
     routing: {

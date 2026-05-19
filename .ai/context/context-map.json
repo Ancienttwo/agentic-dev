@@ -5,7 +5,7 @@
     "script": "scripts/select-agent-context-blocks.sh",
     "config_file": ".ai/context/agent-context-blocks.txt",
     "env": "PROJECT_INITIALIZER_CONTEXT_BLOCKS",
-    "rule": "explicit functional blocks only; do not infer from apps/packages/services globs"
+    "rule": "compatibility selector; capability registry is the source of truth"
   },
   "lsp_profiles": {
     "default": "typescript-lsp",
@@ -17,6 +17,7 @@
     "docs/spec.md",
     "tasks/todo.md",
     "tasks/lessons.md",
+    ".ai/context/capabilities.json",
     ".ai/harness/policy.json"
   ],
   "discoverable_contexts": [
@@ -25,6 +26,12 @@
       "priority": "low",
       "char_budget": 900,
       "purpose": "deep-doc"
+    },
+    {
+      "path": "tasks/workstreams/**/*.md",
+      "priority": "high",
+      "char_budget": 1200,
+      "purpose": "capability-workstream"
     }
   ],
   "budgets": {

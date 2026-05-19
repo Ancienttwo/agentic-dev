@@ -14,7 +14,7 @@ For any non-chat task that changes the repo in a substantive way, update `tasks/
 
 ## Layer Model
 
-- Immutable: `specs/`, `contracts/`, `tests/`
+- Immutable: `specs/`, `interfaces/`, `tests/`
 - Mutable: `src/`
 
 If immutable artifacts and implementation diverge, update immutable artifacts first.
@@ -22,7 +22,7 @@ If immutable artifacts and implementation diverge, update immutable artifacts fi
 ## Feature Flow
 
 1. Define acceptance criteria.
-2. Define contract/types.
+2. Define runtime interfaces and types.
 3. Add or update tests.
 4. Update `tasks/todo.md` with the execution checklist.
 5. Implement minimal change.

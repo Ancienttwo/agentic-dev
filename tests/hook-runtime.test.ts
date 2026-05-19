@@ -97,6 +97,14 @@ function initGitRepo(cwd: string) {
   expect(run("git", ["commit", "-m", "init"], cwd).status).toBe(0);
 }
 
+function installArchitectureHelpers(cwd: string) {
+  mkdirSync(join(cwd, "scripts"), { recursive: true });
+  for (const fileName of ["architecture-drift.sh", "context-contract-sync.sh", "workstream-sync.sh", "select-agent-context-blocks.sh", "capability-resolver.ts"]) {
+    copyFileSync(join(ROOT, "assets/templates/helpers", fileName), join(cwd, "scripts", fileName));
+  }
+  expect(run("chmod", ["+x", "scripts/architecture-drift.sh", "scripts/context-contract-sync.sh", "scripts/workstream-sync.sh", "scripts/select-agent-context-blocks.sh"], cwd).status).toBe(0);
+}
+
 function gitCommitCount(cwd: string): number {
   const out = run("git", ["rev-list", "--count", "HEAD"], cwd);
   expect(out.status).toBe(0);
@@ -104,6 +112,36 @@ function gitCommitCount(cwd: string): number {
 }
 
 describe("Hook runtime behavior", () => {
+  test("prompt-guard: emits advisory Waza route hints without blocking", () => {
+    const cwd = tmpWorkspace("waza-route-hint");
+    try {
+      installHooks(cwd);
+
+      const bugRes = runHook("prompt-guard.sh", cwd, {
+        stdin: JSON.stringify({ prompt: "这个登录 bug 报错了，帮我修复" }),
+      });
+      expect(bugRes.status).toBe(0);
+      expect(bugRes.stdout).not.toContain("[WazaRoute]");
+      expect(bugRes.stdout).toContain("[TDD] Bug-fix intent detected");
+
+      const healthRes = runHook("prompt-guard.sh", cwd, {
+        stdin: JSON.stringify({ prompt: "检查一下 Codex hook 和 AGENTS.md 配置健康度" }),
+      });
+      expect(healthRes.status).toBe(0);
+      expect(healthRes.stdout).toContain("[WazaRoute] Agent workflow/tooling intent detected");
+      expect(healthRes.stdout).toContain("Waza /health");
+
+      const reviewRes = runHook("prompt-guard.sh", cwd, {
+        stdin: JSON.stringify({ prompt: "验收一下当前改动，然后提交推送" }),
+      });
+      expect(reviewRes.status).toBe(0);
+      expect(reviewRes.stdout).toContain("[WazaRoute] Review/release intent detected");
+      expect(reviewRes.stdout).toContain("Waza /check");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
   test("worktree-guard: warning by default, block when marker exists", () => {
     const cwd = tmpWorkspace("worktree-guard");
     try {
@@ -190,6 +228,162 @@ describe("Hook runtime behavior", () => {
       });
       expect(wranglerRes.status).toBe(0);
       expect(wranglerRes.stdout).toContain("Wrangler config changed");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
+  test("post-edit-guard: records architecture drift and syncs local context contract blocks", () => {
+    const cwd = tmpWorkspace("architecture-drift-hook");
+    try {
+      installHooks(cwd);
+      installArchitectureHelpers(cwd);
+      mkdirSync(join(cwd, "apps/web/src/routes"), { recursive: true });
+      mkdirSync(join(cwd, ".ai/context"), { recursive: true });
+      writeFileSync(join(cwd, ".ai/context/agent-context-blocks.txt"), "apps/web\n");
+      writeFileSync(join(cwd, ".ai/context/context-map.json"), JSON.stringify({
+        version: 1,
+        profile: "stable-root-progressive-subdir",
+        lsp_profiles: { default: "typescript-lsp" },
+        root_context_files: ["CLAUDE.md", "AGENTS.md"],
+        discoverable_contexts: [],
+      }, null, 2));
+      writeFileSync(join(cwd, "apps/web/AGENTS.md"), "# Existing Web Contract\n\n- Keep manual rule.\n");
+
+      const res = runHook("post-edit-guard.sh", cwd, {
+        stdin: JSON.stringify({ tool_input: { file_path: "apps/web/src/routes/account.tsx" } }),
+      });
+
+      expect(res.status).toBe(0);
+      expect(res.stdout).toContain("[ArchitectureDrift] Request:");
+      expect(res.stdout).toContain("[ContextContractSync] Updated apps/web/AGENTS.md and apps/web/CLAUDE.md.");
+      expect(existsSync(join(cwd, ".ai/harness/architecture/events.jsonl"))).toBe(true);
+
+      const requestFiles = readdirSync(join(cwd, "docs/architecture/requests")).filter((name) => name.endsWith(".md"));
+      expect(requestFiles.length).toBe(1);
+      const request = readFileSync(join(cwd, "docs/architecture/requests", requestFiles[0]), "utf-8");
+      expect(request).toContain("**Functional Block**: `apps/web`");
+      expect(request).toContain("**Capability ID**: `apps-web`");
+      expect(request).toContain("**Contract Sync Required**: true");
+
+      const agents = readFileSync(join(cwd, "apps/web/AGENTS.md"), "utf-8");
+      const claude = readFileSync(join(cwd, "apps/web/CLAUDE.md"), "utf-8");
+      expect(agents).toBe(claude);
+      expect(agents).toContain("Keep manual rule.");
+      expect(agents).toContain("<!-- BEGIN ARCHITECTURE CONTRACT -->");
+      expect(agents).toContain("Pending architecture request: `docs/architecture/requests/");
+
+      const contextMap = JSON.parse(readFileSync(join(cwd, ".ai/context/context-map.json"), "utf-8"));
+      expect(contextMap.discoverable_contexts.map((entry: { path: string }) => entry.path)).toContain("apps/web/AGENTS.md");
+      expect(contextMap.discoverable_contexts.map((entry: { path: string }) => entry.path)).toContain("apps/web/CLAUDE.md");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
+  test("architecture drift uses the most specific domain/capability functional block", () => {
+    const cwd = tmpWorkspace("architecture-nested-block");
+    try {
+      installHooks(cwd);
+      installArchitectureHelpers(cwd);
+      mkdirSync(join(cwd, "apps/web/src/routes/account"), { recursive: true });
+      mkdirSync(join(cwd, ".ai/context"), { recursive: true });
+      writeFileSync(join(cwd, ".ai/context/agent-context-blocks.txt"), [
+        "apps/web",
+        "apps/web/src/routes/account",
+        "",
+      ].join("\n"));
+      writeFileSync(join(cwd, "apps/web/src/routes/account/AGENTS.md"), "# Account Contract\n\nManual account rule.\n");
+
+      const res = runHook("post-edit-guard.sh", cwd, {
+        stdin: JSON.stringify({ tool_input: { file_path: "apps/web/src/routes/account/page.tsx" } }),
+      });
+
+      expect(res.status).toBe(0);
+      expect(res.stdout).toContain("[ContextContractSync] Updated apps/web/src/routes/account/AGENTS.md and apps/web/src/routes/account/CLAUDE.md.");
+
+      const requestFiles = readdirSync(join(cwd, "docs/architecture/requests")).filter((name) => name.endsWith(".md"));
+      expect(requestFiles.length).toBe(1);
+      const request = readFileSync(join(cwd, "docs/architecture/requests", requestFiles[0]), "utf-8");
+      expect(request).toContain("**Functional Block**: `apps/web/src/routes/account`");
+      expect(request).toContain("**Capability ID**: `apps-web-account`");
+      expect(request).toContain("**Matched Prefix**: `apps/web/src/routes/account`");
+      expect(request).toContain("**Architecture Domain**: `apps-web`");
+      expect(request).toContain("**Architecture Capability**: `account`");
+      expect(request).toContain("**Workstream Directory**: `tasks/workstreams/apps-web/account`");
+
+      const agents = readFileSync(join(cwd, "apps/web/src/routes/account/AGENTS.md"), "utf-8");
+      const claude = readFileSync(join(cwd, "apps/web/src/routes/account/CLAUDE.md"), "utf-8");
+      expect(agents).toBe(claude);
+      expect(agents).toContain("Manual account rule.");
+      expect(agents).toContain("Architecture domain: `apps-web`");
+      expect(agents).toContain("Architecture capability: `account`");
+      expect(agents).toContain("Durable progress lives under `tasks/workstreams/apps-web/account`.");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
+  test("workstream-sync creates capability ledger and projects pointers into local contract", () => {
+    const cwd = tmpWorkspace("workstream-sync");
+    try {
+      installArchitectureHelpers(cwd);
+      mkdirSync(join(cwd, "apps/web/src/routes/account"), { recursive: true });
+      writeFileSync(join(cwd, "apps/web/src/routes/account/AGENTS.md"), "# Account Contract\n\nManual account rule.\n");
+
+      const res = run("bash", [
+        "scripts/workstream-sync.sh",
+        "ensure",
+        "--block",
+        "apps/web/src/routes/account",
+        "--slug",
+        "account-rebuild",
+        "--title",
+        "Account Rebuild",
+        "--plan",
+        "plans/plan-20260520-account.md",
+        "--slice",
+        "todo-03",
+      ], cwd);
+
+      expect(res.status).toBe(0);
+      expect(res.stdout).toContain("[WorkstreamSync] Ensured tasks/workstreams/apps-web/account/account-rebuild.md");
+      expect(existsSync(join(cwd, "tasks/workstreams/apps-web/account/account-rebuild.md"))).toBe(true);
+      expect(existsSync(join(cwd, "docs/architecture/domains/apps-web.md"))).toBe(true);
+      expect(existsSync(join(cwd, "docs/architecture/modules/apps-web/account.md"))).toBe(true);
+      expect(existsSync(join(cwd, ".ai/harness/events.jsonl"))).toBe(true);
+
+      const workstream = readFileSync(join(cwd, "tasks/workstreams/apps-web/account/account-rebuild.md"), "utf-8");
+      expect(workstream).toContain("> **Capability ID**: `apps-web-account`");
+      expect(workstream).toContain("> **Functional Block**: `apps/web/src/routes/account`");
+      expect(workstream).toContain("> **Current Slice**: todo-03");
+
+      const agents = readFileSync(join(cwd, "apps/web/src/routes/account/AGENTS.md"), "utf-8");
+      const claude = readFileSync(join(cwd, "apps/web/src/routes/account/CLAUDE.md"), "utf-8");
+      expect(agents).toBe(claude);
+      expect(agents).toContain("Active Workstreams");
+      expect(agents).toContain("`tasks/workstreams/apps-web/account/account-rebuild.md`");
+      expect(agents).toContain("current_slice: todo-03");
+      expect(agents).toContain("tasks/todo.md` is the current session slice");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
+  test("architecture-drift helper marks workflow-surface changes as spawn recommended", () => {
+    const cwd = tmpWorkspace("architecture-drift-high");
+    try {
+      installArchitectureHelpers(cwd);
+      mkdirSync(join(cwd, ".ai/harness"), { recursive: true });
+
+      const res = run("bash", ["scripts/architecture-drift.sh", "record", "--file", ".ai/hooks/pre-edit-guard.sh"], cwd);
+
+      expect(res.status).toBe(0);
+      expect(res.stdout).toContain("severity=high");
+      expect(res.stdout).toContain("spawn_recommended=true");
+      const event = readFileSync(join(cwd, ".ai/harness/architecture/events.jsonl"), "utf-8");
+      expect(event).toContain('"severity":"high"');
+      expect(event).toContain('"spawn_recommended":true');
     } finally {
       rmSync(cwd, { recursive: true, force: true });
     }
@@ -794,13 +988,13 @@ describe("Hook runtime behavior", () => {
     try {
       initGitRepo(cwd);
       installHooks(cwd);
-      mkdirSync(join(cwd, "contracts"), { recursive: true });
+      mkdirSync(join(cwd, "interfaces"), { recursive: true });
       mkdirSync(join(cwd, "src"), { recursive: true });
-      writeFileSync(join(cwd, "contracts/types.ts"), "export type Contract = {};\n");
+      writeFileSync(join(cwd, "interfaces/types.ts"), "export type RuntimeInterface = {};\n");
       writeFileSync(join(cwd, "src/widget.ts"), "export function widget() { return 1; }\n");
 
       const assetRes = runHook("pre-edit-guard.sh", cwd, {
-        stdin: JSON.stringify({ tool_input: { file_path: "contracts/types.ts" } }),
+        stdin: JSON.stringify({ tool_input: { file_path: "interfaces/types.ts" } }),
       });
       expect(assetRes.status).toBe(0);
       expect(assetRes.stdout).toContain("[AssetLayer]");

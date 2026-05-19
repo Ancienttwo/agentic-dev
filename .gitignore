@@ -38,6 +38,7 @@ bun.lockb
 .ai/harness/handoff/current.md
 .ai/harness/handoff/resume.md
 .ai/harness/context-budget/latest.json
+.ai/harness/architecture/events.jsonl
 .ai/harness/runs/
 .claude/.active-plan
 .claude/.plan-state/
@@ -46,6 +47,7 @@ bun.lockb
 artifacts/
 *.tar.gz
 *.tgz
+_ref/
 # Environment
 .env
 .env.*

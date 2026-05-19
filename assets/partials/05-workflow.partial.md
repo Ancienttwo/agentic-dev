@@ -41,8 +41,9 @@ PLAN_LOOP:
 - Small or medium feature plans -> Waza `/think`.
 - Bugs, regressions, crashes, errors, or failing tests -> Waza `/hunt`.
 - Implemented diffs, pre-merge checks, or release follow-through -> Waza `/check`.
+- Architecture diagrams or system-flow diagrams -> `diagram-design`.
 - Use P1/P2/P3 as the shared due-diligence protocol; report it explicitly for `plan-eng-review`, `/hunt`, risky refactors, deployments, auth/payment/data work, and shared contracts.
-- Hooks must not infer semantic intent; they only enforce workflow files, contracts, and verification state.
+- Hooks may emit advisory Waza `/check` and `/health` route hints, but must not auto-run skills or vendor skill bodies.
 
 ### Task Management Protocol
 

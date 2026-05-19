@@ -6,7 +6,8 @@
 # - Active-plan source of truth: plans/
 # - Sprint artifacts: tasks/contracts/, tasks/reviews/, .ai/context/context-map.json
 # - Harness state: .ai/harness/checks/latest.json, .ai/harness/policy.json,
-#   .ai/harness/events.jsonl, .ai/harness/handoff/current.md,
+#   .ai/harness/events.jsonl, .ai/harness/architecture/events.jsonl,
+#   .ai/harness/handoff/current.md,
 #   .ai/harness/handoff/resume.md, .ai/harness/context-budget/latest.json,
 #   .ai/harness/failures/latest.jsonl, .ai/harness/runs/.gitkeep
 #
@@ -358,7 +359,7 @@ create_task_files_if_missing() {
   progress_file="$repo/docs/PROGRESS.md"
 
   if [[ "$MODE" != "apply" ]]; then
-    echo "[dry-run] ensure docs/spec.md, tasks/*, reviews, notes, .ai/context/context-map.json, and .ai/harness/{checks/latest.json,policy.json,events.jsonl,handoff/current.md,handoff/resume.md,context-budget/latest.json,failures/latest.jsonl,runs/.gitkeep} exist with 3.1 guidance"
+    echo "[dry-run] ensure docs/spec.md, tasks/*, workstreams, reviews, notes, .ai/context/{capabilities.json,context-map.json}, and .ai/harness/{checks/latest.json,policy.json,events.jsonl,architecture/events.jsonl,handoff/current.md,handoff/resume.md,context-budget/latest.json,failures/latest.jsonl,runs/.gitkeep} exist with 3.1 guidance"
     return
   fi
 
@@ -367,11 +368,18 @@ create_task_files_if_missing() {
     "$repo/tasks/contracts" \
     "$repo/tasks/reviews" \
     "$repo/tasks/notes" \
+    "$repo/tasks/workstreams" \
     "$repo/docs" \
+    "$repo/docs/architecture/domains" \
+    "$repo/docs/architecture/modules" \
+    "$repo/docs/architecture/requests" \
+    "$repo/docs/architecture/snapshots" \
+    "$repo/docs/architecture/diagrams" \
     "$repo/.ai/context" \
     "$repo/.ai/harness/checks" \
     "$repo/.ai/harness/handoff" \
     "$repo/.ai/harness/failures" \
+    "$repo/.ai/harness/architecture" \
     "$repo/.ai/harness/runs"
 
   if [[ ! -f "$repo/docs/spec.md" ]]; then
@@ -712,6 +720,7 @@ migrate_workflow() {
   run_or_echo "mkdir -p \"$repo/tasks/contracts\""
   run_or_echo "mkdir -p \"$repo/tasks/reviews\""
   run_or_echo "mkdir -p \"$repo/tasks/notes\""
+  run_or_echo "mkdir -p \"$repo/tasks/workstreams\""
   run_or_echo "mkdir -p \"$repo/docs/reference-configs\""
   run_or_echo "mkdir -p \"$repo/.ai/harness/checks\""
   run_or_echo "mkdir -p \"$repo/.ai/harness/handoff\""
