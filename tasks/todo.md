@@ -18,3 +18,8 @@
 - [x] Removed standalone `.ai/harness/workstreams/events.jsonl` in favor of `.ai/harness/events.jsonl`
 - [x] Added capability registry validation to strict workflow checks
 - [x] Renamed default runtime interface scaffold from `contracts/` to `interfaces/`
+- [x] Deprecated default root `specs/` scaffold in favor of `docs/spec.md`, `interfaces/`, and tests
+- [x] Deprecated `docs/PROGRESS.md` as a generated or required workflow surface; keep it as legacy migration input only
+- [x] Clarified `tasks/notes/` as task-local decision notes in root `AGENTS.md` / `CLAUDE.md` and template partials
+- [x] Updated `_ref/` and `_ops/` initialization, policy, gitignore, and hook guard rules
+- [x] Added the `project-initializer` architecture diagram and linked it from the architecture index

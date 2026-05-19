@@ -25,7 +25,7 @@ CLAUDE.md is a routing card. Keep context minimal and load only what the current
 | Evaluator scoring | `docs/reference-configs/evaluator-rubric.md` |
 | Handoff expectations | `docs/reference-configs/handoff-protocol.md` |
 | Product and architecture context | `docs/brief.md`, `docs/decisions.md`, `docs/tech-stack.md` |
-| Milestones and release history | `docs/PROGRESS.md`, `docs/CHANGELOG.md` |
+| Durable progress and release history | `tasks/workstreams/`, `docs/CHANGELOG.md` |
 
 ### First Principles
 

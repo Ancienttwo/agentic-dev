@@ -163,39 +163,6 @@ function writeCanonicalResearch(target: string, mode: Mode) {
   }
 }
 
-function normalizeProgress(progressPath: string, mode: Mode) {
-  const content = [
-    "# Project Milestones",
-    "",
-    "> Use this file for milestone checkpoints only.",
-    "> Active execution belongs in `tasks/todo.md`, `tasks/contracts/`, `tasks/reviews/`, and `.ai/harness/handoff/current.md`.",
-    "",
-    "## Current Milestone",
-    "",
-    "- Name: Migration stabilization",
-    "- Status: In progress",
-    "- Success state: Reapply the harness and finish with a passing strict workflow check.",
-    "",
-    "## Completed Milestones",
-    "",
-    "- [ ] Preserve or restore milestone history here after migration review",
-    "",
-    "## Next Milestone / Blockers",
-    "",
-    "- [ ] Re-add the next ship target after reviewing archived milestone history",
-    "- [ ] Record the blocker or dependency that gates the next milestone.",
-    "",
-    "## Milestone Notes",
-    "",
-    "- This file was normalized during migration. Re-add historical milestones if needed.",
-  ].join("\n");
-
-  if (mode === "apply") {
-    ensureDir(dirname(progressPath), mode);
-    writeFileSync(progressPath, `${content}\n`);
-  }
-}
-
 export function migrate(repo: string, mode: Mode): MigrationSummary {
   const summary: MigrationSummary = {
     repo,
@@ -288,29 +255,33 @@ export function migrate(repo: string, mode: Mode): MigrationSummary {
     );
   }
 
-  if (existsSync(progressDoc) && !readFileSync(progressDoc, "utf-8").includes("milestone checkpoints only")) {
+  if (existsSync(progressDoc)) {
     const content = readFileSync(progressDoc, "utf-8").trimEnd();
-    const notesBlock = [
-      "## Legacy Progress Import",
-      "",
-      "<!-- project-initializer: legacy-docs-import docs/PROGRESS.md -->",
-      "",
-      "Imported from a legacy execution log stored in `docs/PROGRESS.md`.",
-      "",
-      content,
-    ].join("\n");
+    if (!readFileSync(progressDoc, "utf-8").includes("milestone checkpoints only")) {
+      const notesBlock = [
+        "## Legacy Progress Import",
+        "",
+        "<!-- project-initializer: legacy-docs-import docs/PROGRESS.md -->",
+        "",
+        "Imported from a legacy execution log stored in `docs/PROGRESS.md`.",
+        "",
+        content,
+      ].join("\n");
 
-    appendIfMissing(tasksResearch, "<!-- project-initializer: legacy-docs-import docs/PROGRESS.md -->", notesBlock, mode);
-
-    if (mode === "apply" && !existsSync(legacyProgressArchive)) {
-      writeFileSync(legacyProgressArchive, `${content}\n`);
+      appendIfMissing(tasksResearch, "<!-- project-initializer: legacy-docs-import docs/PROGRESS.md -->", notesBlock, mode);
     }
-    normalizeProgress(progressDoc, mode);
+
+    if (mode === "apply") {
+      if (!existsSync(legacyProgressArchive)) {
+        writeFileSync(legacyProgressArchive, `${content}\n`);
+      }
+      renameSync(progressDoc, `${progressDoc}.migrated.bak`);
+    }
     summary.migrated.push({
       source: "docs/PROGRESS.md",
-      target: "tasks/research.md + docs/PROGRESS.md",
-      action: "rewrite",
-      note: "Moved legacy execution notes into research notes and normalized PROGRESS to milestone-only usage.",
+      target: "tasks/archive/legacy-docs-PROGRESS.md",
+      action: "archive",
+      note: "Archived legacy progress notes; docs/PROGRESS.md is no longer a generated workflow surface.",
     });
   }
 

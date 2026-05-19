@@ -10,6 +10,15 @@ build/
 .output/
 coverage/
 
+# ===== External References =====
+_ref/
+
+# ===== Operations =====
+_ops/secrets/
+_ops/env/.env
+_ops/env/.env.*
+!_ops/env/.env.example
+
 # ===== Environment Variables =====
 .env
 .env.*

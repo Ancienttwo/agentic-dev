@@ -85,6 +85,9 @@ describe("workflow contract manifest", () => {
     expect(contract.artifacts.requiredDirectories).toContain("tasks/workstreams");
     expect(contract.artifacts.requiredDirectories).toContain("docs/architecture/domains");
     expect(contract.artifacts.requiredDirectories).toContain("docs/architecture/modules");
+    expect(contract.artifacts.requiredDirectories).toContain("_ops/scripts");
+    expect(contract.artifacts.requiredDirectories).toContain("_ops/submissions");
+    expect(contract.artifacts.requiredFiles).toContain("_ops/README.md");
     expect(contract.artifacts.requiredFiles).toContain("docs/reference-configs/agentic-development-flow.md");
     expect(contract.artifacts.requiredFiles).not.toContain(".ai/harness/handoff/resume.md");
     expect(contract.artifacts.requiredFiles).not.toContain(".ai/harness/context-budget/latest.json");
@@ -133,7 +136,7 @@ describe("state inspection and legacy doc migration", () => {
       expect(result.legacy_contract_version).toBe("pre-tasks-first");
       expect(result.drift_signals).toContain("legacy-docs-plan");
       expect(result.drift_signals).toContain("legacy-docs-todo");
-      expect(result.drift_signals).toContain("progress-ledger-used-as-active-log");
+      expect(result.drift_signals).toContain("legacy-docs-progress");
     } finally {
       rmSync(repo, { recursive: true, force: true });
     }
@@ -180,8 +183,9 @@ describe("state inspection and legacy doc migration", () => {
       expect(research).toContain("Legacy Progress Import");
       expect(research).toContain("investigate drift");
 
-      const progress = readFileSync(join(repo, "docs/PROGRESS.md"), "utf-8");
-      expect(progress).toContain("milestone checkpoints only");
+      expect(existsSync(join(repo, "docs/PROGRESS.md"))).toBe(false);
+      expect(existsSync(join(repo, "docs/PROGRESS.md.migrated.bak"))).toBe(true);
+      expect(existsSync(join(repo, "tasks/archive/legacy-docs-PROGRESS.md"))).toBe(true);
     } finally {
       rmSync(repo, { recursive: true, force: true });
     }

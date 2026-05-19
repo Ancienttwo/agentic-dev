@@ -862,8 +862,6 @@ describe("Workflow helper scripts", () => {
       writeFileSync(join(cwd, "tasks/todo.md"), "# Legacy Todo\n\n- [ ] old item\n");
       writeFileSync(join(cwd, "tasks/lessons.md"), "# Lessons\n");
       writeFileSync(join(cwd, "tasks/research.md"), "# Research\n");
-      writeFileSync(join(cwd, "docs/PROGRESS.md"), "# Project Milestones\n");
-
       const res = run("bash", ["scripts/check-task-workflow.sh", "--strict"], cwd);
       expect(res.status).toBe(1);
       expect(res.stdout).toContain("Legacy tasks/todo.md detected");
@@ -895,7 +893,6 @@ describe("Workflow helper scripts", () => {
       writeFileSync(join(cwd, "tasks/todo.md"), "# Task Execution Checklist (Primary)\n\n> **Source Plan**: (none)\n");
       writeFileSync(join(cwd, "tasks/lessons.md"), "# Lessons\n");
       writeFileSync(join(cwd, "tasks/research.md"), "# Research\n");
-      writeFileSync(join(cwd, "docs/PROGRESS.md"), "# Project Milestones\n\n> Use this file for milestone checkpoints only.\n");
       writeFileSync(join(cwd, ".ai/harness/checks/latest.json"), "{}\n");
       writeFileSync(join(cwd, ".ai/harness/handoff/current.md"), "# Harness Handoff\n");
 

@@ -22,7 +22,6 @@ function setupRepo(): string {
   const cwd = mkdtempSync(join(tmpdir(), "task-sync-"));
   mkdirSync(join(cwd, "src"), { recursive: true });
   mkdirSync(join(cwd, "tasks", "archive"), { recursive: true });
-  mkdirSync(join(cwd, "docs"), { recursive: true });
   mkdirSync(join(cwd, "scripts"), { recursive: true });
 
   copyFileSync(HELPER, join(cwd, "scripts", "check-task-sync.sh"));
@@ -35,7 +34,6 @@ function setupRepo(): string {
   writeFileSync(join(cwd, "tasks", "todo.md"), "# Task Execution Checklist (Primary)\n");
   writeFileSync(join(cwd, "tasks", "lessons.md"), "# Lessons Learned (Self-Improvement Loop)\n");
   writeFileSync(join(cwd, "tasks", "research.md"), "# Project Research Notes\n");
-  writeFileSync(join(cwd, "docs", "PROGRESS.md"), "# Project Milestones\n");
 
   expect(run(cwd, ["git", "add", "."]).status).toBe(0);
   expect(run(cwd, ["git", "commit", "-m", "init"]).status).toBe(0);
@@ -117,12 +115,13 @@ describe("check-task-sync helper", () => {
     }
   });
 
-  test("passes when only docs/PROGRESS.md changed", () => {
+  test("fails when only legacy docs/PROGRESS.md changed", () => {
     const cwd = setupRepo();
     try {
+      mkdirSync(join(cwd, "docs"), { recursive: true });
       writeFileSync(join(cwd, "docs", "PROGRESS.md"), "# Project Milestones\n- [x] milestone\n");
       const res = run(cwd, ["bash", "scripts/check-task-sync.sh"]);
-      expect(res.status).toBe(0);
+      expect(res.status).toBe(1);
     } finally {
       rmSync(cwd, { recursive: true, force: true });
     }
@@ -131,6 +130,7 @@ describe("check-task-sync helper", () => {
   test("fails when code changes only update docs/PROGRESS.md", () => {
     const cwd = setupRepo();
     try {
+      mkdirSync(join(cwd, "docs"), { recursive: true });
       writeFileSync(join(cwd, "src", "app.ts"), "export const value = 2;\n");
       writeFileSync(join(cwd, "docs", "PROGRESS.md"), "# Project Milestones\n- [x] milestone\n");
       const res = run(cwd, ["bash", "scripts/check-task-sync.sh"]);

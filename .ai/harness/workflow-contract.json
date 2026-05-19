@@ -130,7 +130,11 @@
       "docs/architecture/requests",
       "docs/architecture/snapshots",
       "docs/architecture/diagrams",
-      "docs/reference-configs"
+      "docs/reference-configs",
+      "_ops",
+      "_ops/env",
+      "_ops/scripts",
+      "_ops/submissions"
     ],
     "requiredFiles": [
       "docs/spec.md",
@@ -167,7 +171,6 @@
       "tasks/todo.md",
       "tasks/lessons.md",
       "tasks/research.md",
-      "docs/PROGRESS.md",
       "docs/architecture/index.md",
       ".ai/context/context-map.json",
       ".ai/context/capabilities.json",
@@ -178,7 +181,8 @@
       "docs/reference-configs/external-tooling.md",
       "docs/reference-configs/sprint-contracts.md",
       "docs/reference-configs/handoff-protocol.md",
-      "docs/reference-configs/document-generation.md"
+      "docs/reference-configs/document-generation.md",
+      "_ops/README.md"
     ],
     "runtimeFiles": [
       ".ai/harness/checks/latest.json",
@@ -194,7 +198,6 @@
   "documents": {
     "spec": "docs/spec.md",
     "planDirectory": "plans",
-    "progressLedger": "docs/PROGRESS.md",
     "taskChecklist": "tasks/todo.md",
     "researchNotes": "tasks/research.md",
     "implementationNotesDirectory": "tasks/notes",

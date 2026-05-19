@@ -1,6 +1,6 @@
 # Project — Research Notes
 
-> **Last Updated**: 2026-05-19
+> **Last Updated**: 2026-05-20
 > **Scope**: workflow contract manifest, inspection-first migration, progressive context/policy surfaces, harness state externalization, and DX polish for docs + hook operations
 > **Usage**: Store deep codebase findings and hidden contracts here, not in chat-only summaries.
 
@@ -37,7 +37,7 @@
 - `scripts/check-task-workflow.sh --strict` now also expects `docs/spec.md`, `tasks/reviews/`, `scripts/new-spec.sh`, `scripts/new-sprint.sh`, and `scripts/verify-sprint.sh` to exist in the self-host repo.
 - Generated repos should install shared hooks only under `.ai/hooks/`; preserving explicit user-authored `.claude/hooks/custom-*.sh` commands during migration is acceptable, but generating adapter-side shim hooks by default is not.
 - `.ai/context/context-map.json` and `.ai/harness/policy.json` are now part of the generated contract, not optional documentation extras.
-- `docs/PROGRESS.md` should remain milestone-only and not become a running work log.
+- `docs/PROGRESS.md` is now a legacy migration input; durable progress belongs under `tasks/workstreams/` and release history belongs in `docs/CHANGELOG.md`.
 - The README now owns the "first 5 minutes" contract, so onboarding regressions should be treated like product regressions, not copy drift.
 
 ### Edge Cases & Intricacies
@@ -138,7 +138,7 @@
 ## 2026-05-19 Minimal Docs, LSP Profiles, and Worktree Policy Notes
 
 ### What Changed
-- Default scaffolding now uses `minimal-agentic` documentation: `docs/spec.md`, `docs/PROGRESS.md`, `tasks/`, `.ai/harness/`, and a small reference-config set are required; `docs/brief.md`, `docs/tech-stack.md`, `docs/decisions.md`, `docs/architecture/`, `docs/api/`, `docs/guides/`, `docs/archives/`, and the full reference-config corpus require `PROJECT_INITIALIZER_DOCUMENTATION_PROFILE=full`.
+- Default scaffolding now uses `minimal-agentic` documentation: `docs/spec.md`, `docs/architecture/index.md`, `tasks/`, `.ai/harness/`, and a small reference-config set are required; `docs/PROGRESS.md`, `docs/brief.md`, `docs/tech-stack.md`, `docs/decisions.md`, `docs/api/`, `docs/guides/`, `docs/archives/`, and the full reference-config corpus require explicit evidence or migration input.
 - `docs/reference-configs/document-generation.md` is the reference for the new document boundary: generate the smallest skeleton, let the Agent decide when a domain doc is warranted, and keep generated placeholders out of default repos.
 - `lsp_profiles` became explicit policy/context metadata. The root default is `typescript-lsp`; selected functional-block context entries can carry `lsp_profile`, `doc_scope`, and `verification_hint` without expanding root context.
 - `worktree_strategy` became explicit policy. If the current repo state conflicts with the task, the agent should open an isolated `codex/<task-slug>` worktree, complete there, run Waza `/check`-style validation, and only merge back to `main` after checks pass.
@@ -176,3 +176,8 @@
 - Keep capability registry validation in `check-task-workflow.sh --strict`; stale prefixes should fail early instead of letting agents guess.
 - Keep source and template mirrors aligned whenever resolver, drift, context-sync, workstream-sync, or workflow manifest files change.
 - Keep `contracts` reserved for slice/capability workflow language. Runtime API schemas, event schemas, DTOs, and cross-boundary types belong under `interfaces/` when a scaffold needs a durable machine-consumed boundary surface.
+- Keep root `specs/` as a legacy/explicit opt-in surface only. Default scaffolds should use `docs/spec.md` for stable product intent, `interfaces/` for runtime boundaries, and tests for executable behavior.
+- Keep `docs/PROGRESS.md` as legacy-only. No default scaffold or strict workflow check should require it without a hook or event writer that owns it.
+- Keep `tasks/notes/<slug>.notes.md` as a slice-local decision journal only. Root `AGENTS.md`, root `CLAUDE.md`, and generated agent partials should tell agents to use it for non-obvious decisions, deviations, tradeoffs, and open questions, not durable memory or task logging.
+- Keep `_ref/` as ignored external comparison material. It can be refreshed from upstream/source systems, but it should not become a product edit or commit surface.
+- Keep `_ops/` as a commit-ready operations workspace for runbooks, submission materials, release checklists, and helper scripts. Only `_ops/secrets/` and `_ops/env/.env*` carry local secret/env values and must stay ignored; `_ops/env/.env.example` is the trackable contract shape.

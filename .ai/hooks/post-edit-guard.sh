@@ -50,6 +50,11 @@ FILE_PATH="$(hook_get_file_path "${1:-}")"
 BASENAME=$(basename "$FILE_PATH")
 DIRNAME=$(dirname "$FILE_PATH")
 
+if [[ "$FILE_PATH" == _ops/* ]]; then
+  echo "[OpsAsset] Operations asset changed: $FILE_PATH"
+  echo "  Confirm secrets remain in ignored _ops/secrets/ or _ops/env/.env* files before committing."
+fi
+
 if [[ "$BASENAME" == "package.json" && "$DIRNAME" =~ (^|/)packages/([^/]+) ]]; then
   PKG_NAME="packages/${BASH_REMATCH[2]}"
   if [[ -n "$PKG_NAME" ]]; then

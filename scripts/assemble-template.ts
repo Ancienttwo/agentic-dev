@@ -133,6 +133,7 @@ const FALLBACK_TEMPLATE_VARIABLES: Record<string, string> = {
     "├── src/\n" +
     "├── tasks/\n" +
     "├── .ai/harness/\n" +
+    "├── _ops/\n" +
     "└── artifacts/",
   TECH_STACK_TABLE:
     "| Stack | Select based on chosen plan |\n" +

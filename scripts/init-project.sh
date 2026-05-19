@@ -225,37 +225,14 @@ create_structure() {
     mkdir -p .ai/harness/failures
     mkdir -p .ai/harness/runs
     mkdir -p .claude/templates
-    mkdir -p .ops
+    mkdir -p _ops/env
+    mkdir -p _ops/scripts
+    mkdir -p _ops/secrets
+    mkdir -p _ops/submissions
     mkdir -p artifacts
     create_contract_directories
 
     # Create documentation files
-    cat > docs/PROGRESS.md << EOF
-# Project Milestones
-
-> Use this file for milestone checkpoints only.
-> Active execution belongs in \`tasks/todo.md\`, \`tasks/contracts/\`, \`tasks/reviews/\`, \`tasks/notes/\`, and \`.ai/harness/handoff/current.md\`.
-
-## Current Milestone
-
-- Name: Initial delivery
-- Status: In progress
-- Success state: Ship the first project milestone with passing sprint verification.
-
-## Completed Milestones
-
-- [x] Repository scaffolded
-
-## Next Milestone / Blockers
-
-- [ ] First feature milestone shipped
-- [ ] Record the blocker or dependency that gates the next milestone.
-
-## Milestone Notes
-
-- Record releases, migrations, and major checkpoints here.
-EOF
-
     cat > docs/CHANGELOG.md << 'EOF'
 # Changelog
 
@@ -378,6 +355,15 @@ EOF
     ensure_gitignore_entry .gitignore "*.tar.gz"
     ensure_gitignore_entry .gitignore "*.tgz"
     ensure_gitignore_entry .gitignore ""
+    ensure_gitignore_entry .gitignore "# External references"
+    ensure_gitignore_entry .gitignore "_ref/"
+    ensure_gitignore_entry .gitignore ""
+    ensure_gitignore_entry .gitignore "# Operations"
+    ensure_gitignore_entry .gitignore "_ops/secrets/"
+    ensure_gitignore_entry .gitignore "_ops/env/.env"
+    ensure_gitignore_entry .gitignore "_ops/env/.env.*"
+    ensure_gitignore_entry .gitignore "!_ops/env/.env.example"
+    ensure_gitignore_entry .gitignore ""
     ensure_gitignore_entry .gitignore "# Environment"
     ensure_gitignore_entry .gitignore ".env"
     ensure_gitignore_entry .gitignore ".env.*"
@@ -386,6 +372,34 @@ EOF
     ensure_gitignore_entry .gitignore "# OS metadata"
     ensure_gitignore_entry .gitignore ".DS_Store"
     ensure_runtime_gitignore_block .gitignore
+
+    touch _ops/.gitkeep
+    touch _ops/env/.gitkeep
+    touch _ops/scripts/.gitkeep
+    touch _ops/submissions/.gitkeep
+    if [[ ! -f _ops/README.md ]]; then
+        cat > _ops/README.md << 'EOF'
+# Operations Workspace
+
+`_ops/` is a commit-ready operations surface for runbooks, submission materials, release checklists, and helper scripts.
+
+## Track
+
+- `_ops/scripts/` for operational scripts.
+- `_ops/submissions/` for submission or review materials.
+- `_ops/*.md` for runbooks and operating notes.
+- `_ops/env/.env.example` for documented variable shapes only.
+
+## Do Not Track
+
+- `_ops/secrets/`
+- `_ops/env/.env`
+- `_ops/env/.env.*` except `_ops/env/.env.example`
+- private keys, production tokens, credential dumps, and local-only overrides
+
+Keep external upstream checkouts and source references in `_ref/`; `_ref/` is ignored and must stay out of commits.
+EOF
+    fi
 
     # Create .env.example
     cat > .env.example << 'EOF'

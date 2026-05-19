@@ -35,9 +35,8 @@
 │   ├── architecture/
 │   │   ├── ARCHITECTURE.md
 │   │   └── tech-stack.md
-│   ├── PROGRESS.md
 │   └── CHANGELOG.md
-├── .ops/                        # Operations (not in Git)
+├── _ops/                        # Trackable operations; secrets/env ignored
 ├── artifacts/                   # Build outputs (not in Git)
 ├── .env.example
 ├── .gitignore

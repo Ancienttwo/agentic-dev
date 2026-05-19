@@ -7,14 +7,13 @@ This guide contains detailed protocol steps that do not need to stay in the alwa
 - Active execution lives in `tasks/todo.md`.
 - Correction-derived prevention rules live in `tasks/lessons.md`.
 - Deep investigation notes live in `tasks/research.md`.
-- Milestones live in `docs/PROGRESS.md`.
 - Hook ownership, failure logs, and parity expectations live in `docs/reference-configs/hook-operations.md`.
 
 For any non-chat task that changes the repo in a substantive way, update `tasks/` as part of the same unit of work.
 
 ## Layer Model
 
-- Immutable: `specs/`, `interfaces/`, `tests/`
+- Immutable: `docs/spec.md`, `interfaces/`, `tests/`
 - Mutable: `src/`
 
 If immutable artifacts and implementation diverge, update immutable artifacts first.
@@ -22,7 +21,7 @@ If immutable artifacts and implementation diverge, update immutable artifacts fi
 ## Feature Flow
 
 1. Define acceptance criteria.
-2. Define runtime interfaces and types.
+2. Update `docs/spec.md` or runtime interfaces when the boundary changed.
 3. Add or update tests.
 4. Update `tasks/todo.md` with the execution checklist.
 5. Implement minimal change.

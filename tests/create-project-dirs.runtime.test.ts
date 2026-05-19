@@ -18,6 +18,12 @@ describe("create-project-dirs runtime smoke", () => {
 
       expect(existsSync(join(cwd, "interfaces/types.ts"))).toBe(true);
       expect(existsSync(join(cwd, "contracts"))).toBe(false);
+      expect(existsSync(join(cwd, "specs"))).toBe(false);
+      expect(existsSync(join(cwd, ".ops"))).toBe(false);
+      expect(existsSync(join(cwd, "_ops/README.md"))).toBe(true);
+      expect(existsSync(join(cwd, "_ops/env/.gitkeep"))).toBe(true);
+      expect(existsSync(join(cwd, "_ops/scripts/.gitkeep"))).toBe(true);
+      expect(existsSync(join(cwd, "_ops/submissions/.gitkeep"))).toBe(true);
       expect(existsSync(join(cwd, "tasks/contracts"))).toBe(true);
       expect(existsSync(join(cwd, "tasks/notes"))).toBe(true);
       expect(existsSync(join(cwd, ".claude/templates/contract.template.md"))).toBe(true);
@@ -108,11 +114,7 @@ describe("create-project-dirs runtime smoke", () => {
       expect(settings).not.toContain("memory-intake.sh");
       expect(settings).not.toContain("skill-factory-session-end.sh");
 
-      const progress = readFileSync(join(cwd, "docs/PROGRESS.md"), "utf-8");
-      expect(progress).toContain("milestone checkpoints only");
-      expect(progress).toContain("tasks/contracts/");
-      expect(progress).toContain("tasks/reviews/");
-      expect(progress).toContain("tasks/notes/");
+      expect(existsSync(join(cwd, "docs/PROGRESS.md"))).toBe(false);
       const workflowContract = JSON.parse(readFileSync(join(cwd, ".ai/harness/workflow-contract.json"), "utf-8"));
       expect(workflowContract.helpers.scripts).toContain("check-agent-tooling.sh");
       expect(workflowContract.helpers.scripts).toContain("check-task-workflow.sh");
@@ -134,6 +136,8 @@ describe("create-project-dirs runtime smoke", () => {
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/agentic-development-flow.md");
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/external-tooling.md");
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/document-generation.md");
+      expect(workflowContract.artifacts.requiredFiles).toContain("_ops/README.md");
+      expect(workflowContract.artifacts.requiredDirectories).toContain("_ops/scripts");
       expect(workflowContract.artifacts.requiredFiles).toContain(".claude/templates/implementation-notes.template.md");
       expect(workflowContract.artifacts.requiredDirectories).toContain("tasks/notes");
       expect(workflowContract.artifacts.requiredDirectories).toContain("tasks/workstreams");
@@ -172,6 +176,11 @@ describe("create-project-dirs runtime smoke", () => {
       expect(policy.external_tooling.gbrain.mcp).toBe("candidate-disabled");
       expect(policy.tasks.notes_dir).toBe("tasks/notes");
       expect(policy.tasks.workstreams_dir).toBe("tasks/workstreams");
+      expect(policy.reference_material.dir).toBe("_ref");
+      expect(policy.reference_material.commit_policy).toContain("never commit");
+      expect(policy.operations.dir).toBe("_ops");
+      expect(policy.operations.tracked).toContain("_ops/scripts/");
+      expect(policy.operations.ignored).toContain("_ops/secrets/");
       expect(policy.information_lifecycle.notes.dir).toBe("tasks/notes");
       expect(policy.information_lifecycle.evidence.snapshots_dir).toBe(".ai/harness/runs");
       expect(policy.agentic_development.routing).toEqual({

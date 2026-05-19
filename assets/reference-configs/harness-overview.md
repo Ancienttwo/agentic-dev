@@ -40,8 +40,9 @@ This repo uses a shared long-running harness. The durable workflow lives in repo
 ## Documentation Profile
 
 - Default profile: `minimal-agentic`.
-- Required docs: `docs/spec.md` and `docs/PROGRESS.md`.
+- Required docs: `docs/spec.md` and `docs/architecture/index.md`.
 - Optional docs such as `docs/brief.md`, `docs/tech-stack.md`, `docs/decisions.md`, `docs/architecture.md`, and `docs/packages.md` are created only when the agent has concrete repo evidence or the user asks.
+- Root `specs/` is a legacy scaffold surface; use `docs/spec.md`, `interfaces/`, and tests instead.
 - Use `docs/reference-configs/document-generation.md` for the creation rules.
 
 ## Information Lifecycle

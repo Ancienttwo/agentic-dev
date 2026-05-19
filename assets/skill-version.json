@@ -1,6 +1,6 @@
 {
-  "version": "3.6.0",
-  "templateVersion": "3.6.0",
+  "version": "4.0.0",
+  "templateVersion": "4.0.0",
   "compatibility": {
     "minClaudeCodeVersion": "1.0.0",
     "minBunVersion": "1.0.0"
@@ -49,6 +49,10 @@
     {
       "version": "3.6.0",
       "description": "Added minimal-agentic documentation generation, functional-block LSP profile metadata, conflict-triggered Codex worktree validation policy, and explicit notes/evidence/asset lifecycle artifacts"
+    },
+    {
+      "version": "4.0.0",
+      "description": "Removed docs/PROGRESS.md and root specs from default generated surfaces, moved durable progress to tasks/workstreams, and added _ref/_ops path governance with hook guards"
     }
   ],
   "generatedProjectStamp": {

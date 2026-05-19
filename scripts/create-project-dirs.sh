@@ -5,7 +5,7 @@
 # Creates the three-layer project structure:
 #   IMMUTABLE LAYER (资产层): specs, contracts, tests
 #   MUTABLE LAYER (厕纸层): src
-#   SUPPORTING (支撑层): docs, scripts, .ops, artifacts, tasks, plans
+#   SUPPORTING (支撑层): docs, scripts, _ops, artifacts, tasks, plans
 
 set -euo pipefail
 
@@ -71,7 +71,6 @@ ensure_task_sync_package_script() {
 }
 
 # ===== IMMUTABLE LAYER (资产层) =====
-mkdir -p specs/modules
 mkdir -p interfaces/modules
 mkdir -p tests/unit
 mkdir -p tests/integration
@@ -96,8 +95,10 @@ mkdir -p .ai/harness/handoff
 mkdir -p .ai/harness/context-budget
 mkdir -p .ai/harness/failures
 mkdir -p .ai/harness/runs
-mkdir -p .ops/database
-mkdir -p .ops/secrets
+mkdir -p _ops/env
+mkdir -p _ops/scripts
+mkdir -p _ops/secrets
+mkdir -p _ops/submissions
 mkdir -p artifacts
 create_contract_directories
 
@@ -108,32 +109,6 @@ if pi_should_generate_full_docs; then
   touch docs/tech-stack.md
   touch docs/decisions.md
 fi
-
-cat > docs/PROGRESS.md << 'PROGRESS_EOF'
-# Project Milestones
-
-> Use this file for milestone checkpoints only.
-> Active execution belongs in `tasks/todo.md`, `tasks/contracts/`, `tasks/reviews/`, `tasks/notes/`, and `.ai/harness/handoff/current.md`.
-
-## Current Milestone
-
-- Name: Initial delivery
-- Status: In progress
-- Success state: Ship the first project milestone with passing sprint verification.
-
-## Completed Milestones
-
-- [x] Repository scaffolded
-
-## Next Milestone / Blockers
-
-- [ ] First feature milestone shipped
-- [ ] Record the blocker or dependency that gates the next milestone.
-
-## Milestone Notes
-
-- Record releases, migrations, and major checkpoints here.
-PROGRESS_EOF
 
 cat > tasks/todo.md << 'TASK_TODO_EOF'
 # Task Execution Checklist (Primary)
@@ -216,23 +191,6 @@ DOCS_SPEC_EOF
 # - .ai/harness/runs/.gitkeep
 pi_ensure_harness_state_surface "$PWD" "apply"
 
-cat > specs/overview.md << 'SPECS_OVERVIEW_EOF'
-# Project Specifications
-
-> **Spec is the Source of Truth. 规格是唯一真理的来源。**
-
-## How to Use
-
-1. Write spec first, then implement
-2. Changing spec = rewrite downstream
-3. No implementation without spec
-
-## Modules
-
-- Add module specs in `modules/` directory
-- Format: `{module-name}.spec.md`
-SPECS_OVERVIEW_EOF
-
 cat > interfaces/types.ts << 'INTERFACES_TYPES_EOF'
 /**
  * Shared Runtime Interface Definitions
@@ -309,14 +267,37 @@ mkdir -p "src/modules/$MODULE"
 echo "Module $MODULE cleared. Ready for rewrite."
 echo ""
 echo "Preserved assets:"
-echo "  - specs/modules/$MODULE.spec.md"
+echo "  - docs/spec.md"
 echo "  - interfaces/modules/$MODULE.interface.ts"
 echo "  - tests/unit/$MODULE/"
 echo "  - tests/integration/$MODULE/"
 REGENERATE_EOF
 chmod +x scripts/regenerate.sh
 
-touch .ops/.gitkeep
-echo "# This folder contains sensitive operations files - DO NOT COMMIT" > .ops/README.md
+touch _ops/.gitkeep
+touch _ops/env/.gitkeep
+touch _ops/scripts/.gitkeep
+touch _ops/submissions/.gitkeep
+cat > _ops/README.md << 'OPS_README_EOF'
+# Operations Workspace
+
+`_ops/` is a commit-ready operations surface for runbooks, submission materials, release checklists, and helper scripts.
+
+## Track
+
+- `_ops/scripts/` for operational scripts.
+- `_ops/submissions/` for submission or review materials.
+- `_ops/*.md` for runbooks and operating notes.
+- `_ops/env/.env.example` for documented variable shapes only.
+
+## Do Not Track
+
+- `_ops/secrets/`
+- `_ops/env/.env`
+- `_ops/env/.env.*` except `_ops/env/.env.example`
+- private keys, production tokens, credential dumps, and local-only overrides
+
+Keep external upstream checkouts and source references in `_ref/`; `_ref/` is ignored and must stay out of commits.
+OPS_README_EOF
 
 echo "Project directory structure created successfully."

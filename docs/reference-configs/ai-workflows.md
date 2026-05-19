@@ -115,7 +115,7 @@ SESSION_HANDOFF:
     2. Append new patterns to tasks/lessons.md after corrections
     3. Update plan status in plans/ (Executing -> Archived on completion)
     4. Update tasks/research.md if new hidden contracts or findings were discovered
-    5. Update docs/PROGRESS.md only if a milestone was reached
+    5. Update `tasks/workstreams/` only when durable capability progress changed
     6. Document any blockers or decisions needed
     7. Create an explicit commit if the work should be checkpointed
 
@@ -124,14 +124,14 @@ SESSION_HANDOFF:
     2. AI reads tasks/lessons.md for prevention rules
     3. AI reads tasks/research.md (if exists)
     4. AI checks latest plan status in plans/
-    5. AI reads docs/PROGRESS.md only for milestone context
+    5. AI reads `tasks/workstreams/` only for durable capability context
     6. AI checks git status for uncommitted changes
 
   CONTEXT_PRESERVATION:
     - Key decisions -> docs/architecture/decisions/
     - Technical debt -> tasks/todo.md (Backlog section)
     - Learnings -> tasks/lessons.md
-    - Milestones -> docs/PROGRESS.md
+    - Durable progress -> tasks/workstreams/
 ```
 
 ## AI Pair Programming Modes

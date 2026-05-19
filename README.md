@@ -75,9 +75,10 @@ Most common guards:
 - Claude adapter layer: `.claude/settings.json`
 - Active execution surface: `tasks/`
 - Plan source of truth: `plans/`
-- Milestone log only: `docs/PROGRESS.md`
+- Durable progress: `tasks/workstreams/`
+- Release history: `docs/CHANGELOG.md`
 
-## Current Model (3.5.0)
+## Current Model (4.0.0)
 
 - Question flow uses **12 grouped decision points** with harness defaults inferred first.
 - Plan menu is tiered:
@@ -111,7 +112,8 @@ Most common guards:
   - repeated corrections -> `tasks/lessons.md`
   - deep findings and hidden contracts -> `tasks/research.md`
   - sprint verification evidence -> `tasks/reviews/*.review.md`
-  - milestone movement -> `docs/PROGRESS.md`
+  - durable capability progress -> `tasks/workstreams/`
+  - release history -> `docs/CHANGELOG.md`
 
 ## Maintainer Reference
 

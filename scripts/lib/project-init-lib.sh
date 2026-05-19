@@ -13,6 +13,15 @@ coverage/
 *.tar.gz
 *.tgz
 
+# External references
+_ref/
+
+# Operations
+_ops/secrets/
+_ops/env/.env
+_ops/env/.env.*
+!_ops/env/.env.example
+
 # Environment
 .env
 .env.*
@@ -1107,9 +1116,17 @@ pi_write_harness_policy() {
     "reviews_dir": "tasks/reviews",
     "notes_dir": "tasks/notes"
   },
-  "progress": {
-    "file": "docs/PROGRESS.md",
-    "mode": "milestone-only"
+  "reference_material": {
+    "dir": "_ref",
+    "mode": "external-ignored",
+    "commit_policy": "never commit _ref contents",
+    "rule": "use _ref for upstream/source comparison only; refresh from external sources instead of editing as product code"
+  },
+  "operations": {
+    "dir": "_ops",
+    "tracked": ["_ops/README.md", "_ops/scripts/", "_ops/submissions/", "_ops/*.md", "_ops/env/.env.example"],
+    "ignored": ["_ops/secrets/", "_ops/env/.env", "_ops/env/.env.*"],
+    "rule": "commit runbooks, submission materials, release checklists, and helper scripts; keep keys, tokens, and local env values in ignored paths only"
   },
   "context": {
     "profile": "$(pi_context_profile)",
@@ -1205,7 +1222,7 @@ pi_write_harness_policy() {
   },
   "documentation": {
     "profile": "$(pi_documentation_profile)",
-    "required": ["docs/spec.md", "docs/PROGRESS.md", "docs/architecture/index.md"],
+    "required": ["docs/spec.md", "docs/architecture/index.md"],
     "on_demand": ["docs/brief.md", "docs/tech-stack.md", "docs/decisions.md", "docs/architecture.md", "docs/packages.md"],
     "reference_configs": [$(pi_policy_reference_config_names | pi_json_string_array_from_lines)],
     "rule": "create optional docs only when the agent has concrete repo evidence or the user asks"

@@ -352,34 +352,6 @@ LESSONS_EOF
 RESEARCH_EOF
   fi
 
-  if [[ ! -f "docs/PROGRESS.md" ]]; then
-    cat > docs/PROGRESS.md <<'PROGRESS_EOF'
-# Project Milestones
-
-> Use this file for milestone checkpoints only.
-> Active execution belongs in `tasks/todo.md`, `tasks/contracts/`, `tasks/reviews/`, and `.ai/harness/handoff/current.md`.
-
-## Current Milestone
-
-- Name: First milestone
-- Status: In progress
-- Success state: Ship the next agreed milestone without reopening the active sprint checklist.
-
-## Completed Milestones
-
-- [ ] Capture the previous milestone here once it ships
-
-## Next Milestone / Blockers
-
-- [ ] Define the next milestone ship target
-- [ ] Record the blocker or dependency that gates the next milestone.
-
-## Milestone Notes
-
-- Record releases, migrations, and major checkpoints here.
-PROGRESS_EOF
-  fi
-
   if [[ ! -f ".ai/harness/checks/latest.json" ]]; then
     echo "{}" > ".ai/harness/checks/latest.json"
   fi
@@ -500,9 +472,17 @@ ARCHITECTURE_INDEX_EOF
     "reviews_dir": "tasks/reviews",
     "notes_dir": "tasks/notes"
   },
-  "progress": {
-    "file": "docs/PROGRESS.md",
-    "mode": "milestone-only"
+  "reference_material": {
+    "dir": "_ref",
+    "mode": "external-ignored",
+    "commit_policy": "never commit _ref contents",
+    "rule": "use _ref for upstream/source comparison only; refresh from external sources instead of editing as product code"
+  },
+  "operations": {
+    "dir": "_ops",
+    "tracked": ["_ops/README.md", "_ops/scripts/", "_ops/submissions/", "_ops/*.md", "_ops/env/.env.example"],
+    "ignored": ["_ops/secrets/", "_ops/env/.env", "_ops/env/.env.*"],
+    "rule": "commit runbooks, submission materials, release checklists, and helper scripts; keep keys, tokens, and local env values in ignored paths only"
   },
   "context": {
     "profile": "stable-root-progressive-subdir",
@@ -598,7 +578,7 @@ ARCHITECTURE_INDEX_EOF
   },
   "documentation": {
     "profile": "minimal-agentic",
-    "required": ["docs/spec.md", "docs/PROGRESS.md", "docs/architecture/index.md"],
+    "required": ["docs/spec.md", "docs/architecture/index.md"],
     "on_demand": ["docs/brief.md", "docs/tech-stack.md", "docs/decisions.md", "docs/architecture.md", "docs/packages.md"],
     "reference_configs": ["harness-overview.md", "agentic-development-flow.md", "external-tooling.md", "sprint-contracts.md", "handoff-protocol.md", "document-generation.md"],
     "rule": "create optional docs only when the agent has concrete repo evidence or the user asks"

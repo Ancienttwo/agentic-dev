@@ -52,7 +52,7 @@ Core rules (canonical source: see Workflow Orchestration section below):
 - `tasks/contracts/`, `tasks/reviews/`, and `tasks/notes/` are done gates; hooks are accelerators only.
 - Treat the latest non-archived `plans/plan-*.md` as the active plan.
 - Mark done only with verification evidence.
-- `docs/PROGRESS.md` is for milestones only, not the active execution log.
+- Durable progress lives in `tasks/workstreams/`; release history belongs in `docs/CHANGELOG.md`.
 
 ### Harness References
 

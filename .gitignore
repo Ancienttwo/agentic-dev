@@ -48,6 +48,10 @@ artifacts/
 *.tar.gz
 *.tgz
 _ref/
+_ops/secrets/
+_ops/env/.env
+_ops/env/.env.*
+!_ops/env/.env.example
 # Environment
 .env
 .env.*

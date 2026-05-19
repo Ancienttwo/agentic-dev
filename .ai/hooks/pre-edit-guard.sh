@@ -15,6 +15,42 @@ FILE_PATH="$(hook_get_file_path "${1:-}")"
 WRITE_PAYLOAD="$(hook_get_write_payload "${1:-}")"
 [[ -z "$FILE_PATH" ]] && exit 0
 
+is_ops_sensitive_path() {
+  case "$1" in
+    _ops/secrets/*|_ops/env/.env|_ops/env/.env.*)
+      [[ "$1" != "_ops/env/.env.example" ]]
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+if [[ "$FILE_PATH" == _ref/* ]]; then
+  echo "[ExternalReferenceGuard] $FILE_PATH is under _ref/."
+  hook_structured_error \
+    "ExternalReferenceGuard" \
+    "_ref/ is external comparison material and is not a product edit surface." \
+    "Refresh _ref/ from upstream sources when needed, keep it ignored, and do not edit it as repo implementation." \
+    "state_violation"
+  exit 1
+fi
+
+if is_ops_sensitive_path "$FILE_PATH"; then
+  echo "[OpsSecretGuard] $FILE_PATH is an ignored sensitive operations path."
+  hook_structured_error \
+    "OpsSecretGuard" \
+    "_ops/ can contain operational assets, but keys and local env values must stay in ignored secret/env files." \
+    "Commit _ops runbooks, submission materials, release checklists, scripts, and .env.example only; do not write secrets through agent edits." \
+    "state_violation"
+  exit 1
+fi
+
+if [[ "$FILE_PATH" == _ops/* ]]; then
+  echo "[OpsAsset] Operations asset detected: $FILE_PATH"
+  echo "  _ops/ is trackable for runbooks, submission materials, release checklists, and scripts."
+fi
+
 active_contract="$(workflow_active_contract || true)"
 if [[ -n "$active_contract" && -f "$active_contract" ]]; then
   if ! workflow_contract_allows_path "$active_contract" "$FILE_PATH"; then
@@ -54,7 +90,7 @@ if [[ "$FILE_PATH" =~ ^plans/plan-.*\.md$ ]] && [[ -f "$FILE_PATH" || -n "$WRITE
   fi
 fi
 
-if echo "$FILE_PATH" | grep -qE "(^|/)(interfaces|specs|tests)(/|$)|(^|/)tasks/contracts/|(\.contract\.|\.spec\.)"; then
+if echo "$FILE_PATH" | grep -qE "(^|/)(interfaces|tests)(/|$)|(^|/)docs/spec\.md$|(^|/)specs/|(^|/)tasks/contracts/|(\.contract\.|\.spec\.)"; then
   echo "[AssetLayer] Immutable file detected: $FILE_PATH"
   echo "  资产层文件被修改，需同步重写下游实现。"
 fi

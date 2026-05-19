@@ -232,8 +232,10 @@ describe("Output Quality Gates", () => {
     expect(agents).toContain("new plans/plan-{timestamp}-{slug}.md");
     expect(claude).toContain("latest non-archived `plans/plan-*.md` file");
     expect(agents).toContain("single source of truth for the current active plan");
-    expect(claude.toLowerCase()).toContain("milestone");
-    expect(agents.toLowerCase()).toContain("milestone");
+    expect(claude).toContain("tasks/workstreams/");
+    expect(claude).toContain("docs/CHANGELOG.md");
+    expect(agents).toContain("tasks/workstreams/");
+    expect(agents).not.toContain("docs/PROGRESS.md");
   });
 
   test("should stay within line-count budgets", () => {

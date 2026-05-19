@@ -351,12 +351,10 @@ create_task_files_if_missing() {
   local project_name
   local timestamp
   local todo_file
-  local progress_file
 
   project_name="$(basename "$repo")"
   timestamp="$(date '+%Y-%m-%d %H:%M')"
   todo_file="$repo/tasks/todo.md"
-  progress_file="$repo/docs/PROGRESS.md"
 
   if [[ "$MODE" != "apply" ]]; then
     echo "[dry-run] ensure docs/spec.md, tasks/*, workstreams, reviews, notes, .ai/context/{capabilities.json,context-map.json}, and .ai/harness/{checks/latest.json,policy.json,events.jsonl,architecture/events.jsonl,handoff/current.md,handoff/resume.md,context-budget/latest.json,failures/latest.jsonl,runs/.gitkeep} exist with 3.1 guidance"
@@ -458,60 +456,6 @@ LESSONS_EOF
 
   pi_ensure_harness_state_surface "$repo" "apply"
 
-  if [[ ! -f "$progress_file" ]]; then
-    cat > "$progress_file" <<'PROGRESS_EOF'
-# Project Milestones
-
-> Use this file for milestone checkpoints only.
-> Active execution belongs in `tasks/todo.md`, `tasks/contracts/`, `tasks/reviews/`, `tasks/notes/`, and `.ai/harness/handoff/current.md`.
-
-## Current Milestone
-
-- Name: Migration stabilization
-- Status: In progress
-- Success state: Reapply the harness and finish with a passing strict workflow check.
-
-## Completed Milestones
-
-- [ ] Preserve or restore prior milestones here after migration review
-
-## Next Milestone / Blockers
-
-- [ ] First migration milestone
-- [ ] Record the blocker or dependency that gates the next milestone.
-
-## Milestone Notes
-
-- Record releases, migrations, and major checkpoints here.
-PROGRESS_EOF
-  elif ! grep -Fq "## Current Milestone" "$progress_file"; then
-    backup_if_exists "$progress_file"
-    cat > "$progress_file" <<'PROGRESS_EOF'
-# Project Milestones
-
-> Use this file for milestone checkpoints only.
-> Active execution belongs in `tasks/todo.md`, `tasks/contracts/`, `tasks/reviews/`, `tasks/notes/`, and `.ai/harness/handoff/current.md`.
-
-## Current Milestone
-
-- Name: Migration stabilization
-- Status: In progress
-- Success state: Reapply the harness and finish with a passing strict workflow check.
-
-## Completed Milestones
-
-- [ ] Preserve or restore milestone history here after migration review
-
-## Next Milestone / Blockers
-
-- [ ] Re-add the next ship target after reviewing archived milestone history
-- [ ] Record the blocker or dependency that gates the next milestone.
-
-## Milestone Notes
-
-- This file was normalized during migration. Re-add historical milestones if needed.
-PROGRESS_EOF
-  fi
 }
 
 install_reference_configs() {
@@ -527,6 +471,50 @@ install_reference_configs() {
     else
       pi_install_reference_configs "$repo" "$ref_assets_dir" "dry-run"
     fi
+  fi
+}
+
+ensure_ops_scaffold() {
+  local repo="$1"
+  local ops_readme="$repo/_ops/README.md"
+
+  run_or_echo "mkdir -p \"$repo/_ops/env\""
+  run_or_echo "mkdir -p \"$repo/_ops/scripts\""
+  run_or_echo "mkdir -p \"$repo/_ops/secrets\""
+  run_or_echo "mkdir -p \"$repo/_ops/submissions\""
+
+  if [[ "$MODE" != "apply" ]]; then
+    echo "[dry-run] ensure _ops workspace README and tracked placeholders"
+    return 0
+  fi
+
+  touch "$repo/_ops/.gitkeep"
+  touch "$repo/_ops/env/.gitkeep"
+  touch "$repo/_ops/scripts/.gitkeep"
+  touch "$repo/_ops/submissions/.gitkeep"
+
+  if [[ ! -f "$ops_readme" ]]; then
+    cat > "$ops_readme" <<'OPS_README_EOF'
+# Operations Workspace
+
+`_ops/` is a commit-ready operations surface for runbooks, submission materials, release checklists, and helper scripts.
+
+## Track
+
+- `_ops/scripts/` for operational scripts.
+- `_ops/submissions/` for submission or review materials.
+- `_ops/*.md` for runbooks and operating notes.
+- `_ops/env/.env.example` for documented variable shapes only.
+
+## Do Not Track
+
+- `_ops/secrets/`
+- `_ops/env/.env`
+- `_ops/env/.env.*` except `_ops/env/.env.example`
+- private keys, production tokens, credential dumps, and local-only overrides
+
+Keep external upstream checkouts and source references in `_ref/`; `_ref/` is ignored and must stay out of commits.
+OPS_README_EOF
   fi
 }
 
@@ -732,6 +720,7 @@ migrate_workflow() {
     pi_install_factor_factory "$repo" "$FACTOR_FACTORY_ASSETS_DIR" "$SKILL_ROOT/scripts" "$MODE"
   fi
   install_reference_configs "$repo"
+  ensure_ops_scaffold "$repo"
   create_research_file_if_missing "$repo"
   create_task_files_if_missing "$repo"
   ensure_task_sync_package_script "$repo"
@@ -743,6 +732,13 @@ migrate_workflow() {
   ensure_gitignore_entry "$repo_gitignore" "coverage/"
   ensure_gitignore_entry "$repo_gitignore" "*.tar.gz"
   ensure_gitignore_entry "$repo_gitignore" "*.tgz"
+  ensure_gitignore_entry "$repo_gitignore" "# External references"
+  ensure_gitignore_entry "$repo_gitignore" "_ref/"
+  ensure_gitignore_entry "$repo_gitignore" "# Operations"
+  ensure_gitignore_entry "$repo_gitignore" "_ops/secrets/"
+  ensure_gitignore_entry "$repo_gitignore" "_ops/env/.env"
+  ensure_gitignore_entry "$repo_gitignore" "_ops/env/.env.*"
+  ensure_gitignore_entry "$repo_gitignore" "!_ops/env/.env.example"
   ensure_gitignore_entry "$repo_gitignore" "# Environment"
   ensure_gitignore_entry "$repo_gitignore" ".env"
   ensure_gitignore_entry "$repo_gitignore" ".env.*"

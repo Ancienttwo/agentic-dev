@@ -75,10 +75,12 @@ describe("create-project-dirs scaffold parity", () => {
         "./.claude/templates/review.template.md",
         "./.claude/templates/spec.template.md",
         "./.gitignore",
-        "./.ops/.gitkeep",
-        "./.ops/README.md",
+        "./_ops/.gitkeep",
+        "./_ops/README.md",
+        "./_ops/env/.gitkeep",
+        "./_ops/scripts/.gitkeep",
+        "./_ops/submissions/.gitkeep",
         "./docs/CHANGELOG.md",
-        "./docs/PROGRESS.md",
         "./docs/architecture/diagrams/.gitkeep",
         "./docs/architecture/domains/.gitkeep",
         "./docs/architecture/index.md",
@@ -119,7 +121,6 @@ describe("create-project-dirs scaffold parity", () => {
         "./scripts/verify-contract.sh",
         "./scripts/verify-sprint.sh",
         "./scripts/workstream-sync.sh",
-        "./specs/overview.md",
         "./tasks/lessons.md",
         "./tasks/research.md",
         "./tasks/todo.md",
@@ -129,6 +130,10 @@ describe("create-project-dirs scaffold parity", () => {
 
       const gitignore = readFileSync(join(cwd, ".gitignore"), "utf-8");
       expect(gitignore).toContain("# BEGIN: claude-runtime-temp (managed by project-initializer)");
+      expect(gitignore).toContain("_ref/");
+      expect(gitignore).toContain("_ops/secrets/");
+      expect(gitignore).toContain("_ops/env/.env.*");
+      expect(gitignore).toContain("!_ops/env/.env.example");
 
       const template = readFileSync(join(cwd, ".claude/templates/plan.template.md"), "utf-8");
       expect(template).toContain("## Agentic Routing");

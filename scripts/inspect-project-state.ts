@@ -67,13 +67,11 @@ export function inspectRepo(repo: string): InspectionResult {
   const safeDefaults = [
     "Preserve repo-local tasks-first workflow",
     "Archive uncertain legacy content instead of overwriting it",
-    "Normalize docs/PROGRESS.md to milestone-only usage",
     "Distill repeated corrections into tasks/lessons.md and hidden contracts into tasks/research.md",
   ];
 
   const runtimeManifest = join(repo, contract.artifacts.runtimeManifest);
   const todoFile = join(repo, contract.documents.taskChecklist);
-  const progressFile = join(repo, contract.documents.progressLedger);
 
   if (!existsSync(runtimeManifest)) {
     driftSignals.push("missing-runtime-contract-manifest");
@@ -93,8 +91,8 @@ export function inspectRepo(repo: string): InspectionResult {
   ) {
     driftSignals.push("legacy-skill-factory-surface");
   }
-  if (existsSync(progressFile) && !fileHasContent(progressFile, /milestone checkpoints only/i)) {
-    driftSignals.push("progress-ledger-used-as-active-log");
+  if (existsSync(join(repo, "docs", "PROGRESS.md"))) {
+    driftSignals.push("legacy-docs-progress");
   }
   if (existsSync(todoFile) && !fileHasContent(todoFile, /^\> \*\*Source Plan\*\*:/m)) {
     driftSignals.push("legacy-task-checklist-format");
@@ -106,8 +104,8 @@ export function inspectRepo(repo: string): InspectionResult {
   if (driftSignals.includes("legacy-docs-plan") || driftSignals.includes("legacy-docs-todo")) {
     requiredDecisions.push("Run legacy document migration before template refresh");
   }
-  if (driftSignals.includes("progress-ledger-used-as-active-log")) {
-    requiredDecisions.push("Split active progress notes into tasks/research surfaces");
+  if (driftSignals.includes("legacy-docs-progress")) {
+    requiredDecisions.push("Archive legacy docs/PROGRESS.md into task research or changelog surfaces");
   }
   if (driftSignals.includes("legacy-skill-factory-surface")) {
     requiredDecisions.push("Remove repo-local Skill Factory and auto-memory surfaces");

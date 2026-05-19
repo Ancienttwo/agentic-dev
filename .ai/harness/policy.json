@@ -16,9 +16,27 @@
     "reviews_dir": "tasks/reviews",
     "notes_dir": "tasks/notes"
   },
-  "progress": {
-    "file": "docs/PROGRESS.md",
-    "mode": "milestone-only"
+  "reference_material": {
+    "dir": "_ref",
+    "mode": "external-ignored",
+    "commit_policy": "never commit _ref contents",
+    "rule": "use _ref for upstream/source comparison only; refresh from external sources instead of editing as product code"
+  },
+  "operations": {
+    "dir": "_ops",
+    "tracked": [
+      "_ops/README.md",
+      "_ops/scripts/",
+      "_ops/submissions/",
+      "_ops/*.md",
+      "_ops/env/.env.example"
+    ],
+    "ignored": [
+      "_ops/secrets/",
+      "_ops/env/.env",
+      "_ops/env/.env.*"
+    ],
+    "rule": "commit runbooks, submission materials, release checklists, and helper scripts; keep keys, tokens, and local env values in ignored paths only"
   },
   "context": {
     "profile": "stable-root-progressive-subdir",
@@ -133,7 +151,6 @@
     "profile": "minimal-agentic",
     "required": [
       "docs/spec.md",
-      "docs/PROGRESS.md",
       "docs/architecture/index.md"
     ],
     "on_demand": [

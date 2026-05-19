@@ -1009,6 +1009,42 @@ describe("Hook runtime behavior", () => {
     }
   });
 
+  test("pre-edit-guard: protects _ref and sensitive _ops paths while allowing ops assets", () => {
+    const cwd = tmpWorkspace("ops-ref-guard");
+    try {
+      initGitRepo(cwd);
+      installHooks(cwd);
+
+      const refRes = runHook("pre-edit-guard.sh", cwd, {
+        stdin: JSON.stringify({ tool_input: { file_path: "_ref/upstream/README.md" } }),
+      });
+      expect(refRes.status).toBe(1);
+      expect(refRes.stdout).toContain("[ExternalReferenceGuard]");
+      expect(refRes.stdout).toContain('"guard":"ExternalReferenceGuard"');
+
+      const secretRes = runHook("pre-edit-guard.sh", cwd, {
+        stdin: JSON.stringify({ tool_input: { file_path: "_ops/env/.env.production" } }),
+      });
+      expect(secretRes.status).toBe(1);
+      expect(secretRes.stdout).toContain("[OpsSecretGuard]");
+      expect(secretRes.stdout).toContain('"guard":"OpsSecretGuard"');
+
+      const opsRes = runHook("pre-edit-guard.sh", cwd, {
+        stdin: JSON.stringify({ tool_input: { file_path: "_ops/scripts/release.sh" } }),
+      });
+      expect(opsRes.status).toBe(0);
+      expect(opsRes.stdout).toContain("[OpsAsset]");
+
+      const exampleRes = runHook("pre-edit-guard.sh", cwd, {
+        stdin: JSON.stringify({ tool_input: { file_path: "_ops/env/.env.example" } }),
+      });
+      expect(exampleRes.status).toBe(0);
+      expect(exampleRes.stdout).toContain("[OpsAsset]");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
   test("pre-edit-guard: blocks invalid plan status jumps", () => {
     const cwd = tmpWorkspace("pre-edit-plan-transition");
     try {

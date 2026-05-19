@@ -83,9 +83,12 @@ describe("Migration script contract", () => {
     expect(workflowContract).toContain("prepare-codex-handoff.sh");
     expect(workflowContract).toContain("codex-handoff-resume.sh");
     expect(workflowContract).toContain("implementation-notes.template.md");
+    expect(workflowContract).toContain("_ops/README.md");
     expect(script).toContain("pi_ensure_task_sync");
     expect(sharedLib).toContain("check:task-sync");
     expect(sharedLib).toContain("check:task-workflow");
+    expect(sharedLib).toContain("_ref/");
+    expect(sharedLib).toContain("_ops/secrets/");
     expect(script).toContain("tasks/contracts");
     expect(workflowContract).toContain("docs/architecture/index.md");
     expect(workflowContract).toContain(".ai/context/capabilities.json");
@@ -166,6 +169,9 @@ describe("Migration script contract", () => {
       expect(existsSync(join(repo, ".ai/harness/context-budget/latest.json"))).toBe(true);
       expect(existsSync(join(repo, ".ai/harness/workflow-contract.json"))).toBe(true);
       expect(existsSync(join(repo, ".ai/harness/runs/.gitkeep"))).toBe(true);
+      expect(existsSync(join(repo, "_ops/README.md"))).toBe(true);
+      expect(existsSync(join(repo, "_ops/scripts/.gitkeep"))).toBe(true);
+      expect(existsSync(join(repo, "_ops/submissions/.gitkeep"))).toBe(true);
       expect(existsSync(join(repo, "scripts/new-spec.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/new-sprint.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/new-plan.sh"))).toBe(true);
@@ -221,11 +227,9 @@ describe("Migration script contract", () => {
       expect(existsSync(join(repo, "tasks/archive/legacy-docs-TODO.md"))).toBe(true);
       expect(existsSync(join(repo, "plans/archive/legacy-docs-plan.md"))).toBe(true);
 
-      const progress = readFileSync(join(repo, "docs/PROGRESS.md"), "utf-8");
-      expect(progress).toContain("milestone checkpoints only");
-      expect(progress).toContain("tasks/contracts/");
-      expect(progress).toContain("tasks/reviews/");
-      expect(progress).toContain("tasks/notes/");
+      expect(existsSync(join(repo, "docs/PROGRESS.md"))).toBe(false);
+      expect(existsSync(join(repo, "docs/PROGRESS.md.migrated.bak"))).toBe(false);
+      expect(existsSync(join(repo, "tasks/archive/legacy-docs-PROGRESS.md"))).toBe(false);
       const spec = readFileSync(join(repo, "docs/spec.md"), "utf-8");
       expect(spec).toContain("# Product Spec:");
 
@@ -265,6 +269,11 @@ describe("Migration script contract", () => {
       expect(policy.handoff_resume.resume_packet_file).toBe(".ai/harness/handoff/resume.md");
       expect(policy.tasks.notes_dir).toBe("tasks/notes");
       expect(policy.tasks.workstreams_dir).toBe("tasks/workstreams");
+      expect(policy.reference_material.dir).toBe("_ref");
+      expect(policy.reference_material.commit_policy).toContain("never commit");
+      expect(policy.operations.dir).toBe("_ops");
+      expect(policy.operations.tracked).toContain("_ops/submissions/");
+      expect(policy.operations.ignored).toContain("_ops/env/.env.*");
       expect(policy.workstreams.scope).toBe("capability");
       expect(policy.information_lifecycle.notes.dir).toBe("tasks/notes");
       expect(policy.information_lifecycle.evidence.snapshots_dir).toBe(".ai/harness/runs");
@@ -299,6 +308,10 @@ describe("Migration script contract", () => {
 
       const gitignore = readFileSync(join(repo, ".gitignore"), "utf-8");
       expect(gitignore).toContain("# BEGIN: claude-runtime-temp (managed by project-initializer)");
+      expect(gitignore).toContain("_ref/");
+      expect(gitignore).toContain("_ops/secrets/");
+      expect(gitignore).toContain("_ops/env/.env.*");
+      expect(gitignore).toContain("!_ops/env/.env.example");
       expect(res.stdout).toContain("--- External Tooling ---");
       expect(res.stdout).toContain("External Tooling Report");
     } finally {
@@ -486,6 +499,8 @@ describe("Migration script contract", () => {
       expect(gitignore).toContain("# BEGIN: claude-runtime-temp (managed by project-initializer)");
       expect(gitignore).toContain(".claude/.task-state.json");
       expect(gitignore).toContain(".claude/.active-plan");
+      expect(gitignore).toContain("_ref/");
+      expect(gitignore).toContain("_ops/secrets/");
       expect(gitignore).not.toContain(".claude/.memory-context.json");
       expect(gitignore).toContain("# END: claude-runtime-temp");
     } finally {

@@ -37,11 +37,16 @@ describe("Hook contracts", () => {
     expect(script).toContain(".ai/harness/failures/latest.jsonl");
   });
 
-  test("pre-code-change should protect interfaces/specs/tests paths and slice contracts", () => {
+  test("pre-code-change should protect interfaces/tests/spec truth and slice contracts", () => {
     const script = read("assets/hooks/pre-code-change.sh");
-    expect(script).toContain("(interfaces|specs|tests)");
+    expect(script).toContain("(interfaces|tests)");
+    expect(script).toContain("docs/spec");
+    expect(script).toContain("specs/");
     expect(script).toContain("tasks/contracts");
     expect(script).toContain(".spec");
+    expect(script).toContain("[ExternalReference]");
+    expect(script).toContain("[OpsSecret]");
+    expect(script).toContain("[OpsAsset]");
   });
 
   test("pre-edit guard should combine asset-layer and test reminders", () => {
@@ -50,6 +55,9 @@ describe("Hook contracts", () => {
     expect(script).toContain("[BDD Guard]");
     expect(script).toContain("[TDD Guard]");
     expect(script).toContain("PlanTransitionGuard");
+    expect(script).toContain("ExternalReferenceGuard");
+    expect(script).toContain("OpsSecretGuard");
+    expect(script).toContain("_ops/env/.env.example");
   });
 
   test("worktree-guard should be warning-first with marker-based enforcement", () => {
@@ -111,6 +119,7 @@ describe("Hook contracts", () => {
   test("post-edit guard should combine doc drift and task handoff", () => {
     const script = read("assets/hooks/post-edit-guard.sh");
     expect(script).toContain("[DocDrift]");
+    expect(script).toContain("[OpsAsset]");
     expect(script).toContain("[TaskHandoff]");
     expect(script).toContain("architecture-drift.sh");
     expect(script).toContain("context-contract-sync.sh");

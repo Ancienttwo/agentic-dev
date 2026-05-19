@@ -5,7 +5,6 @@ Generated repos use a minimal documentation profile by default.
 ## Required
 
 - `docs/spec.md`: stable product or operator outcome.
-- `docs/PROGRESS.md`: milestone ledger only.
 - `docs/architecture/index.md`: umbrella architecture ledger, pending drift requests, snapshots, and diagram links.
 - `tasks/`: execution, lessons, research, contracts, and reviews.
 - `tasks/workstreams/`: durable capability workstream ledgers; `tasks/todo.md` is only the current session projection.
@@ -25,6 +24,7 @@ Create these only when the agent has concrete repo evidence or the user asks:
 ## Rules
 
 - Do not create empty business docs as placeholders.
+- Do not create root `specs/`; use `docs/spec.md` for stable product intent, `interfaces/` for machine-consumed runtime boundaries, and tests for executable behavior.
 - Do not duplicate workflow rules already indexed in `docs/reference-configs/`.
 - Prefer short docs that name sources, owners, and verification commands.
 - Let capability `CLAUDE.md` and `AGENTS.md` carry local contract projections; root docs stay concise.

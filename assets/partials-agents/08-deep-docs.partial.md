@@ -24,7 +24,7 @@
 - `docs/reference-configs/sprint-contracts.md`: contract rules
 - `docs/reference-configs/evaluator-rubric.md`: review thresholds
 - `docs/reference-configs/handoff-protocol.md`: handoff expectations
-- `docs/PROGRESS.md`: milestone ledger only
+- `tasks/workstreams/`: durable capability progress ledgers
 - `docs/decisions.md`: architecture decisions and trade-offs
 - `docs/tech-stack.md`: dependency and runtime constraints
 

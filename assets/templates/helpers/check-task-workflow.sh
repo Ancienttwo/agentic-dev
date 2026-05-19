@@ -181,7 +181,6 @@ contracts_dir="$(policy_get '.tasks.contracts_dir' 'tasks/contracts')"
 reviews_dir="$(policy_get '.tasks.reviews_dir' 'tasks/reviews')"
 notes_dir="$(policy_get '.tasks.notes_dir' 'tasks/notes')"
 workstreams_dir="$(policy_get '.tasks.workstreams_dir' 'tasks/workstreams')"
-progress_file="$(policy_get '.progress.file' 'docs/PROGRESS.md')"
 runs_dir="$(policy_get '.harness.runs_dir' '.ai/harness/runs')"
 context_map_file="$(policy_get '.context.map_file' '.ai/context/context-map.json')"
 
@@ -225,7 +224,6 @@ check_required_file "scripts/maintenance-triage.sh"
 check_required_file "$todo_file"
 check_required_file "$lessons_file"
 check_required_file "$research_file"
-check_required_file "$progress_file"
 check_required_file "$context_map_file"
 check_required_file "$policy_file"
 
@@ -254,10 +252,6 @@ fi
 
 if [[ -f "docs/TODO.md" ]]; then
   report_issue "Legacy docs/TODO.md detected; migrate it into tasks/todo.md."
-fi
-
-if [[ -f "$progress_file" ]] && ! grep -Fq "milestone checkpoints only" "$progress_file"; then
-  report_issue "${progress_file} is not normalized for milestone-only usage."
 fi
 
 todo_source="$(todo_source_plan || true)"

@@ -11,7 +11,6 @@ This repository self-hosts the `project-initializer` contract. Claude and Codex 
 - `tasks/research.md` for deep repo knowledge
 - `tasks/notes/` for task-local implementation decisions, deviations, tradeoffs, and open questions
 - `plans/` for timestamped plans, with `plans/archive/` for history
-- `docs/PROGRESS.md` for milestone-only updates
 - `.ai/harness/workflow-contract.json` for the installed workflow contract manifest
 - `.ai/harness/policy.json` for the machine-readable workflow contract
 - `.ai/context/context-map.json` for progressive context loading
@@ -21,6 +20,7 @@ This repository self-hosts the `project-initializer` contract. Claude and Codex 
 ## Operating Rules
 
 - Sync `tasks/` whenever substantive repo changes are made.
+- Use `tasks/notes/<slug>.notes.md` only for non-obvious slice decisions, deviations, tradeoffs, and open questions; do not use notes as durable memory or a task log, and archive/promote them deliberately when the slice closes.
 - Treat `.ai/hooks/` as the shared hook implementation and `.claude/settings.json` as the Claude adapter only.
 - Keep the umbrella hierarchy explicit: architecture owns stable truth, capability contracts own local agent context, `tasks/workstreams/<domain>/<capability>/` owns durable progress, and `tasks/todo.md` owns only the current session slice.
 - Treat `.ai/context/capabilities.json` as the source of truth for capability prefixes; `agent-context-blocks.txt` and nested agent files are compatibility inputs only.
@@ -28,6 +28,8 @@ This repository self-hosts the `project-initializer` contract. Claude and Codex 
 - Keep `assets/workflow-contract.v1.json` and `.ai/harness/workflow-contract.json` in sync.
 - Keep `CLAUDE.md` and `AGENTS.md` short; put detailed guidance in `docs/reference-configs/`.
 - Treat Codex auto-compact as a fallback only; use `.ai/harness/handoff/current.md` and `.ai/harness/handoff/resume.md` for long-task rollover.
+- Treat `_ref/` as ignored external reference material, not a commit surface.
+- Treat `_ops/` as the trackable operations surface for runbooks, submission materials, release checklists, and helper scripts; keep secrets only in ignored `_ops/secrets/` or `_ops/env/.env*` files.
 - If current repo state conflicts with the task, open an isolated `codex/<task-slug>` worktree, finish there, run Waza `/check`-style validation, then merge back to `main` without absorbing unrelated dirty changes.
 - Route product discovery to gstack `office-hours`, complex engineering plans to gstack `plan-eng-review`, design plans to gstack `plan-design-review`, and daily small/medium planning, bug hunts, and checks to Waza `/think`, `/hunt`, and `/check`.
 - Codex automation profile is runtime-referenced, not vendored: required skills are `health`, `check`, and `diagram-design` from `~/.codex/skills`.
