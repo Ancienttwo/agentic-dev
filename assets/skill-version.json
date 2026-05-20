@@ -1,6 +1,6 @@
 {
-  "version": "4.0.1",
-  "templateVersion": "4.0.1",
+  "version": "4.0.2",
+  "templateVersion": "4.0.2",
   "compatibility": {
     "minClaudeCodeVersion": "1.0.0",
     "minBunVersion": "1.0.0"
@@ -57,6 +57,10 @@
     {
       "version": "4.0.1",
       "description": "Added a contract-driven upgrade strategy for legacy workflow reconfiguration and cleanup, plus a global Claude/Codex working-rules reference"
+    },
+    {
+      "version": "4.0.2",
+      "description": "Installs all router entrypoints into generated repos and hardens capability discovery against ignored worktree caches"
     }
   ],
   "generatedProjectStamp": {

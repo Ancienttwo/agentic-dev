@@ -54,6 +54,24 @@ function copyHelpers(cwd: string) {
 }
 
 describe("Workflow helper scripts", () => {
+  test("capability resolver ignores local worktrees during legacy discovery", () => {
+    const cwd = tmpWorkspace("helper-capability-worktrees");
+    try {
+      mkdirSync(join(cwd, "apps/mobile"), { recursive: true });
+      mkdirSync(join(cwd, ".worktrees/codex/old/apps/mobile"), { recursive: true });
+      copyHelpers(cwd);
+      writeFileSync(join(cwd, "apps/mobile/AGENTS.md"), "# Mobile Contract\n");
+      writeFileSync(join(cwd, ".worktrees/codex/old/apps/mobile/AGENTS.md"), "# Old Worktree Contract\n");
+
+      const res = run("bun", ["scripts/capability-resolver.ts", "list", "--format", "prefixes"], cwd);
+      expect(res.status).toBe(0);
+      expect(res.stdout).toContain("apps/mobile");
+      expect(res.stdout).not.toContain(".worktrees");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
   test("new-plan should create timestamped plan without compatibility pointer", () => {
     const cwd = tmpWorkspace("helper-new-plan");
     try {

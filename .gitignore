@@ -58,3 +58,5 @@ _ops/env/.env.*
 .env.*
 !.env.example
 # OS metadata
+# External references
+# Operations

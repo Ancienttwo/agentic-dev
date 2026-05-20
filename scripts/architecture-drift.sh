@@ -199,7 +199,7 @@ classify_change() {
      [[ "$rel_path" == ".ai/harness/policy.json" ]] ||
      [[ "$rel_path" == ".ai/harness/workflow-contract.json" ]] ||
      [[ "$rel_path" == "assets/workflow-contract.v1.json" ]] ||
-     [[ "$rel_path" =~ ^scripts/(architecture-drift|context-contract-sync|workstream-sync|migrate-project-template|create-project-dirs|init-project|ensure-task-workflow|check-task-workflow|workflow-contract|select-agent-context-blocks)\.(sh|ts)$ ]] ||
+     [[ "$rel_path" =~ ^scripts/(architecture-drift|context-contract-sync|workstream-sync|migrate-project-template|migrate-workflow-docs|inspect-project-state|check-skill-version|capability-resolver|create-project-dirs|init-project|ensure-task-workflow|check-task-workflow|workflow-contract|select-agent-context-blocks)\.(sh|ts)$ ]] ||
      [[ "$rel_path" == "scripts/lib/project-init-lib.sh" ]]; then
     printf 'high workflow-surface\n'
     return

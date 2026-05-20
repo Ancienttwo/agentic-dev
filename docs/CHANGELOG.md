@@ -4,6 +4,13 @@ All notable changes to this skill are documented here.
 
 ## [Unreleased]
 
+## [4.0.2] - 2026-05-20
+
+### Fixed
+
+- Installed `inspect-project-state.ts`, `migrate-workflow-docs.ts`, `workflow-contract.ts`, `check-skill-version.ts`, and a delegating `migrate-project-template.sh` wrapper into generated repos so the router verification path is not left stale.
+- Made generated capability discovery ignore `.worktrees/` and `_ref/` caches, preventing local worktree contracts from polluting `.ai/context/capabilities.json`.
+
 ## [4.0.1] - 2026-05-20
 
 ### Added

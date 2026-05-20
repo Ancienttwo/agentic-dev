@@ -195,3 +195,14 @@
 - Keep the primary worktree clean during contract execution. A copied untracked plan should live in the linked contract worktree so merge-back is not blocked by the task's own input artifact.
 - Keep merge-back fast-forward-only and target-clean. If the target worktree contains unrelated or non-identical dirty files, `finish` must refuse to merge.
 - Keep Waza `/check` as an external runtime validation step in prose/policy; do not vendor Waza skill contents into the project harness.
+
+## 2026-05-20 Generated Router Entrypoint Notes
+
+### What Changed
+- Migration now installs `workflow-contract.ts`, `check-skill-version.ts`, `inspect-project-state.ts`, `migrate-workflow-docs.ts`, and a portable `migrate-project-template.sh` wrapper into generated repos.
+- Generated helper scripts resolve the upstream `project-initializer` root from `PROJECT_INITIALIZER_ROOT`, `~/.codex/skills/project-initializer`, `~/.claude/skills/project-initializer`, or `~/.agents/skills/project-initializer` instead of assuming local `assets/`.
+- `capability-resolver.ts` ignores local `.worktrees/` and `_ref/` directories during legacy discovery, preventing ignored contract worktrees and reference snapshots from polluting generated capability registries.
+
+### What to Preserve
+- Keep router entrypoints in the workflow contract helper inventory; downstream repos must be able to inspect, migrate, and verify themselves after the initial template sync.
+- Keep source helper files and `assets/templates/helpers/` mirrors aligned whenever portability logic changes.

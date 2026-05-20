@@ -197,6 +197,11 @@ describe("Migration script contract", () => {
       expect(existsSync(join(repo, "scripts/ensure-task-workflow.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/check-task-workflow.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/maintenance-triage.sh"))).toBe(true);
+      expect(existsSync(join(repo, "scripts/workflow-contract.ts"))).toBe(true);
+      expect(existsSync(join(repo, "scripts/inspect-project-state.ts"))).toBe(true);
+      expect(existsSync(join(repo, "scripts/migrate-workflow-docs.ts"))).toBe(true);
+      expect(existsSync(join(repo, "scripts/check-skill-version.ts"))).toBe(true);
+      expect(existsSync(join(repo, "scripts/migrate-project-template.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/context-budget.ts"))).toBe(true);
       expect(existsSync(join(repo, "scripts/prepare-codex-handoff.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/codex-handoff-resume.sh"))).toBe(true);
@@ -253,6 +258,20 @@ describe("Migration script contract", () => {
 
       const handoff = readFileSync(join(repo, ".ai/harness/handoff/current.md"), "utf-8");
       expect(handoff).toContain("# Harness Handoff");
+      const inspectRes = spawnSync(
+        "bun",
+        ["scripts/inspect-project-state.ts", "--repo", repo, "--format", "text"],
+        { cwd: repo, encoding: "utf-8", env: { ...process.env, PROJECT_INITIALIZER_ROOT: ROOT } }
+      );
+      expect(inspectRes.status).toBe(0);
+      expect(inspectRes.stdout).toContain("mode: audit");
+      const versionRes = spawnSync("bun", ["scripts/check-skill-version.ts", "--project", "."], {
+        cwd: repo,
+        encoding: "utf-8",
+        env: { ...process.env, PROJECT_INITIALIZER_ROOT: ROOT },
+      });
+      expect(versionRes.status).toBe(0);
+      expect(versionRes.stdout).toContain("Project at . is up to date");
       const policy = JSON.parse(readFileSync(join(repo, ".ai/harness/policy.json"), "utf-8"));
       expect(policy.external_tooling.routing).toEqual({
         complex: "gstack",

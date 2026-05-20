@@ -1,6 +1,6 @@
 {
   "name": "project-initializer",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Cross-agent project scaffolding skill for Claude and Codex",
   "type": "module",
   "scripts": {
