@@ -1,4 +1,4 @@
-# Product Spec: project-initializer
+# Product Spec: agentic-dev
 
 > **Status**: Active
 > **Last Updated**: 2026-04-19 01:04
@@ -7,15 +7,20 @@
 ## Product Outcome
 
 Generate and migrate repo-local agentic workflow contracts for Claude and Codex.
-The skill should keep root context stable, expose deeper context progressively,
-externalize workflow state into repo-local artifacts, and let this repository
-self-host the same critical contract it generates for downstream repos.
+The skill, formerly `agentic-dev-skill` and `project-initializer`, keeps root context stable, exposes
+deeper context progressively, externalizes workflow state into repo-local
+artifacts, and lets this repository self-host the same critical contract it
+generates for downstream repos.
 
 ## Success Criteria
 
 - Primary workflow:
   scaffold or migrate a repo so `plans/`, `tasks/`, `.ai/context/`, `.ai/harness/`,
   shared hooks, and verification helpers are present and internally consistent.
+- Command surface:
+  expose action-style `agentic-dev-*` command skill facades for planning,
+  review, autoplan, init, scaffold, migrate, upgrade, repair, and check without
+  duplicating the workflow engine.
 - Quality bar:
   self-migration is idempotent, critical parity surfaces stay aligned, and the
   required verification commands pass in this repo.
@@ -54,6 +59,15 @@ self-host the same critical contract it generates for downstream repos.
   Then
   `.claude/.trace.jsonl` and `.ai/harness/events.jsonl` are written without
   aborting the session flow.
+
+- Given
+  a user asks to initialize an existing repo or scaffold a new project,
+  When
+  the action command surface routes the request,
+  Then
+  `agentic-dev-init` handles existing repo adoption and `agentic-dev-scaffold`
+  handles new project or module creation, while hook and docs initialization
+  remain internal implementation steps.
 
 ## Open Questions
 

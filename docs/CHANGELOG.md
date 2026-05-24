@@ -13,6 +13,10 @@ All notable changes to this skill are documented here.
 
 - Added `deploy/sql/` as the tracked deployment SQL surface and wired a filename-order check for `0001_name.sql` style files.
 - Split deployable operations assets into tracked `deploy/` while keeping `_ops/` fully ignored for local private operations state and secrets.
+- Externalized long-form optional reference configs into the default brain file vault while keeping repo-local runtime contracts, hooks, scripts, and required minimal docs authoritative.
+- Added a repo-local brain manifest and workflow check for default brain pointers without making hooks depend on gbrain or iCloud.
+- Renamed the skill/package/repo display surface to `agentic-dev` while keeping `agentic-dev-skill` and `project-initializer` as legacy aliases, install paths, and generated stamp compatibility surfaces.
+- Added action-style `agentic-dev-*` command skill facades for plan, review, autoplan, init, scaffold, migrate, upgrade, repair, and check while keeping hooks/docs initialization internal.
 
 ## [4.0.2] - 2026-05-20
 

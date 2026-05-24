@@ -27,7 +27,7 @@ describe("Skill eval assets", () => {
   };
 
   test("eval asset uses the correct skill name", () => {
-    expect(evals.skill_name).toBe("project-initializer");
+    expect(evals.skill_name).toBe("agentic-dev");
   });
 
   test("eval asset covers the core workflows", () => {
@@ -37,6 +37,27 @@ describe("Skill eval assets", () => {
     expect(prompts).toContain("Fix AGENTS.md");
     expect(prompts).toContain("Migrate this older Claude Code repo");
     expect(prompts).toContain("Audit this AI-assisted coding setup");
+  });
+
+  test("eval asset covers the public agentic-dev action commands", () => {
+    const combined = evals.evals
+      .flatMap((entry) => [entry.prompt, entry.expected_output, ...entry.expectations])
+      .join("\n");
+    for (const command of [
+      "agentic-dev-plan",
+      "agentic-dev-review",
+      "agentic-dev-autoplan",
+      "agentic-dev-init",
+      "agentic-dev-scaffold",
+      "agentic-dev-migrate",
+      "agentic-dev-upgrade",
+      "agentic-dev-repair",
+      "agentic-dev-check",
+    ]) {
+      expect(combined).toContain(command);
+    }
+    expect(combined).toContain("existing repo");
+    expect(combined).toContain("new project");
   });
 
   test("eval asset covers shared .ai hook routing expectations", () => {

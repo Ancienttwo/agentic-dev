@@ -1,6 +1,6 @@
-# project-initializer AGENTS.md
+# agentic-dev AGENTS.md
 
-This repository self-hosts the `project-initializer` contract. Claude and Codex should follow the same repo-local workflow surface.
+This repository self-hosts the `agentic-dev` contract, formerly `agentic-dev-skill` and `project-initializer`. Claude and Codex should follow the same repo-local workflow surface.
 
 ## Canonical Workflow Files
 
@@ -28,7 +28,7 @@ This repository self-hosts the `project-initializer` contract. Claude and Codex 
 - Keep `assets/workflow-contract.v1.json` and `.ai/harness/workflow-contract.json` in sync.
 - Keep `CLAUDE.md` and `AGENTS.md` short; put detailed guidance in `docs/reference-configs/`.
 - Treat Codex auto-compact as a fallback only; use `.ai/harness/handoff/current.md` and `.ai/harness/handoff/resume.md` for long-task rollover.
-- Treat `_ref/` as ignored external reference material, not a commit surface.
+- Treat `_ref/` as an occasional ignored external reference checkout cache, not a commit surface or daily workflow. Agents may read or refresh it for comparison; when it influences a decision, cite the source repo plus commit/tag and path in `tasks/notes/` or `tasks/research.md`.
 - Treat `deploy/` as the trackable deployment and operations surface for runbooks, submission materials, release checklists, helper scripts, ordered SQL files under `deploy/sql/`, and env examples.
 - Treat `_ops/` as ignored local operations state for secrets, real env files, provider state, artifacts, logs, and scratch files; do not commit or agent-edit `_ops/*`.
 - Treat contract-level task execution as worktree-first: `scripts/plan-to-todo.sh --plan <approved-plan>` starts `scripts/contract-worktree.sh start --plan <approved-plan>` when policy enables it, and completed blocks finish through Waza `/check` plus `scripts/contract-worktree.sh finish`.

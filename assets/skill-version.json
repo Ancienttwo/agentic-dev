@@ -1,6 +1,12 @@
 {
   "version": "4.0.2",
   "templateVersion": "4.0.2",
+  "skillName": "agentic-dev",
+  "contractId": "tasks-first-harness-v1",
+  "legacyAliases": [
+    "agentic-dev-skill",
+    "project-initializer"
+  ],
   "compatibility": {
     "minClaudeCodeVersion": "1.0.0",
     "minBunVersion": "1.0.0"
@@ -65,6 +71,11 @@
   ],
   "generatedProjectStamp": {
     "format": "project-initializer@{version}+template@{templateVersion}",
+    "displayName": "agentic-dev",
+    "legacyAliases": [
+      "agentic-dev-skill",
+      "project-initializer"
+    ],
     "location": ".claude/.skill-version"
   }
 }

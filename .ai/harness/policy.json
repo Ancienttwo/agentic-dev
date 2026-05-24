@@ -20,7 +20,7 @@
     "dir": "_ref",
     "mode": "external-ignored",
     "commit_policy": "never commit _ref contents",
-    "rule": "use _ref for upstream/source comparison only; refresh from external sources instead of editing as product code"
+    "rule": "use _ref as an occasional ignored external reference checkout cache for upstream/source comparison only; refresh from external sources instead of editing as product code; when it influences a decision, cite the source repo plus commit/tag and path in tasks/notes/ or tasks/research.md"
   },
   "operations": {
     "dir": "deploy",
@@ -111,6 +111,17 @@
         "gbrain"
       ],
       "rule": "memory is advisory; current repo state and evidence override summaries"
+    },
+    "external_knowledge": {
+      "default_brain_path": "icloud/brain/<project>/*",
+      "project_path": "icloud/brain/agentic-dev/*",
+      "manifest_file": ".ai/harness/brain-manifest.json",
+      "drift_check": "scripts/check-brain-manifest.sh",
+      "legacy_paths": [
+        "icloud/brain/agentic-dev-skill/*",
+        "icloud/brain/project-initializer/*"
+      ],
+      "rule": "external knowledge stores long-lived explanations, runbooks, and patterns only; repo-local contracts, hooks, scripts, checks, and evidence remain authoritative"
     }
   },
   "context_budget": {

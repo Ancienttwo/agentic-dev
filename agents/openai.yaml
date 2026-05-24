@@ -1,4 +1,4 @@
 interface:
-  display_name: "Project Initializer"
-  short_description: "Create, migrate, audit, and repair AI-assisted project scaffolding"
-  default_prompt: "Set up or modernize this repository for AI-assisted development with CLAUDE.md, AGENTS.md, tasks-first workflow files, and shared repo contracts."
+  display_name: "agentic-dev"
+  short_description: "Install, migrate, audit, and repair repo-local agentic development harnesses"
+  default_prompt: "Set up or modernize this repository for agentic development with CLAUDE.md, AGENTS.md, tasks-first workflow files, and shared repo contracts."

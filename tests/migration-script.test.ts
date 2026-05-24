@@ -41,6 +41,19 @@ describe("Migration script contract", () => {
     expect(migrator).toContain("docs/PROGRESS.md");
   });
 
+  test("generated migration wrapper should support agentic-dev and legacy roots", () => {
+    const wrapper = read("assets/templates/helpers/migrate-project-template.sh");
+    expect(wrapper).toContain("AGENTIC_DEV_ROOT");
+    expect(wrapper).toContain("AGENTIC_DEV_SKILL_ROOT");
+    expect(wrapper).toContain("PROJECT_INITIALIZER_ROOT");
+    expect(wrapper).toContain(".codex/skills/agentic-dev");
+    expect(wrapper).toContain(".codex/skills/agentic-dev-skill");
+    expect(wrapper).toContain(".codex/skills/project-initializer");
+    expect(wrapper).toContain(".claude/skills/agentic-dev");
+    expect(wrapper).toContain(".claude/skills/agentic-dev-skill");
+    expect(wrapper).toContain(".claude/skills/project-initializer");
+  });
+
   test("should migrate workflow files and runtime ignore block", () => {
     const script = read("scripts/migrate-project-template.sh");
     const sharedLib = read("scripts/lib/project-init-lib.sh");
@@ -56,6 +69,7 @@ describe("Migration script contract", () => {
     expect(script).toContain(".ai/context");
     expect(script).toContain(".ai/harness/checks/latest.json");
     expect(script).toContain(".ai/harness/policy.json");
+    expect(script).toContain(".ai/harness/brain-manifest.json");
     expect(script).toContain(".ai/harness/events.jsonl");
     expect(script).toContain(".ai/harness/handoff/current.md");
     expect(script).toContain(".ai/harness/context-budget");
@@ -74,6 +88,7 @@ describe("Migration script contract", () => {
     expect(workflowContract).toContain("check-deploy-sql-order.sh");
     expect(workflowContract).toContain("check-agent-tooling.sh");
     expect(workflowContract).toContain("check-context-files.sh");
+    expect(workflowContract).toContain("check-brain-manifest.sh");
     expect(workflowContract).toContain("ensure-task-workflow.sh");
     expect(workflowContract).toContain("check-task-workflow.sh");
     expect(workflowContract).toContain("maintenance-triage.sh");
@@ -178,6 +193,7 @@ describe("Migration script contract", () => {
       expect(existsSync(join(repo, ".ai/harness/handoff/resume.md"))).toBe(true);
       expect(existsSync(join(repo, ".ai/harness/context-budget/latest.json"))).toBe(true);
       expect(existsSync(join(repo, ".ai/harness/workflow-contract.json"))).toBe(true);
+      expect(existsSync(join(repo, ".ai/harness/brain-manifest.json"))).toBe(true);
       expect(existsSync(join(repo, ".ai/harness/runs/.gitkeep"))).toBe(true);
       expect(existsSync(join(repo, ".ai/harness/worktrees/.gitkeep"))).toBe(true);
       expect(existsSync(join(repo, "deploy/README.md"))).toBe(true);
@@ -200,6 +216,7 @@ describe("Migration script contract", () => {
       expect(existsSync(join(repo, "scripts/check-deploy-sql-order.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/check-agent-tooling.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/check-context-files.sh"))).toBe(true);
+      expect(existsSync(join(repo, "scripts/check-brain-manifest.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/ensure-task-workflow.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/check-task-workflow.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/maintenance-triage.sh"))).toBe(true);
@@ -307,6 +324,8 @@ describe("Migration script contract", () => {
       expect(policy.tasks.workstreams_dir).toBe("tasks/workstreams");
       expect(policy.reference_material.dir).toBe("_ref");
       expect(policy.reference_material.commit_policy).toContain("never commit");
+      expect(policy.reference_material.rule).toContain("occasional ignored external reference checkout cache");
+      expect(policy.reference_material.rule).toContain("commit/tag and path");
       expect(policy.operations.dir).toBe("deploy");
       expect(policy.operations.private_dir).toBe("_ops");
       expect(policy.operations.tracked).toContain("deploy/submissions/");
@@ -315,6 +334,8 @@ describe("Migration script contract", () => {
       expect(policy.workstreams.scope).toBe("capability");
       expect(policy.information_lifecycle.notes.dir).toBe("tasks/notes");
       expect(policy.information_lifecycle.evidence.snapshots_dir).toBe(".ai/harness/runs");
+      expect(policy.information_lifecycle.external_knowledge.manifest_file).toBe(".ai/harness/brain-manifest.json");
+      expect(policy.information_lifecycle.external_knowledge.drift_check).toBe("scripts/check-brain-manifest.sh");
       expect(policy.information_lifecycle.assets.promotion_rule).toContain("verified reuse across tasks");
       expect(policy.documentation.profile).toBe("minimal-agentic");
       expect(policy.lsp_profiles.default).toBe("typescript-lsp");
@@ -328,6 +349,7 @@ describe("Migration script contract", () => {
       expect(policy.upgrade.action_classes.preserve).toContain("user-authored hooks");
       const workflowContract = JSON.parse(readFileSync(join(repo, ".ai/harness/workflow-contract.json"), "utf-8"));
       expect(workflowContract.helpers.scripts).toContain("check-agent-tooling.sh");
+      expect(workflowContract.helpers.scripts).toContain("check-brain-manifest.sh");
       expect(workflowContract.helpers.scripts).toContain("check-deploy-sql-order.sh");
       expect(workflowContract.helpers.scripts).toContain("switch-plan.sh");
       expect(workflowContract.helpers.scripts).toContain("contract-worktree.sh");
@@ -341,6 +363,7 @@ describe("Migration script contract", () => {
       expect(workflowContract.artifacts.requiredDirectories).toContain(".ai/harness/worktrees");
       expect(workflowContract.artifacts.requiredDirectories).toContain("deploy/sql");
       expect(workflowContract.artifacts.requiredFiles).toContain(".ai/context/capabilities.json");
+      expect(workflowContract.artifacts.requiredFiles).toContain(".ai/harness/brain-manifest.json");
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/agentic-development-flow.md");
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/document-generation.md");
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/global-working-rules.md");
@@ -353,6 +376,7 @@ describe("Migration script contract", () => {
       expect(workflowContract.artifacts.runtimeFiles).not.toContain(".ai/harness/workstreams/events.jsonl");
 
       const pkg = JSON.parse(readFileSync(join(repo, "package.json"), "utf-8"));
+      expect(pkg.scripts["check:brain-manifest"]).toBe("bash scripts/check-brain-manifest.sh");
       expect(pkg.scripts["check:context-files"]).toBe("bash scripts/check-context-files.sh");
       expect(pkg.scripts["check:deploy-sql"]).toBe("bash scripts/check-deploy-sql-order.sh");
       expect(pkg.scripts["check:task-sync"]).toBe("bash scripts/check-task-sync.sh");

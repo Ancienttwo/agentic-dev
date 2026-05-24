@@ -5,7 +5,7 @@
 ## Current Snapshot
 
 - Latest snapshot: (none yet)
-- Latest diagram: [project-initializer skill architecture](diagrams/project-initializer-architecture.html) (2026-05-20)
+- Latest diagram: [agentic-dev architecture](diagrams/project-initializer-architecture.html) (2026-05-20; legacy diagram filename)
 
 ## Umbrella Hierarchy
 

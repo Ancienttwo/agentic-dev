@@ -1,23 +1,14 @@
-# Coding Standards (Reference)
+# Coding Standards Reference
 
-Use this file for detailed coding constraints that are intentionally not always loaded.
+> Externalized: full reference lives in default brain.
 
-## Guidance
+## Default Brain
 
-- Prefer composable data structures over branch-heavy logic.
-- Keep functions small enough to reason about quickly.
-- Remove dead code instead of preserving compatibility shims.
-- Keep tests close to behavior changes.
+- File vault: `icloud/brain/agentic-dev/references/coding-standards-reference.md`
+- gbrain slug: `references/coding-standards-reference`
 
-## Red-Line Defaults
+## Repo Role
 
-| Metric | Recommended Threshold |
-|---|---|
-| File lines | <= 800 |
-| Function lines | <= 40 (split if comprehension drops) |
-| Nesting depth | <= 3 |
-| Branch count | <= 3 |
-
-## Escalation
-
-If a constraint is intentionally exceeded, record rationale in `docs/decisions.md`.
+Project-specific coding constraints stay in root agent files, workflow policy,
+tests, and task contracts. General coding standards belong in the external
+reference.

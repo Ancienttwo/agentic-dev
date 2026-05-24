@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "Centralized version configuration for project-initializer. Format: 'package': 'version' (use .x for major version tracking)",
+  "$comment": "Centralized version configuration for agentic-dev. Format: 'package': 'version' (use .x for major version tracking)",
   
   "core": {
     "vite": "7.x",

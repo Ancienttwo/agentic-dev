@@ -19,7 +19,16 @@ describe("Skill Version Consistency", () => {
     expect(frontmatterMatch).not.toBeNull();
     expect(frontmatterMatch?.[1]).toContain("name:");
     expect(frontmatterMatch?.[1]).toContain("description:");
+    expect(frontmatterMatch?.[1]).toContain("when_to_use:");
     expect(frontmatterMatch?.[1]).not.toContain("version:");
+  });
+
+  test("SKILL.md keeps legacy triggers", () => {
+    const skill = readFileSync(join(REPO_ROOT, "SKILL.md"), "utf-8");
+    const frontmatterMatch = skill.match(/^---\n([\s\S]*?)\n---/);
+    expect(frontmatterMatch?.[1]).toContain("name: agentic-dev");
+    expect(frontmatterMatch?.[1]).toContain("agentic-dev-skill");
+    expect(frontmatterMatch?.[1]).toContain("project-initializer");
   });
 
   test("checkConsistency returns consistent=true for current repo", () => {

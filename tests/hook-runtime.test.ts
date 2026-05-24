@@ -142,6 +142,32 @@ describe("Hook runtime behavior", () => {
     }
   });
 
+  test("prompt-guard: suggests agentic-dev-autoplan for reusable workflow packaging only after authorization", () => {
+    const cwd = tmpWorkspace("agentic-packaging-route-hint");
+    try {
+      installHooks(cwd);
+
+      const packagingRes = runHook("prompt-guard.sh", cwd, {
+        stdin: JSON.stringify({ prompt: "这个重复工作适合做成 skill 或 automation 吗" }),
+      });
+      expect(packagingRes.status).toBe(0);
+      expect(packagingRes.stdout).toContain("[AgenticDevRoute] Reusable workflow packaging intent detected");
+      expect(packagingRes.stdout).toContain("agentic-dev-autoplan after user authorization");
+      expect(packagingRes.stdout).toContain("hook will not plan or create assets");
+      expect(packagingRes.stdout).not.toContain("[WazaRoute]");
+
+      const hookTriggerRes = runHook("prompt-guard.sh", cwd, {
+        stdin: JSON.stringify({ prompt: "这是不是适合做成 hook 来触发用户授权去 plan 一个改进方案" }),
+      });
+      expect(hookTriggerRes.status).toBe(0);
+      expect(hookTriggerRes.stdout).toContain("[AgenticDevRoute]");
+      expect(hookTriggerRes.stdout).toContain("agentic-dev-autoplan");
+      expect(hookTriggerRes.stdout).not.toContain("[WazaRoute]");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
   test("worktree-guard: warning by default, block when marker exists", () => {
     const cwd = tmpWorkspace("worktree-guard");
     try {

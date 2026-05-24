@@ -1,29 +1,19 @@
 # Evaluator Rubric
 
-Use this rubric for `tasks/reviews/<slug>.review.md`.
+> Partially externalized: full rubric lives in default brain.
 
-## Default Dimensions
+## Default Brain
 
-- Web / Expo:
-  - Functionality
-  - Product depth
-  - Design quality
-  - Code quality
-- Backend / TUI:
-  - Functionality
-  - Interface correctness
-  - Reliability
-  - Code quality
+- File vault: `icloud/brain/agentic-dev/references/evaluator-rubric-reference.md`
+- gbrain slug: `references/evaluator-rubric-reference`
+
+## Repo Role
+
+Keep pass/fail evidence in `tasks/reviews/<slug>.review.md` and
+`.ai/harness/checks/latest.json`. Use the external rubric for detailed scoring
+dimensions and review examples.
 
 ## Hard Threshold
 
-- Any dimension below `7/10` is a failing review.
-- Any missing verification evidence is a failing review.
-- Any out-of-scope file edits without contract approval are a failing review.
-
-## Review Output
-
-- Overall recommendation: `pass` or `fail`
-- Dimension scores with short rationale
-- Failed checks or missing evidence
-- Retest steps
+Do not mark a sprint complete unless the review artifact has fresh evidence and
+the active contract verification passes.

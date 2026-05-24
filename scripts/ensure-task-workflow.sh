@@ -480,7 +480,7 @@ ARCHITECTURE_INDEX_EOF
     "dir": "_ref",
     "mode": "external-ignored",
     "commit_policy": "never commit _ref contents",
-    "rule": "use _ref for upstream/source comparison only; refresh from external sources instead of editing as product code"
+    "rule": "use _ref as an occasional ignored external reference checkout cache for upstream/source comparison only; refresh from external sources instead of editing as product code; when it influences a decision, cite the source repo plus commit/tag and path in tasks/notes/ or tasks/research.md"
   },
   "operations": {
     "dir": "deploy",
@@ -550,6 +550,13 @@ ARCHITECTURE_INDEX_EOF
     "memory": {
       "sources": ["tasks/research.md", "tasks/lessons.md", "gbrain"],
       "rule": "memory is advisory; current repo state and evidence override summaries"
+    },
+    "external_knowledge": {
+      "default_brain_path": "icloud/brain/<project>/*",
+      "project_path": "icloud/brain/<project>/*",
+      "manifest_file": ".ai/harness/brain-manifest.json",
+      "drift_check": "scripts/check-brain-manifest.sh",
+      "rule": "external knowledge stores long-lived explanations, runbooks, and patterns only; repo-local contracts, hooks, scripts, checks, and evidence remain authoritative"
     }
   },
   "context_budget": {
@@ -710,6 +717,24 @@ ARCHITECTURE_INDEX_EOF
   }
 }
 POLICY_EOF
+  fi
+
+  if [[ ! -f ".ai/harness/brain-manifest.json" ]]; then
+    cat > ".ai/harness/brain-manifest.json" <<'BRAIN_MANIFEST_EOF'
+{
+  "version": 1,
+  "project": "<project>",
+  "mode": "repo-contract-external-knowledge",
+  "default_brain_path": "icloud/brain/<project>/*",
+  "legacy_paths": [],
+  "rules": [
+    "repo-local contracts, hooks, scripts, checks, and evidence remain authoritative",
+    "default brain stores long-lived explanations, runbooks, decisions, references, and patterns",
+    "hook runtime must not query gbrain, iCloud, MCP, or default brain"
+  ],
+  "entries": []
+}
+BRAIN_MANIFEST_EOF
   fi
 
   if [[ ! -f ".ai/context/context-map.json" ]]; then

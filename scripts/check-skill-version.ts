@@ -12,7 +12,7 @@
 import { readFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { resolveProjectInitializerRoot } from "./workflow-contract.ts";
+import { resolveAgenticDevRoot } from "./workflow-contract.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -52,12 +52,12 @@ export function checkConsistency(repoRoot: string = REPO_ROOT): ConsistencyResul
       ? (pkg.version as string)
       : null;
 
-  // Read the local source manifest when this script runs inside project-initializer;
+  // Read the local source manifest when this script runs inside agentic-dev;
   // generated projects resolve the upstream skill root instead.
   const localSvPath = join(repoRoot, "assets", "skill-version.json");
   const svPath = existsSync(localSvPath)
     ? localSvPath
-    : join(resolveProjectInitializerRoot(repoRoot), "assets", "skill-version.json");
+    : join(resolveAgenticDevRoot(repoRoot), "assets", "skill-version.json");
   if (!existsSync(svPath)) {
     throw new Error(`skill-version.json not found at ${svPath}`);
   }
@@ -72,7 +72,7 @@ export function checkConsistency(repoRoot: string = REPO_ROOT): ConsistencyResul
     );
   } else if (packageJsonVersion !== null) {
     warnings.push(
-      `package.json.version (${packageJsonVersion}) is treated as product release metadata; workflow parity uses upstream project-initializer skill-version.json only`
+      `package.json.version (${packageJsonVersion}) is treated as product release metadata; workflow parity uses upstream agentic-dev skill-version.json only`
     );
   }
 
@@ -96,7 +96,7 @@ export function checkProjectNeedsMigration(
   const localSvPath = join(repoRoot, "assets", "skill-version.json");
   const svPath = existsSync(localSvPath)
     ? localSvPath
-    : join(resolveProjectInitializerRoot(repoRoot), "assets", "skill-version.json");
+    : join(resolveAgenticDevRoot(repoRoot), "assets", "skill-version.json");
   const sv = JSON.parse(readFileSync(svPath, "utf-8"));
   const currentSkillVersion = sv.version as string;
 

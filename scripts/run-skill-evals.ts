@@ -218,7 +218,7 @@ export function formatIterationName(date: Date = new Date(), label?: string): st
 
 export function loadEvalManifest(path: string = DEFAULT_EVALS_PATH): EvalManifest {
   const manifest = readJsonFile<EvalManifest>(path);
-  if (manifest.skill_name !== "project-initializer") {
+  if (manifest.skill_name !== "agentic-dev") {
     throw new Error(`Unexpected skill_name in eval manifest: ${manifest.skill_name}`);
   }
   return manifest;
@@ -227,7 +227,7 @@ export function loadEvalManifest(path: string = DEFAULT_EVALS_PATH): EvalManifes
 export function loadBenchmarkConfig(path: string = DEFAULT_BENCHMARK_CONFIG_PATH): BenchmarkConfig {
   const config = readJsonFile<Partial<BenchmarkConfig>>(path);
   return {
-    workspaceRoot: config.workspaceRoot ?? "../project-initializer-workspace",
+    workspaceRoot: config.workspaceRoot ?? "../agentic-dev-workspace",
     summaryPath: config.summaryPath ?? "evals/benchmark.md",
     agents: {
       claude: {
@@ -312,7 +312,8 @@ function buildCodexWrapper(existingAgents: string, skillMarkdown: string): strin
   const sections = [
     "# Benchmark Skill Wrapper",
     "",
-    "Treat the embedded `project-initializer` skill as the primary routing contract for this benchmark run.",
+    "Treat the embedded `agentic-dev` skill as the primary routing contract for this benchmark run.",
+    "The benchmark still mounts Claude's legacy skill alias path at `.claude/skills/project-initializer` for compatibility.",
     "When the embedded skill references `scripts/`, `references/`, `assets/`, or `evals/` files, resolve them relative to `.skill-src/`.",
     "Preserve any fixture-specific instructions listed below unless they conflict with the embedded skill.",
     "",

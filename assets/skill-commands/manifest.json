@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "surface": "agentic-dev-action-style-skill-commands",
+  "source": "assets/skill-commands",
+  "router": "agentic-dev",
+  "commands": [
+    {
+      "name": "agentic-dev-plan",
+      "class": "planning",
+      "mutatesRepoByDefault": false,
+      "engine": "inspect-project-state plus repo-local plan artifacts",
+      "summary": "Interactive planning entrypoint for repo-local agentic development work."
+    },
+    {
+      "name": "agentic-dev-review",
+      "class": "planning-review",
+      "mutatesRepoByDefault": false,
+      "engine": "inspect-project-state plus plan and review artifacts",
+      "summary": "Reviews an existing plan across product, engineering, design, and DevEx dimensions."
+    },
+    {
+      "name": "agentic-dev-autoplan",
+      "class": "automated-planning",
+      "mutatesRepoByDefault": false,
+      "engine": "plan then review then decision summary",
+      "summary": "Runs the full planning and review pipeline automatically, surfacing only final decision gates."
+    },
+    {
+      "name": "agentic-dev-init",
+      "class": "repo-initialization",
+      "mutatesRepoByDefault": true,
+      "engine": "inspect-project-state then migrate-project-template --apply",
+      "summary": "Installs or refreshes the agentic workflow in an existing repository without creating an app stack."
+    },
+    {
+      "name": "agentic-dev-scaffold",
+      "class": "project-scaffolding",
+      "mutatesRepoByDefault": true,
+      "engine": "init-project.sh plus workflow install",
+      "summary": "Creates a new project or module scaffold from plan catalog A-K and attaches the harness."
+    },
+    {
+      "name": "agentic-dev-migrate",
+      "class": "legacy-migration",
+      "mutatesRepoByDefault": true,
+      "engine": "inspect-project-state, migrate-workflow-docs, migrate-project-template",
+      "summary": "Migrates legacy Claude/Codex workflow surfaces while preserving or archiving user-authored content."
+    },
+    {
+      "name": "agentic-dev-upgrade",
+      "class": "harness-upgrade",
+      "mutatesRepoByDefault": true,
+      "engine": "workflow-contract.v1.json migrations.upgrade.actions",
+      "summary": "Refreshes an already-installed harness using manifest-owned upgrade actions."
+    },
+    {
+      "name": "agentic-dev-repair",
+      "class": "harness-repair",
+      "mutatesRepoByDefault": true,
+      "engine": "inspect-project-state plus targeted workflow helpers",
+      "summary": "Repairs broken task sync, hook routing, handoff, context-map, policy, or helper drift."
+    },
+    {
+      "name": "agentic-dev-check",
+      "class": "verification",
+      "mutatesRepoByDefault": false,
+      "engine": "workflow gates, task sync, inspector, migration dry-run",
+      "summary": "Runs the repo-local harness verification gate and reports pre-merge or release readiness."
+    }
+  ],
+  "nonPublicInternalSteps": [
+    "hooks-init",
+    "docs-init",
+    "create-project-dirs"
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "skill_name": "project-initializer",
+  "skill_name": "agentic-dev",
   "evals": [
     {
       "id": 1,
@@ -191,6 +191,254 @@
         "Mentions the factor registry as the source of truth for factor lifecycle state.",
         "Includes the factor-lab new/promote/reject/check commands in the generated workflow discussion.",
         "Preserves the standard tasks-first workflow alongside factor research scaffolding."
+      ]
+    },
+    {
+      "id": 7,
+      "slug": "route-existing-repo-init",
+      "prompt": "Initialize this existing repo with the agentic-dev workflow. Do not create a new Vite or app scaffold; just add the repo-local harness, hooks, docs/spec.md, tasks, plans, .ai/context, and .ai/harness.",
+      "expected_output": "Routes the request to agentic-dev-init, inspects the existing repo first, uses migrate-project-template --apply for the safe init path, and explicitly avoids app scaffolding.",
+      "files": [
+        "evals/fixtures/new-project-empty"
+      ],
+      "graders": {
+        "files_exist": [
+          "final-response.md"
+        ],
+        "files_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-init" },
+          { "path": "final-response.md", "pattern": "inspect-project-state" },
+          { "path": "final-response.md", "pattern": "migrate-project-template" }
+        ]
+      },
+      "anti_graders": {
+        "files_not_contain": [
+          { "path": "final-response.md", "pattern": "create new Vite" },
+          { "path": "final-response.md", "pattern": "hooks-init.*public command" }
+        ]
+      },
+      "expectations": [
+        "Treats init as existing-repo adoption, not product scaffold creation.",
+        "Names agentic-dev-init as the public command.",
+        "Keeps hook and docs initialization behind the migration engine."
+      ]
+    },
+    {
+      "id": 8,
+      "slug": "route-new-project-scaffold",
+      "prompt": "Scaffold a new Vite + TanStack Router internal tool with the agentic-dev workflow attached from the beginning.",
+      "expected_output": "Routes the request to agentic-dev-scaffold, selects the Vite/TanStack plan catalog entry, creates the new project scaffold, and attaches the tasks-first harness.",
+      "files": [
+        "evals/fixtures/new-project-empty"
+      ],
+      "graders": {
+        "files_exist": [
+          "final-response.md"
+        ],
+        "files_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-scaffold" },
+          { "path": "final-response.md", "pattern": "Plan C|Vite" },
+          { "path": "final-response.md", "pattern": "tasks-first" }
+        ]
+      },
+      "anti_graders": {
+        "files_not_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-init.*existing repo only" },
+          { "path": "final-response.md", "pattern": "create-project-dirs.*public command" }
+        ]
+      },
+      "expectations": [
+        "Treats scaffold as new project or module creation.",
+        "Uses plan catalog A-K instead of ad hoc stack guessing.",
+        "Attaches the repo-local workflow after product scaffold creation."
+      ]
+    },
+    {
+      "id": 9,
+      "slug": "route-legacy-migrate",
+      "prompt": "This older Claude repo has docs/TODO.md, docs/PROGRESS.md, and old .claude hook shims. Migrate it to the current agentic-dev harness without deleting my notes.",
+      "expected_output": "Routes the request to agentic-dev-migrate, archives or preserves legacy docs, removes only known_generated stale shims, and verifies the tasks-first harness.",
+      "files": [
+        "evals/fixtures/migrate-legacy"
+      ],
+      "graders": {
+        "files_exist": [
+          "final-response.md"
+        ],
+        "files_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-migrate" },
+          { "path": "final-response.md", "pattern": "archive|preserve" },
+          { "path": "final-response.md", "pattern": "known_generated" }
+        ]
+      },
+      "anti_graders": {
+        "files_not_contain": [
+          { "path": "final-response.md", "pattern": "delete user content" }
+        ]
+      },
+      "expectations": [
+        "Preserves or archives user-authored legacy workflow docs.",
+        "Does not conflate migration with scaffold.",
+        "Uses the manifest-owned removal boundary."
+      ]
+    },
+    {
+      "id": 10,
+      "slug": "route-current-upgrade",
+      "prompt": "This repo already has the tasks-first harness. Upgrade it to the latest agentic-dev contract and refresh managed helper files, but preserve _ref, _ops, custom hooks, and local env.",
+      "expected_output": "Routes the request to agentic-dev-upgrade, reads the inspector upgrade_plan, applies manifest-owned upgrade actions only, and preserves user-local/private surfaces.",
+      "files": [
+        "evals/fixtures/audit-drift"
+      ],
+      "graders": {
+        "files_exist": [
+          "final-response.md"
+        ],
+        "files_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-upgrade" },
+          { "path": "final-response.md", "pattern": "upgrade_plan" },
+          { "path": "final-response.md", "pattern": "_ops|_ref" }
+        ]
+      },
+      "anti_graders": {
+        "files_not_contain": [
+          { "path": "final-response.md", "pattern": "delete custom hooks" }
+        ]
+      },
+      "expectations": [
+        "Uses upgrade for current harness refresh, not migration.",
+        "Reads manifest-owned upgrade actions.",
+        "Preserves private and user-local paths."
+      ]
+    },
+    {
+      "id": 11,
+      "slug": "route-harness-repair",
+      "prompt": "The agentic workflow is already installed, but task sync and hook routing are broken. Repair the current harness without migrating legacy docs or scaffolding a new app.",
+      "expected_output": "Routes the request to agentic-dev-repair, reproduces the failing path, fixes task sync or hook routing minimally, and reruns the relevant workflow gate.",
+      "files": [
+        "evals/fixtures/fix-agents"
+      ],
+      "graders": {
+        "files_exist": [
+          "final-response.md"
+        ],
+        "files_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-repair" },
+          { "path": "final-response.md", "pattern": "task sync|hook routing" },
+          { "path": "final-response.md", "pattern": "check-task-workflow" }
+        ]
+      },
+      "anti_graders": {
+        "files_not_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-scaffold" }
+        ]
+      },
+      "expectations": [
+        "Uses repair only after recognizing a current harness surface.",
+        "Traces the failing workflow path before fixing.",
+        "Keeps the fix targeted to task sync, hooks, handoff, context, policy, or helpers."
+      ]
+    },
+    {
+      "id": 12,
+      "slug": "route-workflow-check",
+      "prompt": "Check whether this agentic-dev harness is ready to merge. Run the workflow gates, inspector, task sync, and migration dry-run and give me the release readiness verdict.",
+      "expected_output": "Routes the request to agentic-dev-check, runs or names the required workflow gates, reports pass/fail evidence, and does not mutate repo files by default.",
+      "files": [
+        "evals/fixtures/audit-drift"
+      ],
+      "graders": {
+        "files_exist": [
+          "final-response.md"
+        ],
+        "files_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-check" },
+          { "path": "final-response.md", "pattern": "check-task-sync" },
+          { "path": "final-response.md", "pattern": "migrate-project-template.*dry-run" }
+        ]
+      },
+      "expectations": [
+        "Uses check as a verification entrypoint, not a mutating repair.",
+        "Includes inspector and migration dry-run in the evidence set.",
+        "Gives a readiness verdict grounded in command output."
+      ]
+    },
+    {
+      "id": 13,
+      "slug": "route-agentic-dev-plan",
+      "prompt": "Plan how we should change the agentic-dev workflow command surface, but do not edit files yet.",
+      "expected_output": "Routes the request to agentic-dev-plan, inspects repo state, produces a decision-complete plan, and names the next action command without mutating files.",
+      "files": [
+        "evals/fixtures/audit-drift"
+      ],
+      "graders": {
+        "files_exist": [
+          "final-response.md"
+        ],
+        "files_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-plan" },
+          { "path": "final-response.md", "pattern": "inspect-project-state" },
+          { "path": "final-response.md", "pattern": "next action command" }
+        ]
+      },
+      "anti_graders": {
+        "files_not_contain": [
+          { "path": "final-response.md", "pattern": "implemented|modified files" }
+        ]
+      },
+      "expectations": [
+        "Keeps planning non-mutating by default.",
+        "Produces one recommended action path.",
+        "Separates plan output from implementation."
+      ]
+    },
+    {
+      "id": 14,
+      "slug": "route-agentic-dev-review",
+      "prompt": "Review this existing agentic-dev plan for product, engineering, design, and DevEx issues before implementation.",
+      "expected_output": "Routes the request to agentic-dev-review, reads the plan, selects review dimensions, reports blocking issues first, and does not implement by default.",
+      "files": [
+        "evals/fixtures/audit-drift"
+      ],
+      "graders": {
+        "files_exist": [
+          "final-response.md"
+        ],
+        "files_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-review" },
+          { "path": "final-response.md", "pattern": "product" },
+          { "path": "final-response.md", "pattern": "DevEx" }
+        ]
+      },
+      "expectations": [
+        "Treats review as plan-stage critique.",
+        "Covers product, engineering, design, and DevEx when relevant.",
+        "Keeps implementation separate from review."
+      ]
+    },
+    {
+      "id": 15,
+      "slug": "route-agentic-dev-autoplan",
+      "prompt": "Autoplan the agentic-dev command change: read the repo, make the planning decisions for me, run the review pipeline automatically, and surface only final decision gates.",
+      "expected_output": "Routes the request to agentic-dev-autoplan, runs plan then review then decision summary, and reports unresolved taste decisions without mutating files by default.",
+      "files": [
+        "evals/fixtures/audit-drift"
+      ],
+      "graders": {
+        "files_exist": [
+          "final-response.md"
+        ],
+        "files_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-autoplan" },
+          { "path": "final-response.md", "pattern": "plan.*review.*decision" },
+          { "path": "final-response.md", "pattern": "final decision" }
+        ]
+      },
+      "expectations": [
+        "Runs the full planning and review sequence automatically.",
+        "Surfaces only material final decision gates.",
+        "Does not redirect into long interactive review unless automatic planning is unsafe."
       ]
     }
   ]

@@ -17,7 +17,7 @@ This repo uses a shared long-running harness. The durable workflow lives in repo
 5. `tasks/notes/<slug>.notes.md` records design decisions, deviations, tradeoffs, open questions, and promotion candidates for this sprint only.
 6. `tasks/reviews/<slug>.review.md` records evaluator judgment.
 7. `.ai/harness/policy.json` is the machine-readable workflow contract.
-8. `information_lifecycle` inside `.ai/harness/policy.json` separates notes, raw evidence, reusable assets, and advisory memory.
+8. `information_lifecycle` inside `.ai/harness/policy.json` separates notes, raw evidence, reusable assets, advisory memory, and external knowledge.
 9. `agentic_development` inside `.ai/harness/policy.json` captures product, engineering, design, bug-hunt, and review routing.
 10. `external_tooling` inside `.ai/harness/policy.json` captures host install/update defaults for gstack, Waza, and gbrain.
 11. `.ai/context/capabilities.json` declares capability prefixes, contract files, architecture modules, and workstream directories.
@@ -36,6 +36,7 @@ This repo uses a shared long-running harness. The durable workflow lives in repo
 - Stopping a session should refresh `.ai/harness/handoff/current.md` for easier resume.
 - Use `docs/reference-configs/agentic-development-flow.md` for skill routing and `docs/reference-configs/external-tooling.md` for install/update commands.
 - Use `docs/reference-configs/global-working-rules.md` as the user-level Claude/Codex rule template; keep repo-local workflow contracts in repo files.
+- Externalized reference docs are indexed by `.ai/harness/brain-manifest.json` and checked by `scripts/check-brain-manifest.sh`; this is a repo contract, not a Hook runtime dependency.
 - Contract-level execution should run in an isolated `codex/<task-slug>` worktree. Merge back only after the contract is fulfilled, `tasks/reviews/<slug>.review.md` recommends pass, and the target worktree is clean.
 
 ## Documentation Profile
@@ -51,6 +52,7 @@ This repo uses a shared long-running harness. The durable workflow lives in repo
 - Notes: `tasks/notes/<slug>.notes.md` is task-local and auditable. It should not be treated as durable knowledge by default.
 - Evidence: `.ai/harness/checks/latest.json` is the current gate, while `.ai/harness/runs/*.json` keeps immutable verification snapshots for later audit.
 - Memory: `tasks/research.md`, `tasks/lessons.md`, and gbrain are advisory. Current repo state and evidence override summaries.
+- External knowledge: `icloud/brain/<project>/*` stores long-form explanations, runbooks, decisions, and patterns. Hooks and checks must not depend on it.
 - Assets: policies, hooks, scripts, templates, and reference configs only change when a pattern has evidence across tasks or fixtures.
 
 ## Capability Context

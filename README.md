@@ -1,10 +1,12 @@
-# project-initializer
+# agentic-dev
 
-Project scaffolding skill for Claude/Codex workflows.
+Repo-local agentic development harness skill for Claude/Codex workflows.
+Formerly `agentic-dev-skill` and `project-initializer`; legacy skill aliases and install paths stay valid during the compatibility rename.
+Repository: `https://github.com/Ancienttwo/agentic-dev`
 
 This repository now dogfoods its own tasks-first contract. It is both:
 
-- the source repo for the `project-initializer` skill
+- the source repo for the `agentic-dev` skill
 - a self-hosted example of the repo-local workflow it generates for other projects
 
 ## First 5 Minutes
@@ -114,6 +116,20 @@ Most common guards:
   - sprint verification evidence -> `tasks/reviews/*.review.md`
   - durable capability progress -> `tasks/workstreams/`
   - release history -> `docs/CHANGELOG.md`
+
+## Action Command Skills
+
+Source-owned command skill facades live in `assets/skill-commands/`. They keep
+the public surface action-style while sharing the same router, contract, scripts,
+and tests:
+
+- Planning and review: `agentic-dev-plan`, `agentic-dev-review`, `agentic-dev-autoplan`
+- Repo workflow actions: `agentic-dev-init`, `agentic-dev-migrate`, `agentic-dev-upgrade`, `agentic-dev-repair`, `agentic-dev-check`
+- Project creation: `agentic-dev-scaffold`
+
+`agentic-dev-init` is for an existing repo; `agentic-dev-scaffold` creates a new
+project or module scaffold. `hooks-init`, `docs-init`, and `create-project-dirs`
+are internal steps, not public commands.
 
 ## Maintainer Reference
 

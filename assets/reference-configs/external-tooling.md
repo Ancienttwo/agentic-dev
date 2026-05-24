@@ -138,6 +138,36 @@ gbrain upgrade
 gbrain sync --repo <path>
 ```
 
+## Default Brain Vault
+
+Long-lived external knowledge should land in the default brain file vault before
+or alongside `gbrain` import:
+
+```text
+icloud/brain/<project>/*
+```
+
+For this repo, use:
+
+```text
+icloud/brain/agentic-dev/*
+```
+
+`icloud/brain/agentic-dev-skill/*` and `icloud/brain/project-initializer/*`
+are legacy alias paths and should remain as redirects/indexes during the
+compatibility window.
+
+Keep runtime contracts, hooks, scripts, checks, evidence, and migration state in
+the repo. The default brain stores reusable explanations, runbooks, decisions,
+and patterns only.
+
+Repo stubs that point to default brain pages are indexed in
+`.ai/harness/brain-manifest.json`. Run this check after changing those stubs:
+
+```bash
+bash scripts/check-brain-manifest.sh
+```
+
 ## Why gbrain MCP Stays Off by Default
 
 - `gbrain` is useful even when only the CLI is healthy.

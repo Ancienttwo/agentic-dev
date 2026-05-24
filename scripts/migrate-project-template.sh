@@ -1,11 +1,12 @@
 #!/bin/bash
-# Migrate an existing project to the 3.0 project-initializer harness model.
+# Migrate an existing project to the agentic-dev tasks-first harness model.
 # - Shared hook source of truth: .ai/hooks/
 # - Claude adapter: .claude/settings.json
 # - Stable product truth: docs/spec.md
 # - Active-plan source of truth: plans/
 # - Sprint artifacts: tasks/contracts/, tasks/reviews/, .ai/context/context-map.json
 # - Harness state: .ai/harness/checks/latest.json, .ai/harness/policy.json,
+#   .ai/harness/brain-manifest.json,
 #   .ai/harness/events.jsonl, .ai/harness/architecture/events.jsonl,
 #   .ai/harness/handoff/current.md,
 #   .ai/harness/handoff/resume.md, .ai/harness/context-budget/latest.json,
@@ -321,7 +322,7 @@ create_task_files_if_missing() {
   todo_file="$repo/tasks/todo.md"
 
   if [[ "$MODE" != "apply" ]]; then
-    echo "[dry-run] ensure docs/spec.md, tasks/*, workstreams, reviews, notes, .ai/context/{capabilities.json,context-map.json}, and .ai/harness/{checks/latest.json,policy.json,events.jsonl,architecture/events.jsonl,handoff/current.md,handoff/resume.md,context-budget/latest.json,failures/latest.jsonl,worktrees/.gitkeep,runs/.gitkeep} exist with current workflow guidance"
+    echo "[dry-run] ensure docs/spec.md, tasks/*, workstreams, reviews, notes, .ai/context/{capabilities.json,context-map.json}, and .ai/harness/{checks/latest.json,policy.json,brain-manifest.json,events.jsonl,architecture/events.jsonl,handoff/current.md,handoff/resume.md,context-budget/latest.json,failures/latest.jsonl,worktrees/.gitkeep,runs/.gitkeep} exist with current workflow guidance"
     return
   fi
 

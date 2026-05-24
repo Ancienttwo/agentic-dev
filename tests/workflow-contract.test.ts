@@ -68,6 +68,7 @@ describe("workflow contract manifest", () => {
     expect(contract.helpers.scripts).toContain("prepare-codex-handoff.sh");
     expect(contract.helpers.scripts).toContain("codex-handoff-resume.sh");
     expect(contract.helpers.scripts).toContain("select-agent-context-blocks.sh");
+    expect(contract.helpers.scripts).toContain("check-brain-manifest.sh");
     expect(contract.helpers.scripts).toContain("check-deploy-sql-order.sh");
     expect(contract.externalTooling?.waza?.primaryHost).toBe("codex");
     expect(contract.externalTooling?.waza?.managedSkills).toContain("think");
@@ -80,6 +81,7 @@ describe("workflow contract manifest", () => {
     expect(contract.agenticDevelopment?.routing.bugOrRegression).toBe("waza:hunt");
     expect(contract.agenticDevelopment?.dueDiligence.levels).toContain("P2_DATA_FLOW_TRACE");
     expect(contract.artifacts.requiredFiles).toContain(".ai/harness/workflow-contract.json");
+    expect(contract.artifacts.requiredFiles).toContain(".ai/harness/brain-manifest.json");
     expect(contract.artifacts.requiredFiles).toContain(".ai/context/capabilities.json");
     expect(contract.artifacts.requiredFiles).toContain("scripts/capability-resolver.ts");
     expect(contract.artifacts.requiredFiles).toContain("scripts/contract-worktree.sh");
@@ -108,6 +110,65 @@ describe("workflow contract manifest", () => {
     expect(contract.migrations.upgrade?.actionClasses).toContain("reconfigure");
     expect(contract.migrations.upgrade?.safety.removeOnlyOwnership).toBe("known_generated");
     expect(contract.migrations.upgrade?.actions.some((action) => action.action === "remove" && action.ownership === "known_generated")).toBe(true);
+  });
+
+  test("upstream skill root resolver prefers the new env var while preserving the legacy alias", () => {
+    const code = [
+      'import { resolveAgenticDevRoot, resolveAgenticDevSkillRoot, resolveProjectInitializerRoot } from "./scripts/workflow-contract.ts";',
+      'console.log(resolveAgenticDevRoot());',
+      'console.log(resolveAgenticDevSkillRoot());',
+      'console.log(resolveProjectInitializerRoot());',
+    ].join("\n");
+    const preferred = spawnSync("bun", ["-e", code], {
+      cwd: ROOT,
+      encoding: "utf-8",
+      env: {
+        ...process.env,
+        AGENTIC_DEV_ROOT: "/tmp/agentic-dev-root",
+        AGENTIC_DEV_SKILL_ROOT: "/tmp/agentic-dev-skill-root",
+        PROJECT_INITIALIZER_ROOT: "/tmp/project-initializer-root",
+      },
+    });
+    expect(preferred.status).toBe(0);
+    expect(preferred.stdout.trim().split("\n")).toEqual([
+      "/tmp/agentic-dev-root",
+      "/tmp/agentic-dev-root",
+      "/tmp/agentic-dev-root",
+    ]);
+
+    const renamedLegacy = spawnSync("bun", ["-e", code], {
+      cwd: ROOT,
+      encoding: "utf-8",
+      env: {
+        ...process.env,
+        AGENTIC_DEV_ROOT: "",
+        AGENTIC_DEV_SKILL_ROOT: "/tmp/agentic-dev-skill-root",
+        PROJECT_INITIALIZER_ROOT: "/tmp/project-initializer-root",
+      },
+    });
+    expect(renamedLegacy.status).toBe(0);
+    expect(renamedLegacy.stdout.trim().split("\n")).toEqual([
+      "/tmp/agentic-dev-skill-root",
+      "/tmp/agentic-dev-skill-root",
+      "/tmp/agentic-dev-skill-root",
+    ]);
+
+    const legacy = spawnSync("bun", ["-e", code], {
+      cwd: ROOT,
+      encoding: "utf-8",
+      env: {
+        ...process.env,
+        AGENTIC_DEV_ROOT: "",
+        AGENTIC_DEV_SKILL_ROOT: "",
+        PROJECT_INITIALIZER_ROOT: "/tmp/project-initializer-root",
+      },
+    });
+    expect(legacy.status).toBe(0);
+    expect(legacy.stdout.trim().split("\n")).toEqual([
+      "/tmp/project-initializer-root",
+      "/tmp/project-initializer-root",
+      "/tmp/project-initializer-root",
+    ]);
   });
 
   test("runtime harness artifacts should be ignored local state, not tracked deliverables", () => {

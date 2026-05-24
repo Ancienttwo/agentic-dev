@@ -1,11 +1,20 @@
 ---
-name: project-initializer
-description: Use when initializing, migrating, auditing, or repairing AI-assisted project scaffolding such as CLAUDE.md, AGENTS.md, tasks/, hooks, and repo-local contracts. Route through repo inspection first, then run initialize, migrate, audit, or repair workflows. Not for runtime debugging or generic non-AI setup.
+name: agentic-dev
+description: installs, migrates, audits, and repairs repo-local agentic development harnesses
+when_to_use: "agentic-dev, agentic-dev-skill, project-initializer, initialize repo-local agentic development harness, migrate repo-local agentic development harness, audit repo-local agentic development harness, repair repo-local agentic development harness"
 ---
 
-# Project Initializer
+# agentic-dev
 
-`project-initializer` is now a thin router over a versioned workflow engine.
+`agentic-dev` is the repo-local agentic development harness skill, formerly `agentic-dev-skill` and `project-initializer`.
+It is a thin router over a versioned workflow engine.
+
+Compatibility boundary:
+
+- internal engine: tasks-first harness
+- contract ID: tasks-first-harness-v1
+- legacy aliases: `agentic-dev-skill`, `project-initializer`
+- legacy install paths remain valid for this release cycle
 
 The skill should not carry the whole workflow contract in prose. It should:
 
@@ -86,6 +95,25 @@ The main engine entrypoints are:
 - `scripts/check-agent-tooling.sh`
 - `scripts/check-task-workflow.sh`
 - `scripts/create-project-dirs.sh`
+
+## Action Command Surface
+
+The public command skills live in `assets/skill-commands/` as thin facades over
+the same engine. Use action-style names for discoverability:
+
+- `agentic-dev-plan`: interactive planning; no repo mutation by default
+- `agentic-dev-review`: plan review across product, engineering, design, and DevEx
+- `agentic-dev-autoplan`: automatic plan -> review -> decision summary pipeline
+- `agentic-dev-init`: install or refresh the harness in an existing repo
+- `agentic-dev-scaffold`: create a new project or module scaffold, then attach the harness
+- `agentic-dev-migrate`: migrate legacy workflow docs and stale harness artifacts
+- `agentic-dev-upgrade`: refresh an installed harness through manifest-owned upgrade actions
+- `agentic-dev-repair`: repair broken task sync, hook routing, handoff, context, policy, or helpers
+- `agentic-dev-check`: run verification gates and report release or pre-merge readiness
+
+Internal steps such as `hooks-init`, `docs-init`, and `create-project-dirs` are
+not public commands. They stay behind `init`, `scaffold`, `migrate`, and
+`upgrade` so users choose intent instead of implementation details.
 
 ## Plan Index
 

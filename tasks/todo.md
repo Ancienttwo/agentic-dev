@@ -36,3 +36,12 @@
 - [x] Split deployable operations assets into tracked `deploy/` and ignored private `_ops/`
 - [x] Added tracked `deploy/sql/` with ordered SQL filename validation
 - [x] Added architecture drift request archive helper and pending-index cleanup rule
+- [x] Externalized optional reference-config long docs to `icloud/brain/agentic-dev/*` and kept repo stubs for contract-safe discovery
+- [x] Added `.ai/harness/brain-manifest.json` and `scripts/check-brain-manifest.sh` to guard default brain pointer drift
+- [x] Renamed the skill/package/repo display surface to `agentic-dev` while preserving `agentic-dev-skill` and `project-initializer` as legacy aliases, install paths, and generated stamp compatibility surfaces
+- [x] Added `AGENTIC_DEV_ROOT` and `agentic-dev` installed-path resolution while preserving `AGENTIC_DEV_SKILL_ROOT`, `PROJECT_INITIALIZER_ROOT`, and legacy path fallbacks
+- [x] Synced real Codex installed copies for `agentic-dev`, `agentic-dev-skill`, and legacy `project-initializer`, with Claude new-name aliases pointing at the source repo
+- [x] Added `agentic-dev-skill` and `project-initializer` to `SKILL.md` `when_to_use` metadata as legacy triggers during the rename window
+- [x] Clarified `_ref/` as an occasional ignored reference checkout cache and required repo+commit/tag+path citations when it informs notes or research
+- [x] Added action-style `agentic-dev-*` command skill facades and tests while keeping hook/docs setup as internal engine steps
+- [x] Added advisory reusable-workflow packaging route hints that suggest `agentic-dev-autoplan` only after user authorization

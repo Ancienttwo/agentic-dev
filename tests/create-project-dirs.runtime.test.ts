@@ -62,6 +62,7 @@ describe("create-project-dirs runtime smoke", () => {
       expect(existsSync(join(cwd, ".ai/harness/checks/latest.json"))).toBe(true);
       expect(existsSync(join(cwd, ".ai/harness/workflow-contract.json"))).toBe(true);
       expect(existsSync(join(cwd, ".ai/harness/policy.json"))).toBe(true);
+      expect(existsSync(join(cwd, ".ai/harness/brain-manifest.json"))).toBe(true);
       expect(existsSync(join(cwd, ".ai/harness/events.jsonl"))).toBe(true);
       expect(existsSync(join(cwd, ".ai/harness/architecture/events.jsonl"))).toBe(true);
       expect(existsSync(join(cwd, ".ai/harness/workstreams/events.jsonl"))).toBe(false);
@@ -79,6 +80,7 @@ describe("create-project-dirs runtime smoke", () => {
       expect(existsSync(join(cwd, "scripts/check-agent-tooling.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/check-task-sync.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/check-deploy-sql-order.sh"))).toBe(true);
+      expect(existsSync(join(cwd, "scripts/check-brain-manifest.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/check-context-files.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/select-agent-context-blocks.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/capability-resolver.ts"))).toBe(true);
@@ -124,6 +126,7 @@ describe("create-project-dirs runtime smoke", () => {
       expect(existsSync(join(cwd, "docs/PROGRESS.md"))).toBe(false);
       const workflowContract = JSON.parse(readFileSync(join(cwd, ".ai/harness/workflow-contract.json"), "utf-8"));
       expect(workflowContract.helpers.scripts).toContain("check-agent-tooling.sh");
+      expect(workflowContract.helpers.scripts).toContain("check-brain-manifest.sh");
       expect(workflowContract.helpers.scripts).toContain("check-deploy-sql-order.sh");
       expect(workflowContract.helpers.scripts).toContain("check-task-workflow.sh");
       expect(workflowContract.helpers.scripts).toContain("contract-worktree.sh");
@@ -191,6 +194,8 @@ describe("create-project-dirs runtime smoke", () => {
       expect(policy.tasks.workstreams_dir).toBe("tasks/workstreams");
       expect(policy.reference_material.dir).toBe("_ref");
       expect(policy.reference_material.commit_policy).toContain("never commit");
+      expect(policy.reference_material.rule).toContain("occasional ignored external reference checkout cache");
+      expect(policy.reference_material.rule).toContain("commit/tag and path");
       expect(policy.operations.dir).toBe("deploy");
       expect(policy.operations.private_dir).toBe("_ops");
       expect(policy.operations.tracked).toContain("deploy/scripts/");
@@ -198,6 +203,8 @@ describe("create-project-dirs runtime smoke", () => {
       expect(policy.operations.ignored).toContain("_ops/");
       expect(policy.information_lifecycle.notes.dir).toBe("tasks/notes");
       expect(policy.information_lifecycle.evidence.snapshots_dir).toBe(".ai/harness/runs");
+      expect(policy.information_lifecycle.external_knowledge.manifest_file).toBe(".ai/harness/brain-manifest.json");
+      expect(policy.information_lifecycle.external_knowledge.drift_check).toBe("scripts/check-brain-manifest.sh");
       expect(policy.agentic_development.routing).toEqual({
         product_discovery: "gstack:office-hours",
         complex_engineering_plan: "gstack:plan-eng-review",

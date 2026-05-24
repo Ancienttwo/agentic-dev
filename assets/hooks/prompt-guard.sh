@@ -27,7 +27,22 @@ is_plan_creation_intent() {
   echo "$PROMPT_TEXT" | grep -qEi "(new plan|create plan|write plan|draft plan|新建计划|创建计划|写计划|制定计划|补计划)"
 }
 
+is_agentic_packaging_intent() {
+  echo "$PROMPT_TEXT" | grep -qEi "(repeated workflow|reusable workflow|workflow packaging|package into (a )?skill|make this (a )?skill|subagent or automation|skill or automation|skill/subagent/automation|重复(手工)?工作|重复工作流|做成[[:space:]]*(skill|subagent|automation)|包装成(skill|subagent|automation|技能|自动化)|抽象成(skill|subagent|automation|技能|自动化)|沉淀成(工作流|skill|技能|自动化)|做成[[:space:]]*(hook|钩子).*触发|触发用户授权.*(plan|计划|方案))"
+}
+
+emit_agentic_packaging_hint() {
+  if is_agentic_packaging_intent; then
+    echo "[AgenticDevRoute] Reusable workflow packaging intent detected."
+    echo "[AgenticDevRoute] Suggested route: agentic-dev-autoplan after user authorization; hook will not plan or create assets."
+  fi
+}
+
 emit_waza_route_hint() {
+  if is_agentic_packaging_intent; then
+    return
+  fi
+
   if echo "$PROMPT_TEXT" | grep -qEi "(agent|agents|codex|claude|hook|hooks|workflow|tooling|config|AGENTS\\.md|CLAUDE\\.md|健康度|健康检查|配置检查|配置|钩子|工作流|技能配置|AI coding|agent instructions)"; then
     echo "[WazaRoute] Agent workflow/tooling intent detected. Default route: Waza /health."
     return
@@ -40,6 +55,7 @@ emit_waza_route_hint() {
 
 PROMPT_TEXT="$(hook_get_prompt "${1:-}")"
 
+emit_agentic_packaging_hint
 emit_waza_route_hint
 
 implement_intent=0

@@ -28,7 +28,7 @@ describe("Bootstrap Script Contracts", () => {
   test("Codex agent metadata should exist for user-level installation", () => {
     const metadata = read("agents/openai.yaml");
     expect(metadata).toContain("interface:");
-    expect(metadata).toContain('display_name: "Project Initializer"');
+    expect(metadata).toContain('display_name: "agentic-dev"');
     expect(metadata).toContain("short_description:");
     expect(metadata).toContain("default_prompt:");
   });
@@ -53,6 +53,7 @@ describe("Bootstrap Script Contracts", () => {
 
   test("repo package should expose workflow verification scripts", () => {
     const pkg = JSON.parse(read("package.json"));
+    expect(pkg.scripts["check:brain-manifest"]).toBe("bash scripts/check-brain-manifest.sh");
     expect(pkg.scripts["check:task-sync"]).toBe("bash scripts/check-task-sync.sh");
     expect(pkg.scripts["check:deploy-sql"]).toBe("bash scripts/check-deploy-sql-order.sh");
     expect(pkg.scripts["check:task-workflow"]).toBe("bash scripts/check-task-workflow.sh --strict");
@@ -77,6 +78,7 @@ describe("Bootstrap Script Contracts", () => {
     expect(sharedLib).toContain("summarize-failures.sh");
     expect(sharedLib).toContain("check:context-files");
     expect(sharedLib).toContain("check:deploy-sql");
+    expect(sharedLib).toContain("check:brain-manifest");
     expect(sharedLib).toContain("pi_print_external_tooling_report");
     expect(sharedLib).toContain("check-task-sync.sh");
     expect(content).toContain("mkdir -p .ai/context");
@@ -95,6 +97,7 @@ describe("Bootstrap Script Contracts", () => {
     expect(contract.helpers.scripts).toContain("prepare-codex-handoff.sh");
     expect(contract.helpers.scripts).toContain("codex-handoff-resume.sh");
     expect(contract.helpers.scripts).toContain("check-agent-tooling.sh");
+    expect(contract.helpers.scripts).toContain("check-brain-manifest.sh");
     expect(contract.helpers.scripts).toContain("check-deploy-sql-order.sh");
     expect(contract.helpers.scripts).toContain("check-context-files.sh");
     expect(contract.helpers.scripts).toContain("select-agent-context-blocks.sh");
@@ -119,6 +122,7 @@ describe("Bootstrap Script Contracts", () => {
     expect(contract.helpers.scripts).toContain("capability-resolver.ts");
     expect(contract.artifacts.requiredFiles).toContain("scripts/contract-worktree.sh");
     expect(contract.artifacts.requiredFiles).toContain(".ai/harness/workflow-contract.json");
+    expect(contract.artifacts.requiredFiles).toContain(".ai/harness/brain-manifest.json");
     expect(contract.artifacts.requiredFiles).toContain(".ai/context/capabilities.json");
     expect(contract.artifacts.requiredFiles).not.toContain(".ai/harness/handoff/resume.md");
     expect(contract.artifacts.requiredFiles).not.toContain(".ai/harness/context-budget/latest.json");

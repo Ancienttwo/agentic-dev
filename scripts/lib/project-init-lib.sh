@@ -623,7 +623,7 @@ pi_install_helpers() {
   local target_dir="$1"
   local helpers_dir="$2"
   local mode="${3:-apply}"
-  local helper_names="${4:-new-plan.sh plan-to-todo.sh archive-workflow.sh prepare-handoff.sh verify-contract.sh summarize-failures.sh check-task-sync.sh check-deploy-sql-order.sh check-agent-tooling.sh check-context-files.sh check-skill-version.ts select-agent-context-blocks.sh ensure-task-workflow.sh check-task-workflow.sh workflow-contract.ts inspect-project-state.ts migrate-workflow-docs.ts migrate-project-template.sh context-budget.ts capability-resolver.ts architecture-drift.sh archive-architecture-request.sh context-contract-sync.sh workstream-sync.sh prepare-codex-handoff.sh codex-handoff-resume.sh}"
+  local helper_names="${4:-new-plan.sh plan-to-todo.sh archive-workflow.sh prepare-handoff.sh verify-contract.sh summarize-failures.sh check-task-sync.sh check-deploy-sql-order.sh check-agent-tooling.sh check-context-files.sh check-brain-manifest.sh check-skill-version.ts select-agent-context-blocks.sh ensure-task-workflow.sh check-task-workflow.sh workflow-contract.ts inspect-project-state.ts migrate-workflow-docs.ts migrate-project-template.sh context-budget.ts capability-resolver.ts architecture-drift.sh archive-architecture-request.sh context-contract-sync.sh workstream-sync.sh prepare-codex-handoff.sh codex-handoff-resume.sh}"
   local scripts_dir="$target_dir/scripts"
   local helper_name
 
@@ -649,7 +649,7 @@ pi_install_helpers() {
         cp "$helpers_dir/$helper_name" "$scripts_dir/$helper_name"
       fi
     done
-    pi_ensure_executable_if_apply "$mode" "$scripts_dir"/new-spec.sh "$scripts_dir"/new-sprint.sh "$scripts_dir"/new-plan.sh "$scripts_dir"/plan-to-todo.sh "$scripts_dir"/archive-workflow.sh "$scripts_dir"/archive-architecture-request.sh "$scripts_dir"/prepare-handoff.sh "$scripts_dir"/prepare-codex-handoff.sh "$scripts_dir"/codex-handoff-resume.sh "$scripts_dir"/verify-contract.sh "$scripts_dir"/summarize-failures.sh "$scripts_dir"/verify-sprint.sh "$scripts_dir"/check-task-sync.sh "$scripts_dir"/check-deploy-sql-order.sh "$scripts_dir"/check-agent-tooling.sh "$scripts_dir"/check-context-files.sh "$scripts_dir"/select-agent-context-blocks.sh "$scripts_dir"/architecture-drift.sh "$scripts_dir"/context-contract-sync.sh "$scripts_dir"/workstream-sync.sh "$scripts_dir"/ensure-task-workflow.sh "$scripts_dir"/check-task-workflow.sh "$scripts_dir"/switch-plan.sh "$scripts_dir"/migrate-project-template.sh
+    pi_ensure_executable_if_apply "$mode" "$scripts_dir"/new-spec.sh "$scripts_dir"/new-sprint.sh "$scripts_dir"/new-plan.sh "$scripts_dir"/plan-to-todo.sh "$scripts_dir"/archive-workflow.sh "$scripts_dir"/archive-architecture-request.sh "$scripts_dir"/prepare-handoff.sh "$scripts_dir"/prepare-codex-handoff.sh "$scripts_dir"/codex-handoff-resume.sh "$scripts_dir"/verify-contract.sh "$scripts_dir"/summarize-failures.sh "$scripts_dir"/verify-sprint.sh "$scripts_dir"/check-task-sync.sh "$scripts_dir"/check-deploy-sql-order.sh "$scripts_dir"/check-agent-tooling.sh "$scripts_dir"/check-context-files.sh "$scripts_dir"/check-brain-manifest.sh "$scripts_dir"/select-agent-context-blocks.sh "$scripts_dir"/architecture-drift.sh "$scripts_dir"/context-contract-sync.sh "$scripts_dir"/workstream-sync.sh "$scripts_dir"/ensure-task-workflow.sh "$scripts_dir"/check-task-workflow.sh "$scripts_dir"/switch-plan.sh "$scripts_dir"/migrate-project-template.sh
     return 0
   fi
 
@@ -1178,7 +1178,7 @@ pi_write_harness_policy() {
     "dir": "_ref",
     "mode": "external-ignored",
     "commit_policy": "never commit _ref contents",
-    "rule": "use _ref for upstream/source comparison only; refresh from external sources instead of editing as product code"
+    "rule": "use _ref as an occasional ignored external reference checkout cache for upstream/source comparison only; refresh from external sources instead of editing as product code; when it influences a decision, cite the source repo plus commit/tag and path in tasks/notes/ or tasks/research.md"
   },
   "operations": {
     "dir": "deploy",
@@ -1248,6 +1248,13 @@ pi_write_harness_policy() {
     "memory": {
       "sources": ["tasks/research.md", "tasks/lessons.md", "gbrain"],
       "rule": "memory is advisory; current repo state and evidence override summaries"
+    },
+    "external_knowledge": {
+      "default_brain_path": "icloud/brain/<project>/*",
+      "project_path": "icloud/brain/<project>/*",
+      "manifest_file": ".ai/harness/brain-manifest.json",
+      "drift_check": "scripts/check-brain-manifest.sh",
+      "rule": "external knowledge stores long-lived explanations, runbooks, and patterns only; repo-local contracts, hooks, scripts, checks, and evidence remain authoritative"
     }
   },
   "context_budget": {
@@ -1420,6 +1427,40 @@ EOF_POLICY
   rm -f "$default_file"
 }
 
+pi_write_brain_manifest() {
+  local target_dir="$1"
+  local mode="${2:-apply}"
+  local output_file="$target_dir/.ai/harness/brain-manifest.json"
+  local project_name
+
+  if [[ "$mode" != "apply" ]]; then
+    echo "[dry-run] write $output_file if missing"
+    return 0
+  fi
+
+  if [[ -f "$output_file" ]]; then
+    return 0
+  fi
+
+  project_name="$(basename "$target_dir")"
+  mkdir -p "$(dirname "$output_file")"
+  cat > "$output_file" <<EOF_BRAIN_MANIFEST
+{
+  "version": 1,
+  "project": "${project_name}",
+  "mode": "repo-contract-external-knowledge",
+  "default_brain_path": "icloud/brain/<project>/*",
+  "legacy_paths": [],
+  "rules": [
+    "repo-local contracts, hooks, scripts, checks, and evidence remain authoritative",
+    "default brain stores long-lived explanations, runbooks, decisions, references, and patterns",
+    "hook runtime must not query gbrain, iCloud, MCP, or default brain"
+  ],
+  "entries": []
+}
+EOF_BRAIN_MANIFEST
+}
+
 pi_write_context_map() {
   local target_dir="$1"
   local mode="${2:-apply}"
@@ -1589,6 +1630,7 @@ ARCHITECTURE_INDEX_EOF
 
 	  pi_write_capability_registry "$target_dir" "$mode"
 	  pi_write_harness_policy "$target_dir" "$mode"
+	  pi_write_brain_manifest "$target_dir" "$mode"
 	  pi_write_context_map "$target_dir" "$mode"
   pi_install_directory_context_files "$target_dir" "$mode"
 }
@@ -1745,11 +1787,12 @@ pi_ensure_task_sync() {
 {
   "name": "$project_name",
   "private": true,
-    "scripts": {
-      "check:context-files": "bash scripts/check-context-files.sh",
-      "check:deploy-sql": "bash scripts/check-deploy-sql-order.sh",
-      "check:task-sync": "bash scripts/check-task-sync.sh",
-      "check:task-workflow": "bash scripts/check-task-workflow.sh --strict"
+  "scripts": {
+    "check:brain-manifest": "bash scripts/check-brain-manifest.sh",
+    "check:context-files": "bash scripts/check-context-files.sh",
+    "check:deploy-sql": "bash scripts/check-deploy-sql-order.sh",
+    "check:task-sync": "bash scripts/check-task-sync.sh",
+    "check:task-workflow": "bash scripts/check-task-workflow.sh --strict"
   }
 }
 EOF_PACKAGE
@@ -1768,6 +1811,7 @@ const file = process.argv[1];
 const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
 pkg.private ??= true;
 pkg.scripts ??= {};
+pkg.scripts["check:brain-manifest"] = "bash scripts/check-brain-manifest.sh";
 pkg.scripts["check:context-files"] = "bash scripts/check-context-files.sh";
 pkg.scripts["check:deploy-sql"] = "bash scripts/check-deploy-sql-order.sh";
 pkg.scripts["check:task-sync"] = "bash scripts/check-task-sync.sh";

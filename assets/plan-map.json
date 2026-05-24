@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "Canonical plan mapping for project-initializer. A-F are core plans. G-J are custom presets. K is fully custom.",
+  "$comment": "Canonical plan mapping for agentic-dev. A-F are core plans. G-J are custom presets. K is fully custom.",
   "planTiers": {
     "core": ["A", "B", "C", "D", "E", "F"],
     "presets": ["G", "H", "I", "J"],

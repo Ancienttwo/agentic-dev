@@ -101,32 +101,50 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(SCRIPT_DIR, "..");
 const LOCAL_ASSET_PATH = join(REPO_ROOT, "assets", "workflow-contract.v1.json");
 
-export function resolveProjectInitializerRoot(_repoRoot = REPO_ROOT): string {
-  const configuredRoot = process.env.PROJECT_INITIALIZER_ROOT;
+export function resolveAgenticDevRoot(_repoRoot = REPO_ROOT): string {
+  const configuredRoot =
+    process.env.AGENTIC_DEV_ROOT ||
+    process.env.AGENTIC_DEV_SKILL_ROOT ||
+    process.env.PROJECT_INITIALIZER_ROOT;
   if (configuredRoot && configuredRoot.length > 0) return configuredRoot;
 
   if (existsSync(LOCAL_ASSET_PATH)) return REPO_ROOT;
 
   const home = process.env.HOME;
   if (home && home.length > 0) {
-    const codexRoot = join(home, ".codex", "skills", "project-initializer");
-    if (existsSync(codexRoot)) return codexRoot;
+    const candidates = [
+      join(home, ".codex", "skills", "agentic-dev"),
+      join(home, ".codex", "skills", "agentic-dev-skill"),
+      join(home, ".codex", "skills", "project-initializer"),
+      join(home, ".claude", "skills", "agentic-dev"),
+      join(home, ".claude", "skills", "agentic-dev-skill"),
+      join(home, ".claude", "skills", "project-initializer"),
+      join(home, ".agents", "skills", "agentic-dev"),
+      join(home, ".agents", "skills", "agentic-dev-skill"),
+      join(home, ".agents", "skills", "project-initializer"),
+    ];
 
-    const claudeRoot = join(home, ".claude", "skills", "project-initializer");
-    if (existsSync(claudeRoot)) return claudeRoot;
+    for (const candidate of candidates) {
+      if (existsSync(candidate)) return candidate;
+    }
 
-    const agentsRoot = join(home, ".agents", "skills", "project-initializer");
-    if (existsSync(agentsRoot)) return agentsRoot;
-
-    return agentsRoot;
+    return candidates[0];
   }
 
-  return "/Users/ancienttwo/.agents/skills/project-initializer";
+  return "/Users/ancienttwo/.agents/skills/agentic-dev";
+}
+
+export function resolveAgenticDevSkillRoot(repoRoot = REPO_ROOT): string {
+  return resolveAgenticDevRoot(repoRoot);
+}
+
+export function resolveProjectInitializerRoot(repoRoot = REPO_ROOT): string {
+  return resolveAgenticDevRoot(repoRoot);
 }
 
 export function resolveUpstreamWorkflowContract(repoRoot = REPO_ROOT): string {
   if (existsSync(LOCAL_ASSET_PATH)) return LOCAL_ASSET_PATH;
-  return join(resolveProjectInitializerRoot(repoRoot), "assets", "workflow-contract.v1.json");
+  return join(resolveAgenticDevRoot(repoRoot), "assets", "workflow-contract.v1.json");
 }
 
 export function loadWorkflowContract(

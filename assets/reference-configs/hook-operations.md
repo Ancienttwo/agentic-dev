@@ -1,7 +1,11 @@
-# Hook Operations (Reference)
+# Hook Operations Reference
 
-Use this file when you need to understand hook ownership, failure handling, or
-self-host versus generated hook parity.
+> Partially externalized: full troubleshooting runbook lives in default brain.
+
+## Default Brain
+
+- File vault: `icloud/brain/agentic-dev/runbooks/runbook-agentic-dev-hook-troubleshooting.md`
+- gbrain slug: `runbooks/runbook-agentic-dev-hook-troubleshooting`
 
 ## Hook Authority Map
 
@@ -15,49 +19,29 @@ If you are asking "which hook file should I edit?", default to `.ai/hooks/`.
 
 ## Hook Failure Playbook
 
-When a hook blocks work, use this sequence:
+When a hook blocks work:
 
-1. Read the terminal output first. The structured payload exposes:
-   - `guard`: which guard fired
-   - `reason`: what failed
-   - `fix`: the shortest next action
-   - `failure_class`: whether this is missing artifact, state violation, contract failure, or quality gate
-   - `run_id`: correlation key for failure and trace logs
+1. Read the terminal output first.
 2. Read `.ai/harness/failures/latest.jsonl` for the durable failure record.
 3. Read `.claude/.trace.jsonl` for surrounding tool activity and timing.
-4. If you need an aggregate view, run:
+4. Use the external runbook for extended examples and historical failure modes.
 
-```bash
-bash scripts/summarize-failures.sh --run-id <run_id>
-```
+Common guards:
 
-## Common Guards and the Fastest Fix
-
-| Guard | What it usually means | Fastest fix |
-|------|------------------------|-------------|
-| `PlanStatusGuard` | No active plan, or the active plan is still `Draft` / `Annotating` | `bash scripts/ensure-task-workflow.sh --slug <slug> --title <title>` or finish the annotation cycle and move the plan to `Approved` |
-| `TodoGuard` | The active plan changed, but `tasks/todo.md` still points at older execution state | `bash scripts/plan-to-todo.sh --plan <active-plan>` or `bash scripts/switch-plan.sh --plan <active-plan>` |
-| `ContractGuard` | Completion was claimed without a contract, or contract verification failed | Create or regenerate `tasks/contracts/<slug>.contract.md`, then run `bash scripts/verify-contract.sh --contract tasks/contracts/<slug>.contract.md --strict` |
-| `WorktreeGuard` | Writes were attempted from the primary worktree while `.claude/.require-worktree` is enforced | `git worktree add ../<repo>-wt-<branch> -b <branch>` and retry from the linked worktree |
+- `PlanStatusGuard`: no active approved plan, or active plan is in the wrong state.
+- `TodoGuard`: `tasks/todo.md` is stale relative to the active plan.
+- `ContractGuard`: completion was claimed without passing contract verification.
+- `WorktreeGuard`: writes were attempted from the wrong worktree.
 
 ## Architecture Drift Hooks
 
-Architecture maintenance is split across two helpers:
+Hook scope is detect, classify, record, and remind:
 
-- `scripts/architecture-drift.sh` detects architecture-sensitive edits and writes a human request under `docs/architecture/requests/` plus a machine event in `.ai/harness/architecture/events.jsonl`.
-- `scripts/capability-resolver.ts` resolves changed paths against `.ai/context/capabilities.json` using longest-prefix matching.
-- `scripts/archive-architecture-request.sh` moves handled requests to `docs/architecture/requests/archive/YYYY/` after the agent chooses a terminal status and links any produced artifacts.
-- `scripts/workstream-sync.sh` maintains durable multi-session progress under `tasks/workstreams/<domain>/<capability>/` for a selected capability.
-- `scripts/context-contract-sync.sh` consumes architecture or workstream events and updates only the controlled `<!-- BEGIN ARCHITECTURE CONTRACT -->` block in matched capability `CLAUDE.md` and `AGENTS.md` files.
+- `scripts/architecture-drift.sh` writes requests/events.
+- `scripts/workstream-sync.sh` maintains durable capability workstreams.
+- `scripts/context-contract-sync.sh` updates only controlled local agent-context blocks.
 
-The helpers keep hook boundaries explicit: drift detection never writes agent context files, workstream sync writes its event to `.ai/harness/events.jsonl` instead of a separate workstream event log, and context sync only projects pointers/current-slice metadata into local contracts. Agents produce snapshots under `docs/architecture/snapshots/` and standalone `diagram-design` HTML under `docs/architecture/diagrams/`.
-
-`docs/architecture/requests/` is a pending queue only. Once the agent handles a request, archive it with `scripts/archive-architecture-request.sh --request <file> --status <resolved|superseded|rejected|no-change> [--artifact <path>]`; the helper updates the status, appends an archive resolution block, moves the file to `docs/architecture/requests/archive/YYYY/`, and removes the pending link from `docs/architecture/index.md`.
-
-## When to Check Tests or Migration
-
-- Check `tests/` when the hook output is wrong or the workflow contract no longer matches expected behavior.
-- Check `scripts/migrate-project-template.sh` and `scripts/create-project-dirs.sh` when generated repos receive the wrong files or stale wiring.
+Agents, not hooks, author semantic snapshots and diagrams.
 
 ## Self-Host vs Generated Parity Contract
 
@@ -66,12 +50,8 @@ This repo has two hook surfaces on purpose:
 - `assets/hooks/` defines what downstream generated repos receive.
 - `.ai/hooks/` defines this self-hosted repo's current runtime behavior.
 
-They are related, but not automatically synchronized. Because of that:
-
-1. Downstream behavior is judged by generated output, not by the self-hosted repo alone.
-2. Every hook change should state whether it affects `self-host`, `generated`, or `both`.
-3. If behavior must stay aligned, update both surfaces in the same change.
-4. Treat parity drift as a documented risk, not as a hidden assumption.
+Every hook change should state whether it affects `self-host`, `generated`, or
+`both`. If behavior must stay aligned, update both surfaces in the same change.
 
 ## Verification Checklist
 

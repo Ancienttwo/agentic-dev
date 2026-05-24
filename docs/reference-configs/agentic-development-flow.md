@@ -15,6 +15,27 @@ root prompt concise; this file owns the detailed routing.
 | Implemented diff, pre-merge, release follow-through | Waza `/check` | Review findings, safe fixes, verification, and shipment state |
 | Architecture diagram or system-flow diagram | `diagram-design` | Mermaid or structured diagram artifact grounded in repo context |
 
+## agentic-dev Command Surface
+
+Use these action-style command skills when the work is about installing,
+migrating, repairing, or verifying this repo-local harness:
+
+| Work type | Command | Boundary |
+|-----------|---------|----------|
+| Decision-complete harness plan | `agentic-dev-plan` | Plans only; no repo mutation by default |
+| Review an existing harness plan | `agentic-dev-review` | Product, engineering, design, and DevEx review dimensions |
+| Automatic planning pipeline | `agentic-dev-autoplan` | Plan -> review -> decision summary with final gates only |
+| Add harness to an existing repo | `agentic-dev-init` | Uses inspector and migration engine; does not create an app stack |
+| Create a new app or module scaffold | `agentic-dev-scaffold` | Uses plan catalog A-K, then attaches the harness |
+| Convert legacy workflow surfaces | `agentic-dev-migrate` | Archives or preserves user-authored legacy docs |
+| Refresh an installed harness | `agentic-dev-upgrade` | Runs manifest-owned upgrade actions only |
+| Fix broken current harness behavior | `agentic-dev-repair` | Task sync, hook routing, handoff, context, policy, or helper drift |
+| Verify readiness | `agentic-dev-check` | Workflow gates, task sync, inspector, and migration dry-run |
+
+`hooks-init`, `docs-init`, and `create-project-dirs` are not public commands.
+They are implementation steps behind `init`, `scaffold`, `migrate`, and
+`upgrade`.
+
 ## Due Diligence Levels
 
 P1/P2/P3 is the shared due-diligence protocol underneath the routing.

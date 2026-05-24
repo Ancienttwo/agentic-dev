@@ -179,7 +179,7 @@
 - Keep root `specs/` as a legacy/explicit opt-in surface only. Default scaffolds should use `docs/spec.md` for stable product intent, `interfaces/` for runtime boundaries, and tests for executable behavior.
 - Keep `docs/PROGRESS.md` as legacy-only. No default scaffold or strict workflow check should require it without a hook or event writer that owns it.
 - Keep `tasks/notes/<slug>.notes.md` as a slice-local decision journal only. Root `AGENTS.md`, root `CLAUDE.md`, and generated agent partials should tell agents to use it for non-obvious decisions, deviations, tradeoffs, and open questions, not durable memory or task logging.
-- Keep `_ref/` as ignored external comparison material. It can be refreshed from upstream/source systems, but it should not become a product edit or commit surface.
+- Keep `_ref/` as an occasional ignored external reference checkout cache. It can be read or refreshed for upstream/source comparison, but it should not become a product edit, commit surface, or daily workflow; when a reference repo affects a decision, cite repo + commit/tag + path in the active notes or durable research entry.
 - Keep `deploy/` as the commit-ready deployment and operations workspace for runbooks, submission materials, release checklists, helper scripts, ordered SQL files under `deploy/sql/`, and env examples. Keep `_ops/` fully ignored for local secrets, real env files, provider state, artifacts, logs, and scratch files.
 
 ## 2026-05-20 Contract Worktree Lifecycle Notes
@@ -200,7 +200,7 @@
 
 ### What Changed
 - Migration now installs `workflow-contract.ts`, `check-skill-version.ts`, `inspect-project-state.ts`, `migrate-workflow-docs.ts`, and a portable `migrate-project-template.sh` wrapper into generated repos.
-- Generated helper scripts resolve the upstream `project-initializer` root from `PROJECT_INITIALIZER_ROOT`, `~/.codex/skills/project-initializer`, `~/.claude/skills/project-initializer`, or `~/.agents/skills/project-initializer` instead of assuming local `assets/`.
+- Generated helper scripts now resolve the upstream skill root from `AGENTIC_DEV_ROOT`, legacy `AGENTIC_DEV_SKILL_ROOT` / `PROJECT_INITIALIZER_ROOT`, or the new-first/legacy-second installed path candidates instead of assuming local `assets/`.
 - `capability-resolver.ts` ignores local `.worktrees/` and `_ref/` directories during legacy discovery, preventing ignored contract worktrees and reference snapshots from polluting generated capability registries.
 
 ### What to Preserve
@@ -216,3 +216,46 @@
 
 ### What to Preserve
 - Keep a regression test that commits the first migration output, runs apply again, and requires `git status --short` to stay empty.
+
+## 2026-05-25 Default Brain Reference Config Externalization Notes
+
+### What Changed
+- Optional long-form `docs/reference-configs` files were copied into the default brain file vault under `icloud/brain/agentic-dev/*`.
+- The repo copies of optional references now act as short stubs that point to default brain pages.
+- `hook-operations.md`, `development-protocol.md`, and `evaluator-rubric.md` were partially externalized: repo-local files keep the shortest operational contract while full explanations moved to default brain.
+- `.ai/harness/policy.json` now records `external_knowledge` separately from advisory memory so agents know the default brain is a recall layer, not a Hook runtime dependency.
+- `.ai/harness/brain-manifest.json` is the repo-local index for externalized reference stubs, and `scripts/check-brain-manifest.sh` validates repo stub pointers, asset parity, maximum stub length, and local vault files when the iCloud brain path is mounted.
+
+### What to Preserve
+- Keep required minimal reference configs repo-local: `harness-overview.md`, `agentic-development-flow.md`, `external-tooling.md`, `sprint-contracts.md`, `handoff-protocol.md`, `document-generation.md`, and `global-working-rules.md`.
+- Keep Hook runtime, workflow contracts, migration scripts, checks, and evidence in the repo. Do not make hooks query gbrain, iCloud, MCP, or default brain.
+- Use `icloud/brain/<project>/*` for long-lived explanations, runbooks, decisions, references, and patterns that should be searchable across projects.
+- Keep the brain manifest as a local contract and drift check only; missing iCloud vaults on other machines should not make generated repo workflow checks fail unless explicitly run with `--require-vault`.
+- If optional reference docs grow again, put the long form in default brain and keep only a local pointer or minimal contract summary in `docs/reference-configs`.
+
+## 2026-05-25 Agentic Dev Skill Installed Alias Notes
+
+### What Changed
+- `/Users/chris/.codex/skills/agentic-dev` is now a real installed copy synced from the source repo while excluding `.git/`, `_ops/`, `node_modules/`, and `.DS_Store`.
+- `/Users/chris/.codex/skills/agentic-dev-skill` and `/Users/chris/.codex/skills/project-initializer` remain legacy Codex installed copies and were synced to the same source content so old and new skill entries do not diverge during the compatibility window.
+- `/Users/chris/.claude/skills/agentic-dev` is a symlink to `/Users/chris/.claude/skills/project-initializer`, because the legacy Claude path is the active source repo and copying a second source tree there would create avoidable drift.
+- Generated helper smoke without `AGENTIC_DEV_ROOT`, `AGENTIC_DEV_SKILL_ROOT`, or `PROJECT_INITIALIZER_ROOT` resolved upstream assets from `/Users/chris/.codex/skills/agentic-dev`.
+
+### What to Preserve
+- Keep the resolver precedence new-first, legacy-second across Codex, Claude, and skills CLI staging.
+- Keep `_ops/` protected during installed-copy sync; it is local operations state and must not be overwritten or deleted by skill release copy commands.
+- Keep the generated version stamp prefix legacy-compatible until a separate stamp migration changes the installed repo contract.
+
+## 2026-05-25 agentic-dev Compatibility Rename Notes
+
+### What Changed
+- The skill/package/repo display name is now `agentic-dev`, formerly `agentic-dev-skill` and `project-initializer`.
+- `SKILL.md`, `package.json`, README, root agent docs, product spec, OpenAI metadata, eval metadata, and default brain pointers now use `agentic-dev`.
+- `SKILL.md` frontmatter keeps `agentic-dev-skill` and `project-initializer` in `when_to_use` metadata so legacy triggers remain discoverable while the canonical `name` is `agentic-dev`.
+- The self-hosted default brain project path is `icloud/brain/agentic-dev/*`; `icloud/brain/agentic-dev-skill/*` and `icloud/brain/project-initializer/*` stay as legacy alias paths for redirects and older references.
+
+### What to Preserve
+- Keep legacy installed paths functional for one compatibility window even though new installed path candidates now exist.
+- Keep generated version stamps using `project-initializer@{version}+template@{templateVersion}` for this compatibility window so already-installed repos do not fail version checks.
+- Keep internal engine wording as `tasks-first harness` and contract ID `tasks-first-harness-v1`.
+- Generated repos can now resolve the upstream skill with `AGENTIC_DEV_ROOT`, then legacy `AGENTIC_DEV_SKILL_ROOT` / `PROJECT_INITIALIZER_ROOT`, then installed path candidates under `~/.codex/skills/agentic-dev`, `~/.codex/skills/agentic-dev-skill`, `~/.codex/skills/project-initializer`, `~/.claude/skills/agentic-dev`, `~/.claude/skills/agentic-dev-skill`, `~/.claude/skills/project-initializer`, `~/.agents/skills/agentic-dev`, `~/.agents/skills/agentic-dev-skill`, and `~/.agents/skills/project-initializer`.

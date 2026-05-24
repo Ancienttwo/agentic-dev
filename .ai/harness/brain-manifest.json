@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "project": "agentic-dev",
+  "mode": "repo-contract-external-knowledge",
+  "default_brain_path": "icloud/brain/agentic-dev/*",
+  "legacy_paths": [
+    "icloud/brain/agentic-dev-skill/*",
+    "icloud/brain/project-initializer/*"
+  ],
+  "rules": [
+    "repo-local contracts, hooks, scripts, checks, and evidence remain authoritative",
+    "default brain stores long-lived explanations, runbooks, decisions, references, and patterns",
+    "hook runtime must not query gbrain, iCloud, MCP, or default brain"
+  ],
+  "entries": [
+    {
+      "id": "ai-workflows",
+      "role": "externalized",
+      "repo_path": "docs/reference-configs/ai-workflows.md",
+      "asset_path": "assets/reference-configs/ai-workflows.md",
+      "brain_path": "icloud/brain/agentic-dev/references/ai-assisted-workflows-reference.md",
+      "gbrain_slug": "references/ai-assisted-workflows-reference",
+      "max_repo_lines": 40
+    },
+    {
+      "id": "git-strategy",
+      "role": "externalized",
+      "repo_path": "docs/reference-configs/git-strategy.md",
+      "asset_path": "assets/reference-configs/git-strategy.md",
+      "brain_path": "icloud/brain/agentic-dev/references/ai-driven-version-control-strategy.md",
+      "gbrain_slug": "references/ai-driven-version-control-strategy",
+      "max_repo_lines": 40
+    },
+    {
+      "id": "changelog-versioning",
+      "role": "externalized",
+      "repo_path": "docs/reference-configs/changelog-versioning.md",
+      "asset_path": "assets/reference-configs/changelog-versioning.md",
+      "brain_path": "icloud/brain/agentic-dev/references/changelog-versioning-reference.md",
+      "gbrain_slug": "references/changelog-versioning-reference",
+      "max_repo_lines": 40
+    },
+    {
+      "id": "coding-standards",
+      "role": "externalized",
+      "repo_path": "docs/reference-configs/coding-standards.md",
+      "asset_path": "assets/reference-configs/coding-standards.md",
+      "brain_path": "icloud/brain/agentic-dev/references/coding-standards-reference.md",
+      "gbrain_slug": "references/coding-standards-reference",
+      "max_repo_lines": 40
+    },
+    {
+      "id": "release-deploy",
+      "role": "externalized",
+      "repo_path": "docs/reference-configs/release-deploy.md",
+      "asset_path": "assets/reference-configs/release-deploy.md",
+      "brain_path": "icloud/brain/agentic-dev/runbooks/runbook-agentic-release-deploy.md",
+      "gbrain_slug": "runbooks/runbook-agentic-release-deploy",
+      "max_repo_lines": 40
+    },
+    {
+      "id": "spa-day-protocol",
+      "role": "externalized",
+      "repo_path": "docs/reference-configs/spa-day-protocol.md",
+      "asset_path": "assets/reference-configs/spa-day-protocol.md",
+      "brain_path": "icloud/brain/agentic-dev/runbooks/runbook-agentic-spa-day-protocol.md",
+      "gbrain_slug": "runbooks/runbook-agentic-spa-day-protocol",
+      "max_repo_lines": 40
+    },
+    {
+      "id": "workflow-orchestration",
+      "role": "externalized",
+      "repo_path": "docs/reference-configs/workflow-orchestration.md",
+      "asset_path": "assets/reference-configs/workflow-orchestration.md",
+      "brain_path": "icloud/brain/agentic-dev/patterns/pattern-agentic-workflow-orchestration.md",
+      "gbrain_slug": "patterns/pattern-agentic-workflow-orchestration",
+      "max_repo_lines": 40
+    },
+    {
+      "id": "development-protocol",
+      "role": "partial",
+      "repo_path": "docs/reference-configs/development-protocol.md",
+      "asset_path": "assets/reference-configs/development-protocol.md",
+      "brain_path": "icloud/brain/agentic-dev/patterns/pattern-agentic-development-protocol.md",
+      "gbrain_slug": "patterns/pattern-agentic-development-protocol",
+      "max_repo_lines": 80
+    },
+    {
+      "id": "evaluator-rubric",
+      "role": "partial",
+      "repo_path": "docs/reference-configs/evaluator-rubric.md",
+      "asset_path": "assets/reference-configs/evaluator-rubric.md",
+      "brain_path": "icloud/brain/agentic-dev/references/evaluator-rubric-reference.md",
+      "gbrain_slug": "references/evaluator-rubric-reference",
+      "max_repo_lines": 80
+    },
+    {
+      "id": "hook-operations",
+      "role": "partial",
+      "repo_path": "docs/reference-configs/hook-operations.md",
+      "asset_path": "assets/reference-configs/hook-operations.md",
+      "brain_path": "icloud/brain/agentic-dev/runbooks/runbook-agentic-dev-hook-troubleshooting.md",
+      "gbrain_slug": "runbooks/runbook-agentic-dev-hook-troubleshooting",
+      "max_repo_lines": 100
+    }
+  ]
+}

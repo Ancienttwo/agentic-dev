@@ -1,5 +1,5 @@
 {
-  "workspaceRoot": "../project-initializer-workspace",
+  "workspaceRoot": "../agentic-dev-workspace",
   "summaryPath": "evals/benchmark.md",
   "agents": {
     "claude": {

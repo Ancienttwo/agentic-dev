@@ -220,6 +220,7 @@ check_required_file "scripts/verify-sprint.sh"
 check_required_file "scripts/check-task-sync.sh"
 check_required_file "scripts/check-deploy-sql-order.sh"
 check_required_file "scripts/check-context-files.sh"
+check_required_file "scripts/check-brain-manifest.sh"
 check_required_file "scripts/select-agent-context-blocks.sh"
 check_required_file "scripts/architecture-drift.sh"
 check_required_file "scripts/archive-architecture-request.sh"
@@ -233,6 +234,7 @@ check_required_file "$lessons_file"
 check_required_file "$research_file"
 check_required_file "$context_map_file"
 check_required_file "$policy_file"
+check_required_file "$(policy_get '.information_lifecycle.external_knowledge.manifest_file' '.ai/harness/brain-manifest.json')"
 
 if [[ -f "$policy_file" && -z "$upgrade_strategy_version" ]] && command -v jq >/dev/null 2>&1; then
   report_issue "Harness policy is missing upgrade.strategy_version; rerun migration to merge the versioned upgrade strategy."
@@ -268,6 +270,12 @@ fi
 if [[ -f "scripts/check-deploy-sql-order.sh" ]]; then
   if ! bash "scripts/check-deploy-sql-order.sh" --quiet; then
     report_issue "Deploy SQL order check failed."
+  fi
+fi
+
+if [[ -f "scripts/check-brain-manifest.sh" ]]; then
+  if ! bash "scripts/check-brain-manifest.sh"; then
+    report_issue "Brain manifest check failed."
   fi
 fi
 

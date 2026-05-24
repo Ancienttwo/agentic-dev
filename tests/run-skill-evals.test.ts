@@ -98,7 +98,7 @@ function writeEvalManifest(path: string, pattern = "skill"): void {
     path,
     JSON.stringify(
       {
-        skill_name: "project-initializer",
+        skill_name: "agentic-dev",
         evals: [
           {
             id: 1,
