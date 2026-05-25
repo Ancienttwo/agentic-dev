@@ -61,6 +61,7 @@ describe("workflow contract manifest", () => {
     expect(contract.helpers.scripts).toContain("switch-plan.sh");
     expect(contract.helpers.scripts).toContain("context-budget.ts");
     expect(contract.helpers.scripts).toContain("capability-resolver.ts");
+    expect(contract.helpers.scripts).toContain("capability-config.ts");
     expect(contract.helpers.scripts).toContain("architecture-drift.sh");
     expect(contract.helpers.scripts).toContain("archive-architecture-request.sh");
     expect(contract.helpers.scripts).toContain("context-contract-sync.sh");
@@ -84,6 +85,7 @@ describe("workflow contract manifest", () => {
     expect(contract.artifacts.requiredFiles).toContain(".ai/harness/brain-manifest.json");
     expect(contract.artifacts.requiredFiles).toContain(".ai/context/capabilities.json");
     expect(contract.artifacts.requiredFiles).toContain("scripts/capability-resolver.ts");
+    expect(contract.artifacts.requiredFiles).toContain("scripts/capability-config.ts");
     expect(contract.artifacts.requiredFiles).toContain("scripts/contract-worktree.sh");
     expect(contract.artifacts.requiredFiles).toContain("docs/architecture/index.md");
     expect(contract.artifacts.requiredFiles).toContain(".claude/templates/implementation-notes.template.md");

@@ -494,6 +494,7 @@ ARCHITECTURE_INDEX_EOF
     "map_file": ".ai/context/context-map.json",
     "capability_registry_file": ".ai/context/capabilities.json",
     "capability_resolver": "scripts/capability-resolver.ts",
+    "capability_config": "scripts/capability-config.ts",
     "capability_match_rule": "longest-prefix; same-length ambiguity fails",
     "functional_block_selector": {
       "script": "scripts/select-agent-context-blocks.sh",

@@ -440,6 +440,122 @@
         "Surfaces only material final decision gates.",
         "Does not redirect into long interactive review unless automatic planning is unsafe."
       ]
+    },
+    {
+      "id": 16,
+      "slug": "route-agentic-dev-capability",
+      "prompt": "This repo already has agentic-dev. Add only a docs/payments capability boundary with local AGENTS.md and CLAUDE.md files; do not run full init.",
+      "expected_output": "Routes the request to agentic-dev-capability, uses capability-config add for explicit prefixes, validates with capability-resolver, and avoids full init, migrate, or upgrade.",
+      "files": [
+        "assets/skill-commands/agentic-dev-capability/SKILL.md"
+      ],
+      "graders": {
+        "files_exist": [
+          "final-response.md"
+        ],
+        "files_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-capability" },
+          { "path": "final-response.md", "pattern": "capability-config" },
+          { "path": "final-response.md", "pattern": "capability-resolver" }
+        ]
+      },
+      "anti_graders": {
+        "files_not_contain": [
+          { "path": "final-response.md", "pattern": "migrate-project-template.*--apply" }
+        ]
+      },
+      "expectations": [
+        "Uses explicit prefixes instead of inferring broad directory globs.",
+        "Creates only requested local AGENTS.md and CLAUDE.md contract files.",
+        "Does not run the full agentic-dev-init path."
+      ]
+    },
+    {
+      "id": 17,
+      "slug": "route-agentic-dev-architecture",
+      "prompt": "Resolve the pending architecture drift request and update the architecture diagram if it helps, but do not refresh the whole harness.",
+      "expected_output": "Routes the request to agentic-dev-architecture, inspects docs/architecture/index.md and pending requests, uses capability matching when relevant, archives handled requests, and only generates a diagram through diagram-design when useful.",
+      "files": [
+        "assets/skill-commands/agentic-dev-architecture/SKILL.md"
+      ],
+      "graders": {
+        "files_exist": [
+          "final-response.md"
+        ],
+        "files_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-architecture" },
+          { "path": "final-response.md", "pattern": "archive-architecture-request" },
+          { "path": "final-response.md", "pattern": "diagram-design" }
+        ]
+      },
+      "anti_graders": {
+        "files_not_contain": [
+          { "path": "final-response.md", "pattern": "migrate-project-template.*--apply" }
+        ]
+      },
+      "expectations": [
+        "Treats hooks as architecture request recorders, not prose rewriters.",
+        "Keeps docs/architecture/requests pending-only after handling a request.",
+        "Does not run a full harness refresh."
+      ]
+    },
+    {
+      "id": 18,
+      "slug": "route-agentic-dev-handoff",
+      "prompt": "Prepare a Codex handoff for this long task and print the resume prompt. Do not run the full workflow check.",
+      "expected_output": "Routes the request to agentic-dev-handoff, runs prepare-codex-handoff or codex-handoff-resume as appropriate, verifies current.md and resume.md, and reports the exact next step without running /check by default.",
+      "files": [
+        "assets/skill-commands/agentic-dev-handoff/SKILL.md"
+      ],
+      "graders": {
+        "files_exist": [
+          "final-response.md"
+        ],
+        "files_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-handoff" },
+          { "path": "final-response.md", "pattern": "prepare-codex-handoff" },
+          { "path": "final-response.md", "pattern": "resume.md" }
+        ]
+      },
+      "anti_graders": {
+        "files_not_contain": [
+          { "path": "final-response.md", "pattern": "check-task-workflow.*--strict" }
+        ]
+      },
+      "expectations": [
+        "Limits mutation to the handoff packet files.",
+        "Reports the resume prompt when requested.",
+        "Does not substitute handoff preparation for readiness verification."
+      ]
+    },
+    {
+      "id": 19,
+      "slug": "route-agentic-dev-deploy",
+      "prompt": "Check whether our deploy folder and private _ops setup are ready. Do not deploy anything.",
+      "expected_output": "Routes the request to agentic-dev-deploy, reads the operations policy, checks deploy/ and _ops/ boundaries, runs check-deploy-sql-order, and reports readiness gaps without publishing or deploying.",
+      "files": [
+        "assets/skill-commands/agentic-dev-deploy/SKILL.md"
+      ],
+      "graders": {
+        "files_exist": [
+          "final-response.md"
+        ],
+        "files_contain": [
+          { "path": "final-response.md", "pattern": "agentic-dev-deploy" },
+          { "path": "final-response.md", "pattern": "check-deploy-sql-order" },
+          { "path": "final-response.md", "pattern": "_ops" }
+        ]
+      },
+      "anti_graders": {
+        "files_not_contain": [
+          { "path": "final-response.md", "pattern": "publish|deployed|deployment succeeded" }
+        ]
+      },
+      "expectations": [
+        "Keeps the check read-only by default.",
+        "Separates tracked deploy assets from ignored private operations state.",
+        "Does not print secrets, tokens, or real environment values."
+      ]
     }
   ]
 }

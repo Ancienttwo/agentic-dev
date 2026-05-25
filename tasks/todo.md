@@ -43,8 +43,11 @@
 - [x] Synced real Codex installed copies for `agentic-dev`, `agentic-dev-skill`, and legacy `project-initializer`, with Claude new-name aliases pointing at the source repo
 - [x] Added `agentic-dev-skill` and `project-initializer` to `SKILL.md` `when_to_use` metadata as legacy triggers during the rename window
 - [x] Fixed Codex duplicate command discovery by making legacy Codex directories runtime fallback bundles without `SKILL.md` or `assets/skill-commands/`
-- [x] Migrated the Claude source repo directory to `/Users/chris/.claude/skills/agentic-dev` and kept `/Users/chris/.claude/skills/project-initializer` as a legacy symlink alias
+- [x] Kept the earlier Claude skill paths functional during the rename window with `agentic-dev` and `project-initializer` aliases
 - [x] Updated README usage instructions for GitHub install, existing-repo apply, command-skill routing, and installed-copy path boundaries
 - [x] Clarified `_ref/` as an occasional ignored reference checkout cache and required repo+commit/tag+path citations when it informs notes or research
 - [x] Added action-style `agentic-dev-*` command skill facades and tests while keeping hook/docs setup as internal engine steps
 - [x] Added advisory reusable-workflow packaging route hints that suggest `agentic-dev-autoplan` only after user authorization
+- [x] Added `agentic-dev-capability` for selected capability boundaries without a full init/migrate/upgrade pass
+- [x] Added `agentic-dev-architecture`, `agentic-dev-handoff`, and `agentic-dev-deploy` as focused command facades
+- [x] Migrated the git-backed source repo to `/Users/chris/Projects/agentic-dev` as the only editable source of truth and rebuilt Claude/Codex runtime paths as source-backed aliases

@@ -108,6 +108,10 @@ the same engine. Use action-style names for discoverability:
 - `agentic-dev-scaffold`: create a new project or module scaffold, then attach the harness
 - `agentic-dev-migrate`: migrate legacy workflow docs and stale harness artifacts
 - `agentic-dev-upgrade`: refresh an installed harness through manifest-owned upgrade actions
+- `agentic-dev-capability`: add selected capability boundaries without running full init/migrate/upgrade
+- `agentic-dev-architecture`: resolve architecture drift requests and update docs or diagrams without harness refresh
+- `agentic-dev-handoff`: prepare or resume Codex handoff packets for long-task rollover
+- `agentic-dev-deploy`: check deploy and private operations configuration without publishing or deploying
 - `agentic-dev-repair`: repair broken task sync, hook routing, handoff, context, policy, or helpers
 - `agentic-dev-check`: run verification gates and report release or pre-merge readiness
 

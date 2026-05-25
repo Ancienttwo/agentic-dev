@@ -46,6 +46,7 @@ describe("Migration script contract", () => {
     expect(wrapper).toContain("AGENTIC_DEV_ROOT");
     expect(wrapper).toContain("AGENTIC_DEV_SKILL_ROOT");
     expect(wrapper).toContain("PROJECT_INITIALIZER_ROOT");
+    expect(wrapper).toContain("Projects/agentic-dev");
     expect(wrapper).toContain(".codex/skills/agentic-dev");
     expect(wrapper).toContain(".codex/skills/agentic-dev-skill");
     expect(wrapper).toContain(".codex/skills/project-initializer");
@@ -94,6 +95,7 @@ describe("Migration script contract", () => {
     expect(workflowContract).toContain("maintenance-triage.sh");
     expect(workflowContract).toContain("context-budget.ts");
     expect(workflowContract).toContain("capability-resolver.ts");
+    expect(workflowContract).toContain("capability-config.ts");
     expect(workflowContract).toContain("architecture-drift.sh");
     expect(workflowContract).toContain("archive-architecture-request.sh");
     expect(workflowContract).toContain("context-contract-sync.sh");
@@ -226,6 +228,7 @@ describe("Migration script contract", () => {
       expect(existsSync(join(repo, "scripts/check-skill-version.ts"))).toBe(true);
       expect(existsSync(join(repo, "scripts/migrate-project-template.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/context-budget.ts"))).toBe(true);
+      expect(existsSync(join(repo, "scripts/capability-config.ts"))).toBe(true);
       expect(existsSync(join(repo, "scripts/prepare-codex-handoff.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/codex-handoff-resume.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/skill-factory-create.sh"))).toBe(false);
@@ -357,6 +360,7 @@ describe("Migration script contract", () => {
       expect(workflowContract.helpers.scripts).toContain("maintenance-triage.sh");
       expect(workflowContract.helpers.scripts).toContain("context-budget.ts");
       expect(workflowContract.helpers.scripts).toContain("capability-resolver.ts");
+      expect(workflowContract.helpers.scripts).toContain("capability-config.ts");
       expect(workflowContract.helpers.scripts).toContain("archive-architecture-request.sh");
       expect(workflowContract.helpers.scripts).toContain("workstream-sync.sh");
       expect(workflowContract.artifacts.requiredFiles).toContain("scripts/contract-worktree.sh");

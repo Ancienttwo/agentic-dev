@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "fs";
+import { existsSync, lstatSync, mkdirSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { spawnSync } from "child_process";
@@ -38,6 +38,45 @@ describe("Codex installed copy sync", () => {
       expect(existsSync(join(codexSkills, "agentic-dev", "evals", "benchmark.md"))).toBe(false);
 
       for (const legacyName of ["agentic-dev-skill", "project-initializer"]) {
+        expect(existsSync(join(codexSkills, legacyName, "assets", "skill-version.json"))).toBe(true);
+        expect(existsSync(join(codexSkills, legacyName, "SKILL.md"))).toBe(false);
+        expect(existsSync(join(codexSkills, legacyName, "assets", "skill-commands"))).toBe(false);
+      }
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("can maintain local skill roots as source-backed aliases", () => {
+    const tmp = join(tmpdir(), `agentic-dev-installed-link-${Date.now()}`);
+    const source = join(tmp, "source");
+    const codexSkills = join(tmp, "codex-skills");
+
+    try {
+      mkdirSync(join(source, "assets", "skill-commands", "agentic-dev-plan"), { recursive: true });
+      mkdirSync(codexSkills, { recursive: true });
+
+      writeFileSync(join(source, "SKILL.md"), "---\nname: agentic-dev\n---\n");
+      writeFileSync(join(source, "assets", "skill-commands", "agentic-dev-plan", "SKILL.md"), "---\nname: agentic-dev-plan\n---\n");
+      writeFileSync(join(source, "assets", "skill-version.json"), "{\"version\":\"test\"}\n");
+      writeFileSync(join(source, "README.md"), "source-backed runtime alias\n");
+
+      const result = spawnSync("bash", [join(ROOT, "scripts", "sync-codex-installed-copies.sh")], {
+        cwd: ROOT,
+        encoding: "utf-8",
+        env: {
+          ...process.env,
+          AGENTIC_DEV_SOURCE_ROOT: source,
+          AGENTIC_DEV_LINK_INSTALLED_COPIES: "1",
+          CODEX_SKILLS_ROOT: codexSkills,
+        },
+      });
+
+      expect(result.status).toBe(0);
+      expect(lstatSync(join(codexSkills, "agentic-dev")).isSymbolicLink()).toBe(true);
+
+      for (const legacyName of ["agentic-dev-skill", "project-initializer"]) {
+        expect(existsSync(join(codexSkills, legacyName, "README.md"))).toBe(true);
         expect(existsSync(join(codexSkills, legacyName, "assets", "skill-version.json"))).toBe(true);
         expect(existsSync(join(codexSkills, legacyName, "SKILL.md"))).toBe(false);
         expect(existsSync(join(codexSkills, legacyName, "assets", "skill-commands"))).toBe(false);

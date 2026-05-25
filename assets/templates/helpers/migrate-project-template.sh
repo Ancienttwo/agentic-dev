@@ -2,9 +2,9 @@
 # Delegate workflow migrations to the canonical upstream agentic-dev.
 #
 # Generated projects keep installed workflow runtime state under .ai/. The
-# template source lives in AGENTIC_DEV_ROOT. AGENTIC_DEV_SKILL_ROOT,
-# PROJECT_INITIALIZER_ROOT, and legacy install paths are fallbacks during the
-# rename window.
+# template source lives in AGENTIC_DEV_ROOT or ~/Projects/agentic-dev.
+# AGENTIC_DEV_SKILL_ROOT, PROJECT_INITIALIZER_ROOT, and legacy install paths are
+# fallbacks during the rename window.
 
 set -euo pipefail
 
@@ -26,6 +26,7 @@ resolve_project_initializer_root() {
 
   if [[ -n "${HOME:-}" ]]; then
     local roots=(
+      "$HOME/Projects/agentic-dev"
       "$HOME/.codex/skills/agentic-dev"
       "$HOME/.codex/skills/agentic-dev-skill"
       "$HOME/.codex/skills/project-initializer"

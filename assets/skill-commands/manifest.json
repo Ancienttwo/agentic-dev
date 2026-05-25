@@ -54,6 +54,34 @@
       "summary": "Refreshes an already-installed harness using manifest-owned upgrade actions."
     },
     {
+      "name": "agentic-dev-capability",
+      "class": "capability-configuration",
+      "mutatesRepoByDefault": true,
+      "engine": "capability-config add plus capability-resolver validate",
+      "summary": "Adds selected capability boundaries without running full init, migrate, or upgrade."
+    },
+    {
+      "name": "agentic-dev-architecture",
+      "class": "architecture-maintenance",
+      "mutatesRepoByDefault": true,
+      "engine": "architecture index, drift requests, capability resolver, archive helper, diagram-design",
+      "summary": "Resolves architecture drift requests and updates architecture docs or diagrams without refreshing the harness."
+    },
+    {
+      "name": "agentic-dev-handoff",
+      "class": "handoff-rollover",
+      "mutatesRepoByDefault": true,
+      "engine": "prepare-codex-handoff and codex-handoff-resume",
+      "summary": "Prepares or resumes Codex handoff packets for long-task rollover."
+    },
+    {
+      "name": "agentic-dev-deploy",
+      "class": "deploy-ops-readiness",
+      "mutatesRepoByDefault": false,
+      "engine": "operations policy plus check-deploy-sql-order",
+      "summary": "Checks deploy and private operations configuration without publishing or deploying."
+    },
+    {
       "name": "agentic-dev-repair",
       "class": "harness-repair",
       "mutatesRepoByDefault": true,

@@ -17,21 +17,24 @@ safe to adopt in a real repo.
 ### Install or refresh the local skill
 
 ```bash
-git clone https://github.com/Ancienttwo/agentic-dev.git ~/.claude/skills/agentic-dev
-cd ~/.claude/skills/agentic-dev
+git clone https://github.com/Ancienttwo/agentic-dev.git ~/Projects/agentic-dev
+cd ~/Projects/agentic-dev
 bash scripts/sync-codex-installed-copies.sh
 ```
 
 Local path model:
 
-- Source repo: `~/.claude/skills/agentic-dev`
-- Legacy source alias: `~/.claude/skills/project-initializer`
-- Codex discoverable skill: `~/.codex/skills/agentic-dev`
-- Codex legacy fallback bundles: `~/.codex/skills/agentic-dev-skill`, `~/.codex/skills/project-initializer`
+- Source repo: `~/Projects/agentic-dev`
+- Claude skill aliases: `~/.claude/skills/agentic-dev`, `~/.claude/skills/project-initializer`
+- Codex discoverable skill alias: `~/.codex/skills/agentic-dev`
+- Codex legacy fallback aliases: `~/.codex/skills/agentic-dev-skill`, `~/.codex/skills/project-initializer`
 
-Only `~/.codex/skills/agentic-dev` should contain `SKILL.md` and
+The `~/Projects/agentic-dev` repo is the only editable source of truth. Local
+Claude/Codex paths are symlink-backed runtime entrypoints. Only
+`~/.codex/skills/agentic-dev` should expose `SKILL.md` and
 `assets/skill-commands/`; the legacy Codex directories exist only so older
-generated repos can still resolve upstream assets.
+generated repos can still resolve upstream assets without duplicate command
+discovery.
 
 ### Minimum prerequisites
 
@@ -155,12 +158,22 @@ the public surface action-style while sharing the same router, contract, scripts
 and tests:
 
 - Planning and review: `agentic-dev-plan`, `agentic-dev-review`, `agentic-dev-autoplan`
-- Repo workflow actions: `agentic-dev-init`, `agentic-dev-migrate`, `agentic-dev-upgrade`, `agentic-dev-repair`, `agentic-dev-check`
+- Repo workflow actions: `agentic-dev-init`, `agentic-dev-migrate`, `agentic-dev-upgrade`, `agentic-dev-capability`, `agentic-dev-architecture`, `agentic-dev-handoff`, `agentic-dev-deploy`, `agentic-dev-repair`, `agentic-dev-check`
 - Project creation: `agentic-dev-scaffold`
 
 `agentic-dev-init` is for an existing repo; `agentic-dev-scaffold` creates a new
 project or module scaffold. `hooks-init`, `docs-init`, and `create-project-dirs`
 are internal steps, not public commands.
+
+Use `agentic-dev-capability` when the harness already exists and only selected
+capability boundaries should be added. It updates `.ai/context/capabilities.json`,
+syncs the requested local `AGENTS.md` / `CLAUDE.md` contract files, and validates
+the registry without running a full init, migrate, or upgrade pass.
+
+Use `agentic-dev-architecture`, `agentic-dev-handoff`, and `agentic-dev-deploy`
+for focused architecture documentation, rollover, and deploy/ops readiness
+passes. These commands call existing repo-local helpers and keep their scope
+narrow instead of refreshing the full harness.
 
 Codex installed-copy rule: only `~/.codex/skills/agentic-dev` exposes the root
 skill and `agentic-dev-*` command facades. Legacy compatibility directories
@@ -168,11 +181,15 @@ skill and `agentic-dev-*` command facades. Legacy compatibility directories
 are runtime fallback bundles only; they must not contain `SKILL.md` files or
 `assets/skill-commands/`.
 
-After editing this source repo, refresh the local Codex runtime copy with:
+After cloning or moving this source repo, rebuild the local runtime aliases with:
 
 ```bash
 bash scripts/sync-codex-installed-copies.sh
 ```
+
+By default, the script keeps local Claude/Codex runtime paths linked back to the
+source repo. Set `AGENTIC_DEV_LINK_INSTALLED_COPIES=0` or `CODEX_SKILLS_ROOT`
+for copy-based staging.
 
 ## Maintainer Reference
 

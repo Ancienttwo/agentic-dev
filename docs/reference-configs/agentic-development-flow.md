@@ -29,6 +29,10 @@ migrating, repairing, or verifying this repo-local harness:
 | Create a new app or module scaffold | `agentic-dev-scaffold` | Uses plan catalog A-K, then attaches the harness |
 | Convert legacy workflow surfaces | `agentic-dev-migrate` | Archives or preserves user-authored legacy docs |
 | Refresh an installed harness | `agentic-dev-upgrade` | Runs manifest-owned upgrade actions only |
+| Add selected capability boundaries | `agentic-dev-capability` | Updates capability registry and local contracts without full init/migrate/upgrade |
+| Resolve architecture docs or diagrams | `agentic-dev-architecture` | Handles architecture drift requests without full harness refresh |
+| Prepare or resume handoff | `agentic-dev-handoff` | Refreshes Codex handoff packets without running full checks |
+| Check deploy and ops config | `agentic-dev-deploy` | Read-only deploy/_ops readiness check without publishing |
 | Fix broken current harness behavior | `agentic-dev-repair` | Task sync, hook routing, handoff, context, policy, or helper drift |
 | Verify readiness | `agentic-dev-check` | Workflow gates, task sync, inspector, and migration dry-run |
 

@@ -59,6 +59,7 @@ This repo uses a shared long-running harness. The durable workflow lives in repo
 
 - Do not infer agent context boundaries from physical layout globs such as `apps/*`, `packages/*`, or `services/*`.
 - Declare capabilities in `.ai/context/capabilities.json`; each capability owns prefixes, paired contract files, an architecture module, a workstream directory, and local verification hints.
+- Add selected capabilities with `agentic-dev-capability` or `bun scripts/capability-config.ts add --prefix <path>` when the harness already exists and a full init/migrate/upgrade pass would be too broad.
 - Resolve edited paths through `scripts/capability-resolver.ts match --path <path>`; longest prefix wins and equal-length ambiguity fails.
 - Treat `.ai/context/agent-context-blocks.txt`, `PROJECT_INITIALIZER_CONTEXT_BLOCKS`, and existing nested `CLAUDE.md`/`AGENTS.md` files as migration inputs or compatibility fallbacks only.
 - Selected capabilities receive paired `CLAUDE.md` and `AGENTS.md` files so Claude Code and Codex share the same local contract.

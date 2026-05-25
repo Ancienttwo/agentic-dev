@@ -104,6 +104,7 @@ describe("create-project-dirs scaffold parity", () => {
         "./scripts/architecture-drift.sh",
         "./scripts/archive-architecture-request.sh",
         "./scripts/archive-workflow.sh",
+        "./scripts/capability-config.ts",
         "./scripts/capability-resolver.ts",
         "./scripts/check-agent-tooling.sh",
         "./scripts/check-brain-manifest.sh",

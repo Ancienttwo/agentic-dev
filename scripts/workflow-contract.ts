@@ -113,6 +113,7 @@ export function resolveAgenticDevRoot(_repoRoot = REPO_ROOT): string {
   const home = process.env.HOME;
   if (home && home.length > 0) {
     const candidates = [
+      join(home, "Projects", "agentic-dev"),
       join(home, ".codex", "skills", "agentic-dev"),
       join(home, ".codex", "skills", "agentic-dev-skill"),
       join(home, ".codex", "skills", "project-initializer"),

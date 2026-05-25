@@ -51,6 +51,10 @@ describe("Skill eval assets", () => {
       "agentic-dev-scaffold",
       "agentic-dev-migrate",
       "agentic-dev-upgrade",
+      "agentic-dev-capability",
+      "agentic-dev-architecture",
+      "agentic-dev-handoff",
+      "agentic-dev-deploy",
       "agentic-dev-repair",
       "agentic-dev-check",
     ]) {

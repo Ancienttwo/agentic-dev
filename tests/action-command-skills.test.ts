@@ -12,6 +12,10 @@ const COMMANDS = [
   "agentic-dev-scaffold",
   "agentic-dev-migrate",
   "agentic-dev-upgrade",
+  "agentic-dev-capability",
+  "agentic-dev-architecture",
+  "agentic-dev-handoff",
+  "agentic-dev-deploy",
   "agentic-dev-repair",
   "agentic-dev-check",
 ];
@@ -86,6 +90,36 @@ describe("agentic-dev action command skills", () => {
     expect(migrate).toContain("ownership=known_generated");
     expect(upgrade).toContain("known_generated");
     expect(upgrade).toContain("Preserve `_ref/`, `_ops/`, secrets, local env, custom hooks");
+  });
+
+  test("capability command is a targeted registry update instead of full init", () => {
+    const capability = readCommand("agentic-dev-capability");
+
+    expect(capability).toContain("capability-config.ts add");
+    expect(capability).toContain("Does not run `scripts/migrate-project-template.sh --apply`");
+    expect(capability).toContain("Does not install or refresh the full harness");
+    expect(capability).toContain("explicit prefixes");
+  });
+
+  test("architecture, handoff, and deploy commands stay focused", () => {
+    const architecture = readCommand("agentic-dev-architecture");
+    const handoff = readCommand("agentic-dev-handoff");
+    const deploy = readCommand("agentic-dev-deploy");
+
+    expect(architecture).toContain("archive-architecture-request.sh");
+    expect(architecture).toContain("diagram-design");
+    expect(architecture).toContain("Does not run `scripts/migrate-project-template.sh --apply`");
+    expect(architecture).toContain("hooks only record drift requests");
+
+    expect(handoff).toContain("prepare-codex-handoff.sh");
+    expect(handoff).toContain("codex-handoff-resume.sh");
+    expect(handoff).toContain("Does not run `/check`");
+    expect(handoff).toContain("handoff packet files");
+
+    expect(deploy).toContain("Read-only by default");
+    expect(deploy).toContain("check-deploy-sql-order.sh");
+    expect(deploy).toContain("Does not publish or deploy");
+    expect(deploy).toContain("_ops/");
   });
 
   test("public docs name the command surface and keep internal steps private", () => {
