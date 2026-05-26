@@ -4,9 +4,16 @@ All notable changes to this skill are documented here.
 
 ## [Unreleased]
 
+## [5.1.0] - 2026-05-26
+
+### Added
+
+- Added filesystem-owned Evidence Contract fields and guards so approved plan execution must name state/progress path, verification evidence, evaluator rubric, stop condition, and rollback surface before implementation or completion.
+
 ### Changed
 
 - Made broad research delegation a main-agent spawn decision based on context impact and callable runners, with bounded main-thread fallback when spawning is not useful or available.
+- Hardened Waza external-tooling checks to compare whole skill directories and shared `rules/` files instead of only `SKILL.md`, catching broken `references/`, `scripts/`, `agents/`, and cross-skill rule links.
 
 ## [5.0.2] - 2026-05-25
 

@@ -153,6 +153,8 @@ describe("create-project-dirs scaffold parity", () => {
       const template = readFileSync(join(cwd, ".claude/templates/plan.template.md"), "utf-8");
       expect(template).toContain("## Agentic Routing");
       expect(template).toContain("Active plan rule: the latest non-archived `plans/plan-*.md` file is the current plan");
+      expect(template).toContain("## Evidence Contract");
+      expect(template).toContain("**State/progress path**");
     } finally {
       rmSync(cwd, { recursive: true, force: true });
     }

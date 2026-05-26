@@ -48,6 +48,14 @@
 - Checks file: `.ai/harness/checks/latest.json`
 - Session handoff: `.ai/harness/handoff/current.md`
 
+## Evidence Contract
+
+- **State/progress path**:
+- **Verification evidence**:
+- **Evaluator rubric**:
+- **Stop condition**:
+- **Rollback surface**:
+
 ## Annotations
 <!-- [NOTE]: prefixed inline. Claude processes all and revises. -->
 

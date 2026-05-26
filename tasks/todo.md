@@ -55,3 +55,6 @@
 - [x] Bumped release metadata to 5.0.1 for package, skill-version manifest, README, stamp, and changelog
 - [x] Bumped release metadata to 5.0.2 after excluding ignored runtime state from installed-copy sync outputs
 - [x] Made subagent/parallel research delegation a main-agent context-impact decision with a main-thread fallback path
+- [x] Hardened Waza tooling checks to compare whole skill directories and shared `rules/` files, not only `SKILL.md`
+- [x] Added filesystem-owned Evidence Contract fields and guards for approved plan execution
+- [x] Bumped release metadata to 5.1.0 for package, skill manifest, README, stamp, and changelog

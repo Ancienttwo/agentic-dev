@@ -57,8 +57,9 @@ work, or shared contracts, report the P1/P2/P3 evidence explicitly.
 1. Route the request by intent before reading broadly.
 2. Read the repo-local contract first: `AGENTS.md` or `CLAUDE.md`, `tasks/todo.md`, `tasks/lessons.md`, and `.ai/harness/policy.json`.
 3. Use the selected skill or mode to produce either an approved plan, a root cause, or a review verdict.
-4. Convert approved complex plans to execution with `scripts/plan-to-todo.sh --plan <plan>`. Contract-level plans are projected into a linked `codex/<slug>` worktree when the policy enables it.
-5. After substantive changes, run project checks and record evidence in `tasks/`. For contract worktrees, run Waza `/check` before `scripts/contract-worktree.sh finish`.
+4. Approved plans must include `## Evidence Contract` with state/progress path, verification evidence, evaluator rubric, stop condition, and rollback surface before execution.
+5. Convert approved complex plans to execution with `scripts/plan-to-todo.sh --plan <plan>`. Contract-level plans are projected into a linked `codex/<slug>` worktree when the policy enables it.
+6. After substantive changes, run project checks and record evidence in `tasks/`. For contract worktrees, run Waza `/check` before `scripts/contract-worktree.sh finish`.
 
 ## Boundaries
 

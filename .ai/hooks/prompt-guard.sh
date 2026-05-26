@@ -27,6 +27,43 @@ is_plan_creation_intent() {
   echo "$PROMPT_TEXT" | grep -qEi "(new plan|create plan|write plan|draft plan|新建计划|创建计划|写计划|制定计划|补计划)"
 }
 
+plan_evidence_contract_error() {
+  local file="$1"
+  local section=""
+  local missing=0
+
+  section="$(awk '
+    BEGIN { in_section = 0 }
+    /^## Evidence Contract[[:space:]]*$/ { in_section = 1; next }
+    in_section && /^## / { exit }
+    in_section { print }
+  ' "$file")"
+
+  if [[ -z "$(printf '%s' "$section" | tr -d '[:space:]')" ]]; then
+    echo "missing ## Evidence Contract section"
+    return 1
+  fi
+
+  local label line value
+  for label in "State/progress path" "Verification evidence" "Evaluator rubric" "Stop condition" "Rollback surface"; do
+    line="$(printf '%s\n' "$section" | grep -Ei "^[[:space:]]*-[[:space:]]*(\\*\\*)?${label}(\\*\\*)?[[:space:]]*:" | head -1 || true)"
+    if [[ -z "$line" ]]; then
+      echo "missing field: ${label}"
+      missing=1
+      continue
+    fi
+
+    value="${line#*:}"
+    value="$(printf '%s' "$value" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')"
+    if [[ -z "$value" ]] || printf '%s' "$value" | grep -Eiq '^(tbd|todo|n/a|none|unknown|\.\.\.)$'; then
+      echo "field has no concrete value: ${label}"
+      missing=1
+    fi
+  done
+
+  [[ "$missing" -eq 0 ]]
+}
+
 is_agentic_packaging_intent() {
   echo "$PROMPT_TEXT" | grep -qEi "(repeated workflow|reusable workflow|workflow packaging|package into (a )?skill|make this (a )?skill|subagent or automation|skill or automation|skill/subagent/automation|重复(手工)?工作|重复工作流|做成[[:space:]]*(skill|subagent|automation)|包装成(skill|subagent|automation|技能|自动化)|抽象成(skill|subagent|automation|技能|自动化)|沉淀成(工作流|skill|技能|自动化)|做成[[:space:]]*(hook|钩子).*触发|触发用户授权.*(plan|计划|方案))"
 }
@@ -139,6 +176,17 @@ if [ "$implement_intent" -eq 1 ]; then
   fi
 
   if [ "$plan_status" = "Approved" ] || [ "$plan_status" = "Executing" ]; then
+    if ! evidence_error="$(plan_evidence_contract_error "$active_plan")"; then
+      echo "[EvidenceContractGuard] Plan Evidence Contract is incomplete in $active_plan:"
+      printf '%s\n' "$evidence_error"
+      hook_structured_error \
+        "EvidenceContractGuard" \
+        "Implementation requested without a complete plan Evidence Contract." \
+        "Fill ## Evidence Contract with state/progress path, verification evidence, evaluator rubric, stop condition, and rollback surface before implementation." \
+        "quality_gate"
+      exit 1
+    fi
+
     contract_file="$(workflow_active_contract || true)"
     if [ -z "$contract_file" ] || [ ! -f "$contract_file" ]; then
       echo "[ContractGuard] Missing active sprint contract for $active_plan"
@@ -195,6 +243,17 @@ if [ "$done_intent" -eq 1 ]; then
       "Missing task contract $contract_file." \
       "Create the contract or regenerate tasks from the active plan before marking work done." \
       "missing_artifact"
+    exit 1
+  fi
+
+  if ! evidence_error="$(plan_evidence_contract_error "$active_plan")"; then
+    echo "[EvidenceContractGuard] Plan Evidence Contract is incomplete in $active_plan:"
+    printf '%s\n' "$evidence_error"
+    hook_structured_error \
+      "EvidenceContractGuard" \
+      "Done intent detected without a complete plan Evidence Contract." \
+      "Fill ## Evidence Contract with state/progress path, verification evidence, evaluator rubric, stop condition, and rollback surface before marking work done." \
+      "quality_gate"
     exit 1
   fi
 

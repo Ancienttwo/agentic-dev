@@ -62,6 +62,18 @@ function writeValidSprintChecks(cwd: string) {
   );
 }
 
+function planEvidenceContract(): string {
+  return [
+    "## Evidence Contract",
+    "",
+    "- **State/progress path**: tasks/todo.md and tasks/notes/demo.notes.md",
+    "- **Verification evidence**: .ai/harness/checks/latest.json and verify-sprint",
+    "- **Evaluator rubric**: sprint review must recommend pass",
+    "- **Stop condition**: stop on failing contract verification",
+    "- **Rollback surface**: revert generated task files and changed source files",
+  ].join("\n");
+}
+
 function run(cmd: string, args: string[], cwd: string) {
   return spawnSync(cmd, args, { cwd, encoding: "utf-8" });
 }
@@ -771,6 +783,35 @@ describe("Hook runtime behavior", () => {
     }
   });
 
+  test("prompt-guard: blocks implement intent when approved plan lacks evidence contract", () => {
+    const cwd = tmpWorkspace("prompt-guard-evidence-contract");
+    try {
+      initGitRepo(cwd);
+      installHooks(cwd);
+      mkdirSync(join(cwd, "docs"), { recursive: true });
+      mkdirSync(join(cwd, "plans"), { recursive: true });
+      writeFileSync(join(cwd, "docs/spec.md"), "# Product Spec\n");
+
+      writeFileSync(
+        join(cwd, "plans/plan-20260304-1310-demo.md"),
+        "# Plan: demo\n\n> **Status**: Approved\n"
+      );
+
+      expect(run("git", ["add", "."], cwd).status).toBe(0);
+      expect(run("git", ["commit", "-m", "seed approved plan"], cwd).status).toBe(0);
+
+      const res = runHook("prompt-guard.sh", cwd, {
+        stdin: JSON.stringify({ user_message: "implement it all now" }),
+      });
+
+      expect(res.status).toBe(1);
+      expect(res.stdout).toContain("[EvidenceContractGuard]");
+      expect(res.stdout).toContain('"guard":"EvidenceContractGuard"');
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
   test("prompt-guard: warns on first plan creation when research is missing (no existing plans)", () => {
     const cwd = tmpWorkspace("prompt-guard-research-gate");
     try {
@@ -868,7 +909,7 @@ describe("Hook runtime behavior", () => {
 
       writeFileSync(
         join(cwd, "plans/plan-20260304-1410-demo.md"),
-        "# Plan: demo\n\n> **Status**: Approved\n"
+        ["# Plan: demo", "", "> **Status**: Approved", "", planEvidenceContract(), ""].join("\n")
       );
       writeFileSync(
         join(cwd, "tasks/todo.md"),
@@ -892,6 +933,43 @@ describe("Hook runtime behavior", () => {
 
       expect(res.status).toBe(0);
       expect(res.stdout).toContain("[verify] ok");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
+  test("prompt-guard: blocks done intent when approved plan lacks evidence contract", () => {
+    const cwd = tmpWorkspace("prompt-guard-done-evidence-contract");
+    try {
+      initGitRepo(cwd);
+      installHooks(cwd);
+      mkdirSync(join(cwd, "plans"), { recursive: true });
+      mkdirSync(join(cwd, "tasks"), { recursive: true });
+      mkdirSync(join(cwd, "tasks/contracts"), { recursive: true });
+      mkdirSync(join(cwd, "scripts"), { recursive: true });
+
+      writeFileSync(
+        join(cwd, "plans/plan-20260304-1415-demo.md"),
+        "# Plan: demo\n\n> **Status**: Approved\n"
+      );
+      writeFileSync(
+        join(cwd, "tasks/todo.md"),
+        "# Task Execution Checklist (Primary)\n\n> **Source Plan**: plans/plan-20260304-1415-demo.md\n"
+      );
+      writeFileSync(join(cwd, "tasks/contracts/demo.contract.md"), "# contract\n");
+      writeFileSync(
+        join(cwd, "scripts/verify-contract.sh"),
+        "#!/bin/bash\nset -euo pipefail\necho \"[verify] ok\"\n"
+      );
+      expect(run("chmod", ["+x", "scripts/verify-contract.sh"], cwd).status).toBe(0);
+
+      const res = runHook("prompt-guard.sh", cwd, {
+        stdin: JSON.stringify({ user_message: "done" }),
+      });
+
+      expect(res.status).toBe(1);
+      expect(res.stdout).toContain("[EvidenceContractGuard]");
+      expect(res.stdout).toContain('"guard":"EvidenceContractGuard"');
     } finally {
       rmSync(cwd, { recursive: true, force: true });
     }
@@ -942,7 +1020,7 @@ describe("Hook runtime behavior", () => {
 
         writeFileSync(
           join(cwd, "plans/plan-20260304-1410-demo.md"),
-          "# Plan: demo\n\n> **Status**: Approved\n"
+          ["# Plan: demo", "", "> **Status**: Approved", "", planEvidenceContract(), ""].join("\n")
         );
         writeFileSync(
           join(cwd, "tasks/todo.md"),
@@ -984,7 +1062,7 @@ describe("Hook runtime behavior", () => {
 
       writeFileSync(
         join(cwd, "plans/plan-20260304-1420-demo.md"),
-        "# Plan: demo\n\n> **Status**: Approved\n"
+        ["# Plan: demo", "", "> **Status**: Approved", "", planEvidenceContract(), ""].join("\n")
       );
       writeFileSync(
         join(cwd, "tasks/todo.md"),

@@ -153,6 +153,14 @@ PI_TEMPLATE_PLAN=$(cat <<'EOF_TEMPLATE_PLAN'
 - Verification command: `bash scripts/verify-contract.sh --contract tasks/contracts/{{SLUG}}.contract.md --strict`
 - Active plan rule: the latest non-archived `plans/plan-*.md` file is the current plan
 
+## Evidence Contract
+
+- **State/progress path**:
+- **Verification evidence**:
+- **Evaluator rubric**:
+- **Stop condition**:
+- **Rollback surface**:
+
 ## Annotations
 <!-- [NOTE]: prefixed inline. Claude processes all and revises. -->
 

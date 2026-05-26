@@ -91,6 +91,14 @@ if [[ ! -f "$template_file" ]]; then
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
 
+## Evidence Contract
+
+- **State/progress path**:
+- **Verification evidence**:
+- **Evaluator rubric**:
+- **Stop condition**:
+- **Rollback surface**:
+
 ## Annotations
 <!-- [NOTE]: prefixed inline. Claude processes all and revises. -->
 

@@ -131,6 +131,14 @@ RESEARCH_TEMPLATE_EOF
 - Template: `.claude/templates/contract.template.md`
 - Verification command: `bash scripts/verify-contract.sh --contract tasks/contracts/{{SLUG}}.contract.md --strict`
 
+## Evidence Contract
+
+- **State/progress path**:
+- **Verification evidence**:
+- **Evaluator rubric**:
+- **Stop condition**:
+- **Rollback surface**:
+
 ## Annotations
 <!-- [NOTE]: prefixed inline. Claude processes all and revises. -->
 

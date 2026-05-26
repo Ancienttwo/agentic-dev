@@ -69,8 +69,11 @@ const WAZA_SOURCE_REPO = "tw93/Waza";
 const WAZA_SOURCE_URL = "https://github.com/tw93/Waza.git";
 const WAZA_RAW_BASE_URL = "https://raw.githubusercontent.com/tw93/Waza/main";
 const WAZA_MANAGED_SKILLS = ["check", "design", "health", "hunt", "learn", "read", "think", "write"];
+const WAZA_SHARED_RULES = ["anti-patterns.md", "chinese.md", "durable-context.md", "english.md"];
 const CODEX_AUTOMATION_SKILLS = ["health", "check", "diagram-design"];
-const WAZA_STAGING_DIR = path.join(HOME, ".agents", "skills");
+const WAZA_STAGING_ROOT = path.join(HOME, ".agents");
+const WAZA_STAGING_DIR = path.join(WAZA_STAGING_ROOT, "skills");
+const WAZA_STAGING_RULES_DIR = path.join(WAZA_STAGING_ROOT, "rules");
 let timeoutBin;
 const HOSTS = {
   claude: {
@@ -151,6 +154,10 @@ function sha1(text) {
   return crypto.createHash("sha1").update(text).digest("hex");
 }
 
+function sha1Buffer(buffer) {
+  return crypto.createHash("sha1").update(buffer).digest("hex");
+}
+
 function parseSkillVersion(text) {
   const match = text.match(/^\s*version:\s*["']?([^"'\n]+)["']?/m);
   return match ? match[1].trim() : null;
@@ -178,6 +185,121 @@ function readSkillFile(filePath) {
     exists: true,
     version: parseSkillVersion(content),
     hash: sha1(content),
+  };
+}
+
+function readFileHash(filePath) {
+  try {
+    return {
+      exists: true,
+      hash: sha1Buffer(fs.readFileSync(filePath)),
+    };
+  } catch (_error) {
+    return {
+      exists: false,
+      hash: null,
+    };
+  }
+}
+
+function collectDirectoryHashes(dirPath) {
+  try {
+    if (!fs.statSync(dirPath).isDirectory()) return null;
+  } catch (_error) {
+    return null;
+  }
+
+  const files = {};
+  function visit(currentDir, relativeDir) {
+    let entries = [];
+    try {
+      entries = fs.readdirSync(currentDir, { withFileTypes: true });
+    } catch (_error) {
+      return;
+    }
+    for (const entry of entries) {
+      const absolutePath = path.join(currentDir, entry.name);
+      const relativePath = relativeDir ? `${relativeDir}/${entry.name}` : entry.name;
+      let stat;
+      try {
+        stat = fs.statSync(absolutePath);
+      } catch (_error) {
+        continue;
+      }
+      if (stat.isDirectory()) {
+        visit(absolutePath, relativePath);
+      } else if (stat.isFile()) {
+        files[relativePath] = sha1Buffer(fs.readFileSync(absolutePath));
+      }
+    }
+  }
+
+  visit(dirPath, "");
+  return files;
+}
+
+function compareFileMaps(localFiles, referenceFiles) {
+  const missing = [];
+  const extra = [];
+  const changed = [];
+  const localKeys = new Set(Object.keys(localFiles || {}));
+  const referenceKeys = new Set(Object.keys(referenceFiles || {}));
+
+  for (const key of [...referenceKeys].sort()) {
+    if (!localKeys.has(key)) {
+      missing.push(key);
+    } else if (localFiles[key] !== referenceFiles[key]) {
+      changed.push(key);
+    }
+  }
+
+  for (const key of [...localKeys].sort()) {
+    if (!referenceKeys.has(key)) {
+      extra.push(key);
+    }
+  }
+
+  return { missing, extra, changed };
+}
+
+function inspectDirectorySync(localDir, stagingDir) {
+  const localFiles = collectDirectoryHashes(localDir);
+  const stagingFiles = collectDirectoryHashes(stagingDir);
+
+  if (!localFiles && !stagingFiles) {
+    return {
+      status: "unknown",
+      missing_files: [],
+      extra_files: [],
+      changed_files: [],
+    };
+  }
+
+  if (!localFiles && stagingFiles) {
+    return {
+      status: "missing-local",
+      missing_files: Object.keys(stagingFiles).sort(),
+      extra_files: [],
+      changed_files: [],
+    };
+  }
+
+  if (localFiles && !stagingFiles) {
+    return {
+      status: "unknown",
+      missing_files: [],
+      extra_files: [],
+      changed_files: [],
+    };
+  }
+
+  const diff = compareFileMaps(localFiles, stagingFiles);
+  const clean = diff.missing.length === 0 && diff.extra.length === 0 && diff.changed.length === 0;
+  return {
+    status: clean ? "synced" : "drift",
+    missing_files: diff.missing,
+    extra_files: diff.extra,
+    changed_files: diff.changed,
   };
 }
 
@@ -330,17 +452,19 @@ function fetchWazaUpstreamSkills() {
       status: "not-checked",
       reason: "Update checks were skipped.",
       skills: {},
+      rules: {},
     };
   }
 
   const skills = {};
+  const rules = {};
   const failures = [];
 
   for (const skill of WAZA_MANAGED_SKILLS) {
     const url = `${WAZA_RAW_BASE_URL}/skills/${skill}/SKILL.md`;
     const result = run("curl", ["-fsSL", "--max-time", "5", url], { timeoutMs: 7000 });
     if (!result.ok || !result.stdout) {
-      failures.push(skill);
+      failures.push(`skills/${skill}/SKILL.md`);
       continue;
     }
 
@@ -351,18 +475,92 @@ function fetchWazaUpstreamSkills() {
     };
   }
 
+  for (const rule of WAZA_SHARED_RULES) {
+    const url = `${WAZA_RAW_BASE_URL}/rules/${rule}`;
+    const result = run("curl", ["-fsSL", "--max-time", "5", url], { timeoutMs: 7000 });
+    if (!result.ok || !result.stdout) {
+      failures.push(`rules/${rule}`);
+      continue;
+    }
+
+    rules[rule] = {
+      hash: sha1(result.stdout),
+      source_url: url,
+    };
+  }
+
   if (failures.length > 0) {
     return {
       status: "unknown",
-      reason: `Unable to fetch upstream Waza SKILL.md for: ${failures.join(", ")}.`,
+      reason: `Unable to fetch upstream Waza files for: ${failures.join(", ")}.`,
       skills,
+      rules,
     };
   }
 
   return {
     status: "fetched",
-    reason: "Fetched upstream Waza SKILL.md files from GitHub raw URLs.",
+    reason: "Fetched upstream Waza SKILL.md and shared rule files from GitHub raw URLs.",
     skills,
+    rules,
+  };
+}
+
+function hostUsesStagingSkillSymlinks(host) {
+  const meta = HOSTS[host];
+  const presentSkillDirs = WAZA_MANAGED_SKILLS
+    .map((skill) => path.join(meta.skillsDir, skill))
+    .filter((skillDir) => fs.existsSync(skillDir));
+
+  if (presentSkillDirs.length === 0) return false;
+
+  const stagingRealPath = resolveRealPath(WAZA_STAGING_DIR) || WAZA_STAGING_DIR;
+  return presentSkillDirs.every((skillDir) => {
+    const realPath = resolveRealPath(skillDir);
+    return realPath
+      ? realPath.startsWith(`${WAZA_STAGING_DIR}${path.sep}`) || realPath.startsWith(`${stagingRealPath}${path.sep}`)
+      : false;
+  });
+}
+
+function resolveWazaRulePath(host, rule) {
+  const meta = HOSTS[host];
+  const hostRulesPath = path.join(path.dirname(meta.skillsDir), "rules", rule);
+  if (fs.existsSync(hostRulesPath)) return hostRulesPath;
+  if (hostUsesStagingSkillSymlinks(host)) {
+    return path.join(WAZA_STAGING_RULES_DIR, rule);
+  }
+  return hostRulesPath;
+}
+
+function inspectWazaSharedRule(host, rule, upstreamRules) {
+  const localFile = resolveWazaRulePath(host, rule);
+  const stagingFile = path.join(WAZA_STAGING_RULES_DIR, rule);
+  const local = readFileHash(localFile);
+  const staging = readFileHash(stagingFile);
+  const upstream = upstreamRules[rule] || null;
+
+  return {
+    name: rule,
+    path: localFile,
+    real_path: resolveRealPath(localFile),
+    present: local.exists,
+    hash: local.hash,
+    staging_present: staging.exists,
+    staging_hash: staging.hash,
+    staging_sync: local.exists && staging.exists
+      ? (local.hash === staging.hash ? "synced" : "drift")
+      : staging.exists
+        ? "missing-local"
+        : "unknown",
+    upstream_hash: upstream?.hash || null,
+    stale_status: !checkUpdates
+      ? "not-checked"
+      : upstream?.hash && local.exists
+        ? (local.hash === upstream.hash ? "up-to-date" : "stale")
+        : upstream?.hash
+          ? "missing-local"
+          : "unknown",
   };
 }
 
@@ -371,8 +569,10 @@ function inspectWazaSkill(host, skill, skillLock, skillItems, upstreamSkills) {
   const skillDir = path.join(meta.skillsDir, skill);
   const skillFile = path.join(skillDir, "SKILL.md");
   const stagingFile = path.join(WAZA_STAGING_DIR, skill, "SKILL.md");
+  const stagingDir = path.join(WAZA_STAGING_DIR, skill);
   const local = readSkillFile(skillFile);
   const staging = readSkillFile(stagingFile);
+  const directorySync = inspectDirectorySync(skillDir, stagingDir);
   const upstream = upstreamSkills[skill] || null;
   let symlinkTarget = null;
 
@@ -403,11 +603,10 @@ function inspectWazaSkill(host, skill, skillLock, skillItems, upstreamSkills) {
     staging_present: staging.exists,
     staging_version: staging.version,
     staging_hash: staging.hash,
-    staging_sync: local.exists && staging.exists
-      ? (local.hash === staging.hash ? "synced" : "drift")
-      : staging.exists
-        ? "missing-local"
-        : "unknown",
+    staging_sync: directorySync.status,
+    staging_missing_files: directorySync.missing_files,
+    staging_extra_files: directorySync.extra_files,
+    staging_changed_files: directorySync.changed_files,
     upstream_version: upstream?.version || null,
     upstream_hash: upstream?.hash || null,
     stale_status: !checkUpdates
@@ -431,23 +630,48 @@ function detectWaza() {
 
   for (const host of SELECTED_HOSTS) {
     const skills = WAZA_MANAGED_SKILLS.map((skill) => inspectWazaSkill(host, skill, skillLock, skillItems, upstream.skills));
+    const sharedRules = WAZA_SHARED_RULES.map((rule) => inspectWazaSharedRule(host, rule, upstream.rules));
     const installedSkills = skills.filter((entry) => entry.present).map((entry) => entry.name);
     const missingSkills = skills.filter((entry) => !entry.present).map((entry) => entry.name);
     const driftSkills = skills.filter((entry) => entry.staging_sync === "drift").map((entry) => entry.name);
+    const unsyncedSkills = skills
+      .filter((entry) => entry.staging_sync === "drift" || entry.staging_sync === "missing-local")
+      .map((entry) => entry.name);
     const staleSkills = skills.filter((entry) => entry.stale_status === "stale").map((entry) => entry.name);
+    const installedSharedRules = sharedRules.filter((entry) => entry.present).map((entry) => entry.name);
+    const missingSharedRules = sharedRules.filter((entry) => !entry.present).map((entry) => entry.name);
+    const driftSharedRules = sharedRules.filter((entry) => entry.staging_sync === "drift").map((entry) => entry.name);
+    const unsyncedSharedRules = sharedRules
+      .filter((entry) => entry.staging_sync === "drift" || entry.staging_sync === "missing-local")
+      .map((entry) => entry.name);
+    const staleSharedRules = sharedRules
+      .filter((entry) => entry.stale_status === "stale" || entry.stale_status === "missing-local")
+      .map((entry) => entry.name);
     const status = missingSkills.length === 0 ? "present" : installedSkills.length > 0 ? "partial" : "missing";
     const stagingSync = status === "missing"
       ? "missing"
-      : driftSkills.length > 0
+      : unsyncedSkills.length > 0 || unsyncedSharedRules.length > 0
         ? "drift"
-        : skills.every((entry) => entry.staging_sync === "synced")
+        : skills.every((entry) => entry.staging_sync === "synced") && sharedRules.every((entry) => entry.staging_sync === "synced")
           ? "synced"
           : "unknown";
     const staleStatus = !checkUpdates
       ? "not-checked"
-      : staleSkills.length > 0
+      : staleSkills.length > 0 || staleSharedRules.length > 0
         ? "stale"
-        : skills.every((entry) => entry.stale_status === "up-to-date")
+        : skills.every((entry) => entry.stale_status === "up-to-date") && sharedRules.every((entry) => entry.stale_status === "up-to-date")
+          ? "up-to-date"
+          : "unknown";
+    const sharedRulesStagingSync = unsyncedSharedRules.length > 0
+      ? "drift"
+      : sharedRules.every((entry) => entry.staging_sync === "synced")
+        ? "synced"
+        : "unknown";
+    const sharedRulesStaleStatus = !checkUpdates
+      ? "not-checked"
+      : staleSharedRules.length > 0
+        ? "stale"
+        : sharedRules.every((entry) => entry.stale_status === "up-to-date")
           ? "up-to-date"
           : "unknown";
 
@@ -460,10 +684,17 @@ function detectWaza() {
       missing_skills: missingSkills,
       drift_skills: driftSkills,
       stale_skills: staleSkills,
+      shared_rules: installedSharedRules,
+      missing_shared_rules: missingSharedRules,
+      drift_shared_rules: driftSharedRules,
+      stale_shared_rules: staleSharedRules,
+      shared_rules_staging_sync: sharedRulesStagingSync,
+      shared_rules_stale_status: sharedRulesStaleStatus,
       versions: Object.fromEntries(skills.filter((entry) => entry.present).map((entry) => [entry.name, entry.version])),
       staging_sync: stagingSync,
       stale_status: staleStatus,
       skills,
+      shared_rule_details: sharedRules,
       reason: status === "present"
         ? `Detected all ${WAZA_MANAGED_SKILLS.length} Waza skills for ${HOSTS[host].label} from the real host skill path.`
         : status === "partial"
@@ -473,29 +704,35 @@ function detectWaza() {
   }
 
   const staleSkillSet = new Set();
+  const staleRuleSet = new Set();
   for (const host of Object.values(hostStatuses)) {
     for (const skill of host.stale_skills) staleSkillSet.add(skill);
+    for (const rule of host.stale_shared_rules) staleRuleSet.add(rule);
   }
   const updateStatus = !checkUpdates
     ? "not-checked"
     : upstream.status === "unknown"
       ? "unknown"
-      : staleSkillSet.size > 0
+      : staleSkillSet.size > 0 || staleRuleSet.size > 0
         ? "update-available"
         : "up-to-date";
   const updateReason = !checkUpdates
     ? "Update checks were skipped."
     : upstream.status === "unknown"
       ? upstream.reason
-      : staleSkillSet.size > 0
-        ? `Upstream Waza SKILL.md differs for: ${[...staleSkillSet].sort().join(", ")}.`
-        : "Local Waza SKILL.md files match upstream GitHub raw content.";
+      : staleSkillSet.size > 0 || staleRuleSet.size > 0
+        ? `Upstream Waza files differ for: ${[
+            ...[...staleSkillSet].sort().map((skill) => `skills/${skill}/SKILL.md`),
+            ...[...staleRuleSet].sort().map((rule) => `rules/${rule}`),
+          ].join(", ")}.`
+        : "Local Waza SKILL.md and shared rule files match upstream GitHub raw content.";
 
   const status = summarizeWazaStatus(hostStatuses);
   const installCommand = `npx -y skills add tw93/Waza -g -a ${
     hostMode === "both" ? "claude-code codex" : hostMode === "claude" ? "claude-code" : "codex"
   } -s check design health hunt learn read think write -y`;
-  const syncCommand = `for d in ${WAZA_MANAGED_SKILLS.join(" ")}; do cp ~/.agents/skills/$d/SKILL.md ~/.codex/skills/$d/SKILL.md; done`;
+  const rulesList = WAZA_SHARED_RULES.join(" ");
+  const syncCommand = `for d in ${WAZA_MANAGED_SKILLS.join(" ")}; do rsync -a --delete ~/.agents/skills/$d/ ~/.codex/skills/$d/; done; mkdir -p ~/.codex/rules; for f in ${rulesList}; do cp ~/.agents/rules/$f ~/.codex/rules/$f; done`;
 
   return {
     name: "waza",
@@ -509,23 +746,26 @@ function detectWaza() {
     source_repo: WAZA_SOURCE_REPO,
     source_url: WAZA_SOURCE_URL,
     managed_skills: WAZA_MANAGED_SKILLS,
+    shared_rules: WAZA_SHARED_RULES,
     primary_host: "codex",
     codex_primary_path: path.join(HOME, ".codex", "skills"),
     staging_cache_path: WAZA_STAGING_DIR,
+    staging_rules_path: WAZA_STAGING_RULES_DIR,
     sync_mode: "codex-first-copy-from-staging",
-    host_drift_policy: "report-per-host-version-staging-and-upstream-drift",
+    host_drift_policy: "report-per-host-directory-rule-staging-and-upstream-drift",
     skills_cli_status: skillsResult.ok ? "available" : skillsResult.timed_out ? "timed-out" : "unavailable",
     source_lock_entries: wazaEntries.map(([name]) => name).sort(),
     upstream_status: upstream.status,
     upstream_reason: upstream.reason,
     upstream_skills: upstream.skills,
+    upstream_rules: upstream.rules,
     hosts: hostStatuses,
     update_status: updateStatus,
     update_reason: updateReason,
     install_command: installCommand,
     stage_command: "npx -y skills update",
     sync_command: syncCommand,
-    verify_command: `for d in ${WAZA_MANAGED_SKILLS.join(" ")}; do cmp -s ~/.agents/skills/$d/SKILL.md ~/.codex/skills/$d/SKILL.md; done`,
+    verify_command: `for d in ${WAZA_MANAGED_SKILLS.join(" ")}; do diff -qr ~/.agents/skills/$d ~/.codex/skills/$d; done; for f in ${rulesList}; do cmp -s ~/.agents/rules/$f ~/.codex/rules/$f; done`,
     upgrade_command: `npx -y skills update && ${syncCommand}`,
     impact: {
       complex_tasks: "unaffected",
@@ -735,6 +975,7 @@ function printText(result) {
     if (versionBits) {
       console.log(`    versions: ${versionBits}`);
     }
+    console.log(`    shared rules: ${entry.shared_rules.length}/${waza.shared_rules.length}, sync=${entry.shared_rules_staging_sync}, stale=${entry.shared_rules_stale_status}`);
     if (entry.missing_skills.length) {
       console.log(`    missing: ${entry.missing_skills.join(", ")}`);
     }
@@ -743,6 +984,15 @@ function printText(result) {
     }
     if (entry.stale_skills.length) {
       console.log(`    stale: ${entry.stale_skills.join(", ")}`);
+    }
+    if (entry.missing_shared_rules.length) {
+      console.log(`    missing shared rules: ${entry.missing_shared_rules.join(", ")}`);
+    }
+    if (entry.drift_shared_rules.length) {
+      console.log(`    drift shared rules: ${entry.drift_shared_rules.join(", ")}`);
+    }
+    if (entry.stale_shared_rules.length) {
+      console.log(`    stale shared rules: ${entry.stale_shared_rules.join(", ")}`);
     }
   }
   console.log(`  - Updates: ${waza.update_status} (${waza.update_reason})`);

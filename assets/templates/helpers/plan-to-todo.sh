@@ -39,6 +39,43 @@ extract_status() {
   awk '/\*\*Status\*\*:/ {sub(/^.*\*\*Status\*\*: */, ""); gsub(/\r/, ""); print; exit}' "$file" | xargs
 }
 
+plan_evidence_contract_error() {
+  local file="$1"
+  local section=""
+  local missing=0
+
+  section="$(awk '
+    BEGIN { in_section = 0 }
+    /^## Evidence Contract[[:space:]]*$/ { in_section = 1; next }
+    in_section && /^## / { exit }
+    in_section { print }
+  ' "$file")"
+
+  if [[ -z "$(printf '%s' "$section" | tr -d '[:space:]')" ]]; then
+    echo "missing ## Evidence Contract section"
+    return 1
+  fi
+
+  local label line value
+  for label in "State/progress path" "Verification evidence" "Evaluator rubric" "Stop condition" "Rollback surface"; do
+    line="$(printf '%s\n' "$section" | grep -Ei "^[[:space:]]*-[[:space:]]*(\\*\\*)?${label}(\\*\\*)?[[:space:]]*:" | head -1 || true)"
+    if [[ -z "$line" ]]; then
+      echo "missing field: ${label}"
+      missing=1
+      continue
+    fi
+
+    value="${line#*:}"
+    value="$(printf '%s' "$value" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')"
+    if [[ -z "$value" ]] || printf '%s' "$value" | grep -Eiq '^(tbd|todo|n/a|none|unknown|\.\.\.)$'; then
+      echo "field has no concrete value: ${label}"
+      missing=1
+    fi
+  done
+
+  [[ "$missing" -eq 0 ]]
+}
+
 extract_capability_id() {
   local file="$1"
   awk -F': ' '/^\> \*\*Capability ID\*\*:/ {print $2; exit}' "$file" | xargs
@@ -395,6 +432,12 @@ fi
 status="$(extract_status "$plan_file")"
 if [[ "$status" != "Approved" ]]; then
   echo "Plan status must be Approved before extraction (current: ${status:-unknown})." >&2
+  exit 1
+fi
+
+if ! evidence_error="$(plan_evidence_contract_error "$plan_file")"; then
+  echo "Plan Evidence Contract is incomplete in $plan_file:" >&2
+  printf '%s\n' "$evidence_error" >&2
   exit 1
 fi
 

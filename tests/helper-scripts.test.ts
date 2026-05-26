@@ -53,6 +53,18 @@ function copyHelpers(cwd: string) {
   expect(run("bash", ["-lc", "chmod +x scripts/*.sh"], cwd).status).toBe(0);
 }
 
+function evidenceContract(): string {
+  return [
+    "## Evidence Contract",
+    "",
+    "- **State/progress path**: tasks/todo.md and tasks/notes/demo.notes.md",
+    "- **Verification evidence**: .ai/harness/checks/latest.json and bun test",
+    "- **Evaluator rubric**: Waza /check must recommend pass",
+    "- **Stop condition**: stop on failing contract verification",
+    "- **Rollback surface**: revert the plan branch and generated task files",
+  ].join("\n");
+}
+
 describe("Workflow helper scripts", () => {
   test("capability resolver ignores local worktrees during legacy discovery", () => {
     const cwd = tmpWorkspace("helper-capability-worktrees");
@@ -217,6 +229,8 @@ describe("Workflow helper scripts", () => {
           "",
           "> **Status**: Approved",
           "",
+          evidenceContract(),
+          "",
           "## Task Breakdown",
           "- [ ] Step one",
           "- [ ] Step two",
@@ -281,7 +295,16 @@ describe("Workflow helper scripts", () => {
 
       writeFileSync(
         join(cwd, "plans/plan-20260304-1440-demo.md"),
-        ["# Plan: demo", "", "> **Status**: Approved", "", "## Task Breakdown", "- [ ] Step one"].join("\n")
+        [
+          "# Plan: demo",
+          "",
+          "> **Status**: Approved",
+          "",
+          evidenceContract(),
+          "",
+          "## Task Breakdown",
+          "- [ ] Step one",
+        ].join("\n")
       );
 
       const res = run("bash", ["scripts/plan-to-todo.sh", "--plan", "plans/plan-20260304-1440-demo.md"], cwd);
@@ -355,7 +378,16 @@ describe("Workflow helper scripts", () => {
 
       writeFileSync(
         join(cwd, "plans/plan-20260304-1450-demo.md"),
-        ["# Plan: demo", "", "> **Status**: Approved", "", "## Task Breakdown", "- [ ] Build demo"].join("\n")
+        [
+          "# Plan: demo",
+          "",
+          "> **Status**: Approved",
+          "",
+          evidenceContract(),
+          "",
+          "## Task Breakdown",
+          "- [ ] Build demo",
+        ].join("\n")
       );
 
       const start = run("bash", ["scripts/plan-to-todo.sh", "--plan", "plans/plan-20260304-1450-demo.md"], cwd);
@@ -424,6 +456,27 @@ describe("Workflow helper scripts", () => {
     }
   });
 
+  test("plan-to-todo should reject approved plans without an evidence contract", () => {
+    const cwd = tmpWorkspace("helper-plan-evidence-contract");
+    try {
+      mkdirSync(join(cwd, "plans"), { recursive: true });
+      mkdirSync(join(cwd, "tasks/archive"), { recursive: true });
+      copyHelpers(cwd);
+
+      writeFileSync(
+        join(cwd, "plans/plan-20260304-1415-missing-evidence.md"),
+        ["# Plan: missing evidence", "", "> **Status**: Approved", "", "## Task Breakdown", "- [ ] Step one"].join("\n")
+      );
+
+      const res = run("bash", ["scripts/plan-to-todo.sh", "--plan", "plans/plan-20260304-1415-missing-evidence.md"], cwd);
+      expect(res.status).toBe(1);
+      expect(res.stderr).toContain("Plan Evidence Contract is incomplete");
+      expect(res.stderr).toContain("missing ## Evidence Contract section");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
   test("plan-to-todo archive should include metadata header and original todo content", () => {
     const cwd = tmpWorkspace("helper-plan-archive-meta");
     try {
@@ -437,6 +490,8 @@ describe("Workflow helper scripts", () => {
           "# Plan: meta",
           "",
           "> **Status**: Approved",
+          "",
+          evidenceContract(),
           "",
           "## Task Breakdown",
           "- [ ] Step one",

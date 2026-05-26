@@ -126,6 +126,59 @@ extract_status() {
   awk '/\*\*Status\*\*:/ {sub(/^.*\*\*Status\*\*: */, ""); gsub(/\r/, ""); print; exit}' "$file" | xargs
 }
 
+plan_evidence_contract_error() {
+  local file="$1"
+  local section=""
+  local missing=0
+
+  section="$(awk '
+    BEGIN { in_section = 0 }
+    /^## Evidence Contract[[:space:]]*$/ { in_section = 1; next }
+    in_section && /^## / { exit }
+    in_section { print }
+  ' "$file")"
+
+  if [[ -z "$(printf '%s' "$section" | tr -d '[:space:]')" ]]; then
+    echo "missing ## Evidence Contract section"
+    return 1
+  fi
+
+  local label line value
+  for label in "State/progress path" "Verification evidence" "Evaluator rubric" "Stop condition" "Rollback surface"; do
+    line="$(printf '%s\n' "$section" | grep -Ei "^[[:space:]]*-[[:space:]]*(\\*\\*)?${label}(\\*\\*)?[[:space:]]*:" | head -1 || true)"
+    if [[ -z "$line" ]]; then
+      echo "missing field: ${label}"
+      missing=1
+      continue
+    fi
+
+    value="${line#*:}"
+    value="$(printf '%s' "$value" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')"
+    if [[ -z "$value" ]] || printf '%s' "$value" | grep -Eiq '^(tbd|todo|n/a|none|unknown|\.\.\.)$'; then
+      echo "field has no concrete value: ${label}"
+      missing=1
+    fi
+  done
+
+  [[ "$missing" -eq 0 ]]
+}
+
+check_plan_template_evidence_contract() {
+  local file="$1"
+  local label
+
+  grep -Eq '^## Evidence Contract[[:space:]]*$' "$file" || {
+    report_issue "Plan template is missing ## Evidence Contract: $file"
+    return
+  }
+
+  for label in "State/progress path" "Verification evidence" "Evaluator rubric" "Stop condition" "Rollback surface"; do
+    if ! grep -Eiq "^[[:space:]]*-[[:space:]]*(\\*\\*)?${label}(\\*\\*)?[[:space:]]*:" "$file"; then
+      report_issue "Plan template Evidence Contract is missing field '${label}': $file"
+    fi
+  done
+}
+
 todo_source_plan() {
   if [[ ! -f "${todo_file:-tasks/todo.md}" ]]; then
     return 1
@@ -237,6 +290,10 @@ check_required_file "$context_map_file"
 check_required_file "$policy_file"
 check_required_file "$(policy_get '.information_lifecycle.external_knowledge.manifest_file' '.ai/harness/brain-manifest.json')"
 
+if [[ -f ".claude/templates/plan.template.md" ]]; then
+  check_plan_template_evidence_contract ".claude/templates/plan.template.md"
+fi
+
 if [[ -f "$policy_file" && -z "$upgrade_strategy_version" ]] && command -v jq >/dev/null 2>&1; then
   report_issue "Harness policy is missing upgrade.strategy_version; rerun migration to merge the versioned upgrade strategy."
 fi
@@ -303,6 +360,10 @@ else
   fi
 
   if [[ "$plan_status" == "Approved" || "$plan_status" == "Executing" ]]; then
+    if ! evidence_error="$(plan_evidence_contract_error "$active_plan")"; then
+      report_issue "Active $plan_status plan has incomplete Evidence Contract: $active_plan (${evidence_error//$'\n'/; })"
+    fi
+
     contract_file="$(derive_contract_path "$active_plan")"
     if [[ ! -f "$contract_file" ]]; then
       report_issue "Active $plan_status plan is missing its task contract: $contract_file"

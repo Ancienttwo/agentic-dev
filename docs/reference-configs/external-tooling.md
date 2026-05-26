@@ -40,8 +40,12 @@ The detector intentionally avoids side-effecting commands. It does not run:
 - `gbrain sync`
 
 With `--check-updates`, Waza update checks fetch upstream GitHub raw
-`SKILL.md` files and compare versions/hashes against each host path. Network
-failures are reported as `unknown`; the detector never updates skills.
+`SKILL.md` and shared `rules/` files, then compare versions/hashes against each
+host path. The detector also compares each host's Waza skill directories and
+shared rules against the `~/.agents` staging cache so helper files under
+`references/`, `scripts/`, `agents/`, and cross-skill `rules/` links cannot
+silently drift. Network failures are reported as `unknown`; the detector never
+updates skills.
 
 ## Install
 
@@ -82,10 +86,17 @@ runtime copy:
 
 ```bash
 for d in check design health hunt learn read think write; do
-  cp ~/.agents/skills/$d/SKILL.md ~/.codex/skills/$d/SKILL.md
+  rsync -a --delete ~/.agents/skills/$d/ ~/.codex/skills/$d/
+done
+mkdir -p ~/.codex/rules
+for f in anti-patterns.md chinese.md durable-context.md english.md; do
+  cp ~/.agents/rules/$f ~/.codex/rules/$f
 done
 for d in check design health hunt learn read think write; do
-  cmp -s ~/.agents/skills/$d/SKILL.md ~/.codex/skills/$d/SKILL.md
+  diff -qr ~/.agents/skills/$d ~/.codex/skills/$d
+done
+for f in anti-patterns.md chinese.md durable-context.md english.md; do
+  cmp -s ~/.agents/rules/$f ~/.codex/rules/$f
 done
 ```
 
@@ -116,10 +127,17 @@ cd ~/.claude/skills/gstack && git pull && ./setup --host codex
 ```bash
 npx -y skills update
 for d in check design health hunt learn read think write; do
-  cp ~/.agents/skills/$d/SKILL.md ~/.codex/skills/$d/SKILL.md
+  rsync -a --delete ~/.agents/skills/$d/ ~/.codex/skills/$d/
+done
+mkdir -p ~/.codex/rules
+for f in anti-patterns.md chinese.md durable-context.md english.md; do
+  cp ~/.agents/rules/$f ~/.codex/rules/$f
 done
 for d in check design health hunt learn read think write; do
-  cmp -s ~/.agents/skills/$d/SKILL.md ~/.codex/skills/$d/SKILL.md
+  diff -qr ~/.agents/skills/$d ~/.codex/skills/$d
+done
+for f in anti-patterns.md chinese.md durable-context.md english.md; do
+  cmp -s ~/.agents/rules/$f ~/.codex/rules/$f
 done
 ```
 

@@ -15,6 +15,7 @@ import { spawnSync } from "child_process";
 const ROOT = join(import.meta.dir, "..");
 const SCRIPT = join(ROOT, "scripts/check-agent-tooling.sh");
 const WAZA_SKILLS = ["check", "design", "health", "hunt", "learn", "read", "think", "write"];
+const WAZA_RULES = ["anti-patterns.md", "chinese.md", "durable-context.md", "english.md"];
 
 function writeExecutable(filePath: string, content: string) {
   writeFileSync(filePath, content);
@@ -44,6 +45,10 @@ function skillContent(name: string, version: string) {
   ].join("\n");
 }
 
+function ruleContent(name: string, version: string) {
+  return [`# ${name}`, `version: ${version}`, ""].join("\n");
+}
+
 function writeSkill(root: string, name: string, version: string) {
   mkdirSync(join(root, name), { recursive: true });
   writeFileSync(join(root, name, "SKILL.md"), skillContent(name, version));
@@ -52,6 +57,13 @@ function writeSkill(root: string, name: string, version: string) {
 function writeWazaBundle(root: string, version: string) {
   for (const skill of WAZA_SKILLS) {
     writeSkill(root, skill, version);
+  }
+}
+
+function writeWazaRules(root: string, version: string) {
+  mkdirSync(join(root, "rules"), { recursive: true });
+  for (const rule of WAZA_RULES) {
+    writeFileSync(join(root, "rules", rule), ruleContent(rule, version));
   }
 }
 
@@ -138,15 +150,19 @@ function writeFakeCurl(fakeBin: string, version: string, logFile?: string) {
       "set -euo pipefail",
       logFile ? `echo "curl $*" >> "${logFile}"` : "",
       "skill=''",
+      "rule=''",
       ...WAZA_SKILLS.flatMap((name) => [
         `if [[ "$*" == *"/skills/${name}/SKILL.md"* ]]; then`,
         `  skill="${name}"`,
         "fi",
       ]),
-      "if [[ -z \"$skill\" ]]; then",
-      "  exit 22",
-      "fi",
-      "cat <<EOF",
+      ...WAZA_RULES.flatMap((name) => [
+        `if [[ "$*" == *"/rules/${name}"* ]]; then`,
+        `  rule="${name}"`,
+        "fi",
+      ]),
+      "if [[ -n \"$skill\" ]]; then",
+      "  cat <<EOF",
       "---",
       "name: $skill",
       "metadata:",
@@ -154,6 +170,18 @@ function writeFakeCurl(fakeBin: string, version: string, logFile?: string) {
       "---",
       "# $skill",
       "EOF",
+      "  exit 0",
+      "fi",
+      "if [[ -n \"$rule\" ]]; then",
+      "  cat <<EOF",
+      "# $rule",
+      `version: ${version}`,
+      "EOF",
+      "  exit 0",
+      "fi",
+      "if [[ -z \"$skill\" ]]; then",
+      "  exit 22",
+      "fi",
       "",
     ].join("\n")
   );
@@ -171,6 +199,8 @@ describe("check-agent-tooling", () => {
       writeFileSync(join(envRoot.home, ".codex", "config.toml"), "# no gbrain mcp\n");
       writeWazaBundle(join(envRoot.home, ".agents", "skills"), "3.0.0");
       writeWazaBundle(join(envRoot.home, ".codex", "skills"), "3.0.0");
+      writeWazaRules(join(envRoot.home, ".agents"), "3.0.0");
+      writeWazaRules(join(envRoot.home, ".codex"), "3.0.0");
       writeSkill(join(envRoot.home, ".codex", "skills"), "diagram-design", "1.0.0");
       symlinkClaudeWazaToAgents(envRoot.home);
       writeWazaLock(envRoot.home);
@@ -196,7 +226,9 @@ describe("check-agent-tooling", () => {
       expect(report.tools.waza.primary_host).toBe("codex");
       expect(report.tools.waza.hosts.claude.installed_skills).toEqual(WAZA_SKILLS);
       expect(report.tools.waza.hosts.claude.skills[0].symlink_target).toBe("../../.agents/skills/check");
+      expect(report.tools.waza.hosts.claude.shared_rules).toEqual(WAZA_RULES);
       expect(report.tools.waza.hosts.codex.staging_sync).toBe("synced");
+      expect(report.tools.waza.hosts.codex.shared_rules_staging_sync).toBe("synced");
       expect(report.tools.waza.hosts.codex.stale_status).toBe("not-checked");
       expect(report.tools.codex_automation_profile.status).toBe("present");
       expect(report.tools.codex_automation_profile.required_skills).toEqual(["health", "check", "diagram-design"]);
@@ -227,6 +259,8 @@ describe("check-agent-tooling", () => {
       writeFileSync(join(envRoot.home, ".codex", "config.toml"), "# no gbrain mcp\n");
       writeWazaBundle(join(envRoot.home, ".agents", "skills"), "3.0.0");
       writeWazaBundle(join(envRoot.home, ".codex", "skills"), "3.0.0");
+      writeWazaRules(join(envRoot.home, ".agents"), "3.0.0");
+      writeWazaRules(join(envRoot.home, ".codex"), "3.0.0");
       writeSkill(join(envRoot.home, ".codex", "skills"), "diagram-design", "1.0.0");
       symlinkClaudeWazaToAgents(envRoot.home);
       writeWazaLock(envRoot.home);
@@ -291,6 +325,7 @@ describe("check-agent-tooling", () => {
       expect(log).toContain("ls-remote --symref origin HEAD");
       expect(log).toContain("npx -y skills ls -g --json");
       expect(log).toContain("curl -fsSL --max-time 5 https://raw.githubusercontent.com/tw93/Waza/main/skills/check/SKILL.md");
+      expect(log).toContain("curl -fsSL --max-time 5 https://raw.githubusercontent.com/tw93/Waza/main/rules/durable-context.md");
       expect(log).toContain("gbrain doctor --json");
       expect(log).toContain("gbrain check-update --json");
       expect(log).toContain("gbrain integrations list --json");
@@ -315,6 +350,8 @@ describe("check-agent-tooling", () => {
       writeFileSync(join(envRoot.home, ".codex", "config.toml"), "# no gbrain mcp\n");
       writeWazaBundle(join(envRoot.home, ".agents", "skills"), "9.0.0");
       writeWazaBundle(join(envRoot.home, ".codex", "skills"), "1.0.0");
+      writeWazaRules(join(envRoot.home, ".agents"), "9.0.0");
+      writeWazaRules(join(envRoot.home, ".codex"), "1.0.0");
       writeSkill(join(envRoot.home, ".codex", "skills"), "diagram-design", "1.0.0");
       symlinkClaudeWazaToAgents(envRoot.home);
       writeWazaLock(envRoot.home);
@@ -340,10 +377,63 @@ describe("check-agent-tooling", () => {
       expect(report.tools.waza.hosts.codex.staging_sync).toBe("drift");
       expect(report.tools.waza.hosts.codex.stale_status).toBe("stale");
       expect(report.tools.waza.hosts.codex.stale_skills).toEqual(WAZA_SKILLS);
+      expect(report.tools.waza.hosts.codex.shared_rules_staging_sync).toBe("drift");
+      expect(report.tools.waza.hosts.codex.shared_rules_stale_status).toBe("stale");
+      expect(report.tools.waza.hosts.codex.stale_shared_rules).toEqual(WAZA_RULES);
       expect(report.tools.waza.hosts.codex.skills[0].symlink_target).toBe(null);
       expect(report.tools.waza.hosts.claude.staging_sync).toBe("synced");
+      expect(report.tools.waza.hosts.claude.shared_rules_staging_sync).toBe("synced");
       expect(report.tools.waza.hosts.claude.skills[0].symlink_target).toBe("../../.agents/skills/check");
       expect(report.tools.waza.update_status).toBe("update-available");
+    } finally {
+      rmSync(envRoot.root, { recursive: true, force: true });
+    }
+  });
+
+  test("reports Waza directory and shared-rule drift beyond SKILL.md", () => {
+    const envRoot = setupFakeEnvironment("check-agent-tooling-waza-shared-drift");
+    try {
+      mkdirSync(join(envRoot.home, ".agents", "skills"), { recursive: true });
+      mkdirSync(join(envRoot.home, ".claude"), { recursive: true });
+      mkdirSync(join(envRoot.home, ".codex"), { recursive: true });
+      writeFileSync(join(envRoot.home, ".claude", "settings.json"), "{}\n");
+      writeFileSync(join(envRoot.home, ".codex", "config.toml"), "# no gbrain mcp\n");
+      writeWazaBundle(join(envRoot.home, ".agents", "skills"), "3.0.0");
+      writeWazaBundle(join(envRoot.home, ".codex", "skills"), "3.0.0");
+      writeWazaRules(join(envRoot.home, ".agents"), "3.0.0");
+      writeWazaRules(join(envRoot.home, ".codex"), "3.0.0");
+      mkdirSync(join(envRoot.home, ".agents", "skills", "check", "references"), { recursive: true });
+      writeFileSync(join(envRoot.home, ".agents", "skills", "check", "references", "project-context.md"), "staging-only\n");
+      writeFileSync(join(envRoot.home, ".codex", "rules", "durable-context.md"), ruleContent("durable-context.md", "2.0.0"));
+      writeSkill(join(envRoot.home, ".codex", "skills"), "diagram-design", "1.0.0");
+      symlinkClaudeWazaToAgents(envRoot.home);
+      writeWazaLock(envRoot.home);
+      writeFakeNpx(envRoot.fakeBin);
+      writeFakeGbrain(envRoot.fakeBin);
+      writeFakeCurl(envRoot.fakeBin, "3.0.0");
+
+      const res = spawnSync("bash", [SCRIPT, "--json", "--check-updates", "--host", "codex"], {
+        cwd: ROOT,
+        encoding: "utf-8",
+        env: {
+          ...process.env,
+          HOME: envRoot.home,
+          PATH: `${envRoot.fakeBin}:${process.env.PATH ?? ""}`,
+        },
+      });
+
+      expect(res.status).toBe(0);
+      const report = JSON.parse(res.stdout);
+      const codex = report.tools.waza.hosts.codex;
+      expect(codex.staging_sync).toBe("drift");
+      expect(codex.drift_skills).toEqual(["check"]);
+      expect(codex.skills[0].staging_missing_files).toEqual(["references/project-context.md"]);
+      expect(codex.shared_rules_staging_sync).toBe("drift");
+      expect(codex.drift_shared_rules).toEqual(["durable-context.md"]);
+      expect(codex.shared_rules_stale_status).toBe("stale");
+      expect(codex.stale_shared_rules).toEqual(["durable-context.md"]);
+      expect(report.tools.waza.update_status).toBe("update-available");
+      expect(report.tools.waza.update_reason).toContain("rules/durable-context.md");
     } finally {
       rmSync(envRoot.root, { recursive: true, force: true });
     }
