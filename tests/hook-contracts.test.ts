@@ -127,6 +127,7 @@ describe("Hook contracts", () => {
     expect(script).toContain("[TaskHandoff]");
     expect(script).toContain("architecture-drift.sh");
     expect(script).toContain("context-contract-sync.sh");
+    expect(script).toContain("sync-brain-docs.sh");
     expect(read("assets/templates/helpers/archive-architecture-request.sh")).toContain("[ArchitectureArchive]");
     expect(read("assets/templates/helpers/workstream-sync.sh")).toContain("tasks/workstreams");
     expect(script).toContain("tasks/todo.md");
@@ -135,14 +136,20 @@ describe("Hook contracts", () => {
   });
 
   test("architecture drift helpers should keep detection and context sync separated", () => {
+    const eventHelper = read("assets/templates/helpers/architecture-event.ts");
     const drift = read("assets/templates/helpers/architecture-drift.sh");
     const sync = read("assets/templates/helpers/context-contract-sync.sh");
     const workstream = read("assets/templates/helpers/workstream-sync.sh");
 
+    expect(eventHelper).toContain("sync-context-map");
+    expect(eventHelper).toContain("sync-contract-files");
+    expect(eventHelper).toContain("event-json");
     expect(drift).toContain("docs/architecture/requests");
+    expect(drift).toContain("architecture-event.ts");
     expect(drift).toContain(".ai/harness/architecture/events.jsonl");
     expect(drift).toContain("workstream-sync.sh");
     expect(drift).not.toContain("BEGIN ARCHITECTURE CONTRACT");
+    expect(sync).toContain("architecture-event.ts");
     expect(sync).toContain("BEGIN ARCHITECTURE CONTRACT");
     expect(sync).toContain("Active Workstreams");
     expect(sync).toContain("discoverable_contexts");
@@ -167,24 +174,39 @@ describe("Hook contracts", () => {
 
   test("settings template should not inject TOOL_INPUT/PROMPT argv blobs", () => {
     const settings = read("assets/hooks/settings.template.json");
-    const codexHooks = read(".codex/hooks.json");
+    const codexHooks = read("assets/hooks/codex.hooks.template.json");
     expect(settings).toContain("run-hook.sh");
     expect(settings).toContain(".ai/hooks/run-hook.sh");
-    expect(codexHooks).toBe(settings);
+    expect(codexHooks).toContain("run-hook.sh");
+    expect(codexHooks).toContain(".ai/hooks/run-hook.sh");
     expect(settings).toContain("SessionStart");
+    expect(codexHooks).toContain("SessionStart");
     expect(settings).toContain("session-start-context.sh");
+    expect(codexHooks).toContain("session-start-context.sh");
     expect(settings).toContain("pre-edit-guard.sh");
+    expect(codexHooks).toContain("pre-edit-guard.sh");
     expect(settings).toContain("post-edit-guard.sh");
+    expect(codexHooks).toContain("post-edit-guard.sh");
     expect(settings).toContain("trace-event.sh");
+    expect(codexHooks).toContain("trace-event.sh");
     expect(settings).toContain("finalize-handoff.sh");
+    expect(codexHooks).toContain("finalize-handoff.sh");
     expect(settings).toContain("post-bash.sh");
+    expect(codexHooks).toContain("post-bash.sh");
     expect(settings).toContain("context-pressure-hook.sh");
+    expect(codexHooks).toContain("context-pressure-hook.sh");
     expect(settings).not.toContain("memory-intake.sh");
+    expect(codexHooks).not.toContain("memory-intake.sh");
     expect(settings).not.toContain("skill-factory-session-end.sh");
+    expect(codexHooks).not.toContain("skill-factory-session-end.sh");
     expect(settings).not.toContain("task-handoff.sh");
+    expect(codexHooks).not.toContain("task-handoff.sh");
     expect(settings).not.toContain("atomic-commit.sh");
+    expect(codexHooks).not.toContain("atomic-commit.sh");
     expect(settings).not.toContain('"$TOOL_INPUT"');
+    expect(codexHooks).not.toContain('"$TOOL_INPUT"');
     expect(settings).not.toContain('"$PROMPT"');
+    expect(codexHooks).not.toContain('"$PROMPT"');
   });
 
   test("trace hook should record structured JSONL events", () => {

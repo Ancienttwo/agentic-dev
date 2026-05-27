@@ -24,12 +24,11 @@ files. It is not a product deliverable.
 
 ## P2 Trace
 
-Concrete route: Claude `PreToolUse` for edit/write -> `.claude/settings.json`
-runs `.ai/hooks/run-hook.sh`; Codex `PreToolUse` follows the same route through
-`.codex/hooks.json`. The dispatcher resolves repo root -> invokes
-`worktree-guard.sh` and `pre-edit-guard.sh` -> guards inspect policy, active plan
-state, protected paths, and task workflow expectations -> warning or block is
-returned to the agent.
+Concrete route: Claude or Codex `PreToolUse` for edit/write -> host adapter
+runs `.ai/hooks/run-hook.sh` -> dispatcher resolves repo root -> invokes
+`worktree-guard.sh` and `pre-edit-guard.sh` -> guards inspect policy, active
+plan state, protected paths, and task workflow expectations -> warning or block
+is returned to the agent.
 After adapter configuration, Codex still requires the user to trust the repo
 hook in Codex Settings before that route executes.
 
@@ -52,10 +51,10 @@ host config.
 
 At 10x hook events, the first failure would be duplicated host-specific
 implementation logic. The invariant is that host adapters point at `.ai/hooks`
-instead of creating separate per-host hook trees.
+instead of creating separate per-host implementation trees.
 
 ## Optimization Backlog
 
-- Keep `.codex/hooks.json` in parity with `.claude/settings.json` while ignoring other local `.codex/*` residue.
+- Keep `.codex/hooks.json` generated and committed while ignoring other local `.codex/` residue.
 - Remind users to trust `.codex/hooks.json` in Codex Settings after configuration.
 - Keep hook asset parity test coverage whenever `.ai/hooks` or `assets/hooks` changes.

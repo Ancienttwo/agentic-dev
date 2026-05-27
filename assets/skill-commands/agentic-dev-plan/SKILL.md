@@ -14,9 +14,10 @@ Use this command when the user wants a decision-complete plan for agentic-dev wo
 2. Run `bun scripts/inspect-project-state.ts --repo <repo> --format text` when the target repo has this engine available.
 3. Read repo-local `AGENTS.md`, `CLAUDE.md`, `tasks/todo.md`, and `.ai/harness/policy.json` when present.
 4. Produce one recommended plan and name the next action command: `agentic-dev-init`, `agentic-dev-scaffold`, `agentic-dev-migrate`, `agentic-dev-upgrade`, `agentic-dev-repair`, or `agentic-dev-check`.
+5. When the plan is decision-complete, capture it with `scripts/capture-plan.sh --slug <slug> --title <title>` so the repo has a file-backed `plans/plan-*.md` artifact.
 
 ## Boundaries
 
-- Does not edit files or run mutating scripts by default.
-- May save a plan artifact only when the user asks for a file-backed plan.
+- Does not edit implementation files or run `plan-to-todo.sh` by default.
+- May save a plan artifact with `scripts/capture-plan.sh`; do not generate contracts, reviews, todos, or worktrees until the user approves implementation.
 - Do not expose `hooks-init`, `docs-init`, or `create-project-dirs` as public commands; they are internal implementation steps.

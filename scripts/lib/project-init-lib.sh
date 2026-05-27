@@ -15,6 +15,7 @@ coverage/
 
 # External references
 _ref/
+.codegraph/
 
 # Local operations state
 _ops/
@@ -372,9 +373,14 @@ pi_install_hook_adapters() {
   local repo="$1"
   local hooks_dir="$2"
   local mode="${3:-apply}"
+  local codex_hooks_template="$hooks_dir/codex.hooks.template.json"
 
   pi_copy_file_if_apply "$mode" "$hooks_dir/settings.template.json" "$repo/.claude/settings.json"
-  pi_copy_file_if_apply "$mode" "$hooks_dir/settings.template.json" "$repo/.codex/hooks.json"
+  if [[ -f "$codex_hooks_template" ]]; then
+    pi_copy_file_if_apply "$mode" "$codex_hooks_template" "$repo/.codex/hooks.json"
+  else
+    pi_copy_file_if_apply "$mode" "$hooks_dir/settings.template.json" "$repo/.codex/hooks.json"
+  fi
 }
 
 pi_print_codex_hook_trust_notice() {
@@ -648,7 +654,7 @@ pi_install_helpers() {
   local target_dir="$1"
   local helpers_dir="$2"
   local mode="${3:-apply}"
-  local helper_names="${4:-new-plan.sh plan-to-todo.sh archive-workflow.sh prepare-handoff.sh verify-contract.sh summarize-failures.sh check-task-sync.sh check-deploy-sql-order.sh check-agent-tooling.sh check-context-files.sh check-brain-manifest.sh check-skill-version.ts select-agent-context-blocks.sh ensure-task-workflow.sh check-task-workflow.sh workflow-contract.ts inspect-project-state.ts migrate-workflow-docs.ts migrate-project-template.sh context-budget.ts capability-resolver.ts capability-config.ts architecture-drift.sh archive-architecture-request.sh context-contract-sync.sh workstream-sync.sh prepare-codex-handoff.sh codex-handoff-resume.sh}"
+  local helper_names="${4:-new-plan.sh capture-plan.sh plan-to-todo.sh archive-workflow.sh prepare-handoff.sh verify-contract.sh summarize-failures.sh check-task-sync.sh check-deploy-sql-order.sh check-agent-tooling.sh check-context-files.sh check-brain-manifest.sh sync-brain-docs.sh check-skill-version.ts select-agent-context-blocks.sh ensure-task-workflow.sh check-task-workflow.sh workflow-contract.ts inspect-project-state.ts migrate-workflow-docs.ts migrate-project-template.sh context-budget.ts capability-resolver.ts architecture-event.ts capability-config.ts architecture-drift.sh archive-architecture-request.sh context-contract-sync.sh workstream-sync.sh prepare-codex-handoff.sh codex-handoff-resume.sh}"
   local scripts_dir="$target_dir/scripts"
   local helper_name
 
@@ -674,7 +680,7 @@ pi_install_helpers() {
         cp "$helpers_dir/$helper_name" "$scripts_dir/$helper_name"
       fi
     done
-    pi_ensure_executable_if_apply "$mode" "$scripts_dir"/new-spec.sh "$scripts_dir"/new-sprint.sh "$scripts_dir"/new-plan.sh "$scripts_dir"/plan-to-todo.sh "$scripts_dir"/archive-workflow.sh "$scripts_dir"/archive-architecture-request.sh "$scripts_dir"/prepare-handoff.sh "$scripts_dir"/prepare-codex-handoff.sh "$scripts_dir"/codex-handoff-resume.sh "$scripts_dir"/verify-contract.sh "$scripts_dir"/summarize-failures.sh "$scripts_dir"/verify-sprint.sh "$scripts_dir"/check-task-sync.sh "$scripts_dir"/check-deploy-sql-order.sh "$scripts_dir"/check-agent-tooling.sh "$scripts_dir"/check-context-files.sh "$scripts_dir"/check-brain-manifest.sh "$scripts_dir"/select-agent-context-blocks.sh "$scripts_dir"/architecture-drift.sh "$scripts_dir"/context-contract-sync.sh "$scripts_dir"/workstream-sync.sh "$scripts_dir"/ensure-task-workflow.sh "$scripts_dir"/check-task-workflow.sh "$scripts_dir"/switch-plan.sh "$scripts_dir"/migrate-project-template.sh
+    pi_ensure_executable_if_apply "$mode" "$scripts_dir"/new-spec.sh "$scripts_dir"/new-sprint.sh "$scripts_dir"/new-plan.sh "$scripts_dir"/capture-plan.sh "$scripts_dir"/plan-to-todo.sh "$scripts_dir"/archive-workflow.sh "$scripts_dir"/archive-architecture-request.sh "$scripts_dir"/prepare-handoff.sh "$scripts_dir"/prepare-codex-handoff.sh "$scripts_dir"/codex-handoff-resume.sh "$scripts_dir"/verify-contract.sh "$scripts_dir"/summarize-failures.sh "$scripts_dir"/verify-sprint.sh "$scripts_dir"/check-task-sync.sh "$scripts_dir"/check-deploy-sql-order.sh "$scripts_dir"/check-agent-tooling.sh "$scripts_dir"/check-context-files.sh "$scripts_dir"/check-brain-manifest.sh "$scripts_dir"/sync-brain-docs.sh "$scripts_dir"/select-agent-context-blocks.sh "$scripts_dir"/architecture-drift.sh "$scripts_dir"/context-contract-sync.sh "$scripts_dir"/workstream-sync.sh "$scripts_dir"/ensure-task-workflow.sh "$scripts_dir"/check-task-workflow.sh "$scripts_dir"/switch-plan.sh "$scripts_dir"/migrate-project-template.sh
     return 0
   fi
 
@@ -744,11 +750,12 @@ pi_external_tooling_defaults_summary() {
   cat <<'EOF_EXTERNAL_TOOLING_DEFAULTS'
 - Policy defaults: routing complex->gstack, simple->waza, knowledge->gbrain
 - Hosts: claude-code, codex
-- Mode: guidance-only
+- Mode: agent-readiness-required
 - Detection: init-migrate
 - Waza: Codex-first, managed skills check/design/health/hunt/learn/read/think/write, stage upstream in ~/.agents/skills, sync verified copies into ~/.codex/skills
 - Codex automation profile: required health/check/diagram-design from ~/.codex/skills; do not vendor skill bodies
 - gbrain MCP: candidate-disabled
+- CodeGraph: required Codex agent readiness tool, global Codex MCP install by explicit user command or authorized agent action, per-repo ignored .codegraph/ index, never a package dependency
 - Auto-actions: never install, upgrade, serve, sync, or enable MCP automatically
 EOF_EXTERNAL_TOOLING_DEFAULTS
 }
@@ -1280,7 +1287,10 @@ pi_write_harness_policy() {
       "project_path": "icloud/brain/<project>/*",
       "manifest_file": ".ai/harness/brain-manifest.json",
       "drift_check": "scripts/check-brain-manifest.sh",
-      "rule": "external knowledge stores long-lived explanations, runbooks, and patterns only; repo-local contracts, hooks, scripts, checks, and evidence remain authoritative"
+      "sync_script": "scripts/sync-brain-docs.sh",
+      "hook_trigger": "PostToolUse Edit|Write for manifest entries with sync.direction=repo-to-brain",
+      "rule": "external knowledge stores long-lived explanations, runbooks, and patterns only; repo-local contracts, hooks, scripts, checks, and evidence remain authoritative",
+      "sync_rule": "only explicitly opted-in repo-to-brain manifest entries may be written to the default brain vault; pointer-only externalized stubs remain check-only"
     }
   },
   "context_budget": {
@@ -1305,6 +1315,11 @@ pi_write_harness_policy() {
     "resume_packet_file": ".ai/harness/handoff/resume.md",
     "global_handoff_dir": "~/.codex/handoffs",
     "auto_start_new_session": false
+  },
+  "plan_capture": {
+    "script": "scripts/capture-plan.sh",
+    "sources": ["codex-plan-mode", "waza-think", "agentic-dev-plan"],
+    "rule": "Codex Plan mode and Waza think planning should capture decision-complete plans into plans/plan-*.md; implementation approval then projects the active approved plan through scripts/plan-to-todo.sh"
   },
   "sidecar_research": {
     "default": true,
@@ -1384,8 +1399,9 @@ pi_write_harness_policy() {
       "knowledge": "gbrain"
     },
     "hosts": $(pi_external_tooling_hosts_json),
-    "mode": "guidance-only",
+    "mode": "agent-readiness-required",
     "detection": "init-migrate",
+    "readiness_gate": "scripts/check-agent-tooling.sh --host codex --strict-readiness",
     "waza": {
       "source_repo": "tw93/Waza",
       "source_url": "https://github.com/tw93/Waza.git",
@@ -1417,6 +1433,19 @@ pi_write_harness_policy() {
     },
     "gbrain": {
       "mcp": "$(pi_external_tooling_gbrain_mcp)"
+    },
+    "codegraph": {
+      "package": "@colbymchenry/codegraph",
+      "primary_host": "codex",
+      "install_mode": "global-codex-mcp",
+      "codex_config_path": "~/.codex/config.toml",
+      "index_dir": ".codegraph",
+      "readiness": "required-for-codex-agent-code-navigation",
+      "hook_policy": "do-not-block-hooks",
+      "install_command": "npm install -g @colbymchenry/codegraph && mkdir -p ~/.local/bin && ln -sfn \"$(npm config get prefix)/bin/codegraph\" ~/.local/bin/codegraph && PATH=\"$HOME/.local/bin:$PATH\" codegraph install --target codex --location global --yes",
+      "project_init_command": "codegraph init -i .",
+      "sync_command": "codegraph sync .",
+      "vendoring_policy": "do-not-add-package-dependency"
     }
   },
   "agentic_development": {
@@ -1482,7 +1511,7 @@ pi_write_brain_manifest() {
   "rules": [
     "repo-local contracts, hooks, scripts, checks, and evidence remain authoritative",
     "default brain stores long-lived explanations, runbooks, decisions, references, and patterns",
-    "hook runtime must not query gbrain, iCloud, MCP, or default brain"
+    "hook runtime may sync explicitly opted-in repo-to-brain entries only; it must not query gbrain, MCP, or unregistered default brain paths"
   ],
   "entries": []
 }
@@ -1820,7 +1849,8 @@ pi_ensure_task_sync() {
     "check:context-files": "bash scripts/check-context-files.sh",
     "check:deploy-sql": "bash scripts/check-deploy-sql-order.sh",
     "check:task-sync": "bash scripts/check-task-sync.sh",
-    "check:task-workflow": "bash scripts/check-task-workflow.sh --strict"
+    "check:task-workflow": "bash scripts/check-task-workflow.sh --strict",
+    "sync:brain-docs": "bash scripts/sync-brain-docs.sh --all"
   }
 }
 EOF_PACKAGE
@@ -1844,6 +1874,7 @@ pkg.scripts["check:context-files"] = "bash scripts/check-context-files.sh";
 pkg.scripts["check:deploy-sql"] = "bash scripts/check-deploy-sql-order.sh";
 pkg.scripts["check:task-sync"] = "bash scripts/check-task-sync.sh";
 pkg.scripts["check:task-workflow"] = "bash scripts/check-task-workflow.sh --strict";
+pkg.scripts["sync:brain-docs"] = "bash scripts/sync-brain-docs.sh --all";
 fs.writeFileSync(file, JSON.stringify(pkg, null, 2) + "\n");
 ' "$package_file"
 }

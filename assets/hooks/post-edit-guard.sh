@@ -44,6 +44,12 @@ run_architecture_drift_sync() {
   fi
 }
 
+run_brain_doc_sync() {
+  [[ -x "scripts/sync-brain-docs.sh" ]] || return 0
+
+  bash "scripts/sync-brain-docs.sh" --changed "$FILE_PATH" || true
+}
+
 FILE_PATH="$(hook_get_file_path "${1:-}")"
 [[ -z "$FILE_PATH" ]] && exit 0
 
@@ -97,6 +103,8 @@ if [[ "$BASENAME" =~ ^wrangler.*\.toml$ ]]; then
 fi
 
 run_architecture_drift_sync
+
+run_brain_doc_sync
 
 run_continuous_contract_verification
 

@@ -22,10 +22,11 @@ const { spawnSync } = require("child_process");
 const argv = process.argv.slice(2);
 let jsonOutput = false;
 let checkUpdates = false;
+let strictReadiness = false;
 let hostMode = "both";
 
 function usage() {
-  console.log(`Usage: scripts/check-agent-tooling.sh [--json] [--check-updates] [--host claude|codex|both]`);
+  console.log(`Usage: scripts/check-agent-tooling.sh [--json] [--check-updates] [--strict-readiness] [--host claude|codex|both]`);
 }
 
 for (let index = 0; index < argv.length; index += 1) {
@@ -36,6 +37,10 @@ for (let index = 0; index < argv.length; index += 1) {
   }
   if (arg === "--check-updates") {
     checkUpdates = true;
+    continue;
+  }
+  if (arg === "--strict-readiness") {
+    strictReadiness = true;
     continue;
   }
   if (arg === "--host") {
@@ -71,6 +76,8 @@ const WAZA_RAW_BASE_URL = "https://raw.githubusercontent.com/tw93/Waza/main";
 const WAZA_MANAGED_SKILLS = ["check", "design", "health", "hunt", "learn", "read", "think", "write"];
 const WAZA_SHARED_RULES = ["anti-patterns.md", "chinese.md", "durable-context.md", "english.md"];
 const CODEX_AUTOMATION_SKILLS = ["health", "check", "diagram-design"];
+const CODEGRAPH_PACKAGE = "@colbymchenry/codegraph";
+const CODEGRAPH_INSTALL_COMMAND = `npm install -g ${CODEGRAPH_PACKAGE} && mkdir -p ~/.local/bin && ln -sfn "$(npm config get prefix)/bin/codegraph" ~/.local/bin/codegraph && PATH="$HOME/.local/bin:$PATH" codegraph install --target codex --location global --yes`;
 const WAZA_STAGING_ROOT = path.join(HOME, ".agents");
 const WAZA_STAGING_DIR = path.join(WAZA_STAGING_ROOT, "skills");
 const WAZA_STAGING_RULES_DIR = path.join(WAZA_STAGING_ROOT, "rules");
@@ -928,6 +935,141 @@ function detectGbrain() {
   };
 }
 
+function detectCodeGraphMcp(host) {
+  const meta = HOSTS[host];
+  const content = readText(meta.configPath);
+  if (!content) {
+    return {
+      status: host === "codex" ? "missing" : "not-required",
+      reason: `No ${meta.label} config found at ${meta.configPath}.`,
+    };
+  }
+
+  if (host === "codex") {
+    if (/\[mcp_servers\.codegraph\]/.test(content)) {
+      return {
+        status: "configured",
+        reason: "Codex config contains a codegraph MCP server entry.",
+      };
+    }
+
+    return {
+      status: "missing",
+      reason: "Codex config does not contain a codegraph MCP server entry.",
+    };
+  }
+
+  if (/codegraph/i.test(content)) {
+    return {
+      status: "configured",
+      reason: "Claude settings contain a codegraph reference.",
+    };
+  }
+
+  return {
+    status: "not-required",
+    reason: "Claude Code MCP setup is not required by the Codex-first CodeGraph readiness contract.",
+  };
+}
+
+function parseCodeGraphProjectStatus(output) {
+  if (/Not initialized/i.test(output)) return "not-initialized";
+  if (/Index is up to date/i.test(output)) return "up-to-date";
+  if (/Pending Changes/i.test(output) || /Run "codegraph sync/i.test(output)) return "stale";
+  if (/CodeGraph Status/i.test(output)) return "unknown";
+  return "unavailable";
+}
+
+function detectCodeGraph() {
+  const versionResult = run("codegraph", ["--version"], { timeoutMs: 1000 });
+  const cliPresent = versionResult.ok;
+  const version = cliPresent ? versionResult.stdout.trim() || null : null;
+  const mcpHosts = {};
+
+  for (const host of SELECTED_HOSTS) {
+    mcpHosts[host] = {
+      label: HOSTS[host].label,
+      ...detectCodeGraphMcp(host),
+    };
+  }
+
+  const codexSelected = SELECTED_HOSTS.includes("codex");
+  const codexConfigured = !codexSelected || mcpHosts.codex?.status === "configured";
+  const statusResult = cliPresent ? run("codegraph", ["status", "."], { timeoutMs: 1500 }) : null;
+  const statusOutput = `${statusResult?.stdout || ""}\n${statusResult?.stderr || ""}`;
+  const projectIndexStatus = cliPresent ? parseCodeGraphProjectStatus(statusOutput) : "unavailable";
+  const indexInitialized = fs.existsSync(path.join(REPO_ROOT, ".codegraph"))
+    || ["up-to-date", "stale", "unknown"].includes(projectIndexStatus);
+  const updateResult = cliPresent && checkUpdates
+    ? run("npm", ["view", CODEGRAPH_PACKAGE, "version", "--json"], { timeoutMs: 3000 })
+    : null;
+  const latestVersion = updateResult?.ok ? (parseJson(updateResult.stdout) || updateResult.stdout.trim().replace(/^"|"$/g, "")) : null;
+  const updateStatus = !checkUpdates
+    ? "not-checked"
+    : latestVersion && version
+      ? (String(latestVersion) === String(version) ? "up-to-date" : "update-available")
+      : "unknown";
+  const status = !cliPresent
+    ? "missing"
+    : !codexConfigured || projectIndexStatus === "not-initialized" || projectIndexStatus === "unavailable"
+      ? "partial"
+      : projectIndexStatus === "stale" || projectIndexStatus === "unknown"
+        ? "warning"
+        : "present";
+
+  return {
+    name: "codegraph",
+    status,
+    reason: !cliPresent
+      ? "CodeGraph CLI is not installed."
+      : !codexConfigured
+        ? "CodeGraph CLI is present, but Codex MCP is not configured."
+        : projectIndexStatus === "not-initialized"
+          ? "CodeGraph CLI and MCP are present, but this repo has not been indexed."
+          : projectIndexStatus === "unavailable"
+            ? "CodeGraph CLI and MCP are present, but project index status could not be read."
+          : projectIndexStatus === "stale"
+            ? "CodeGraph is configured, but this repo index has pending changes."
+            : projectIndexStatus === "unknown"
+              ? "CodeGraph is configured, but this repo index status is unknown."
+            : "CodeGraph CLI, Codex MCP, and project index are ready.",
+    package: CODEGRAPH_PACKAGE,
+    primary_host: "codex",
+    cli_present: cliPresent,
+    version,
+    latest_version: latestVersion,
+    update_status: updateStatus,
+    update_reason: !checkUpdates
+      ? "Update checks were skipped."
+      : updateResult?.timed_out
+        ? "CodeGraph npm version check timed out."
+        : latestVersion && version
+          ? (String(latestVersion) === String(version) ? "Local CodeGraph matches npm latest." : "npm reports a newer CodeGraph version.")
+          : "CodeGraph update status is unknown.",
+    mcp_hosts: mcpHosts,
+    project_index: {
+      status: projectIndexStatus,
+      initialized: indexInitialized,
+      path: path.join(REPO_ROOT, ".codegraph"),
+      command: "codegraph status .",
+    },
+    install_command: CODEGRAPH_INSTALL_COMMAND,
+    init_command: "codegraph init -i .",
+    sync_command: "codegraph sync .",
+    upgrade_command: `npm install -g ${CODEGRAPH_PACKAGE}@latest && mkdir -p ~/.local/bin && ln -sfn "$(npm config get prefix)/bin/codegraph" ~/.local/bin/codegraph && PATH="$HOME/.local/bin:$PATH" codegraph sync .`,
+    uninstall_command: "codegraph uninstall --target codex --location global --yes",
+    readiness: {
+      required_for: "codex-agent-code-navigation",
+      hook_policy: "do-not-block-hooks",
+      user_setup: "one-terminal-command-or-authorized-agent-action",
+    },
+    impact: {
+      code_navigation: status === "present" ? "full" : status === "warning" ? "stale-index" : "missing",
+      hook_correctness: "unaffected",
+    },
+  };
+}
+
 const report = {
   generated_at: new Date().toISOString(),
   repo_root: REPO_ROOT,
@@ -938,8 +1080,14 @@ const report = {
     waza: detectWaza(),
     codex_automation_profile: detectCodexAutomationProfile(),
     gbrain: detectGbrain(),
+    codegraph: detectCodeGraph(),
   },
 };
+
+const strictFailures = [];
+if (strictReadiness && ["missing", "partial"].includes(report.tools.codegraph.status)) {
+  strictFailures.push(`CodeGraph readiness is ${report.tools.codegraph.status}: ${report.tools.codegraph.reason}`);
+}
 
 function printText(result) {
   console.log("External Tooling Report");
@@ -1033,11 +1181,33 @@ function printText(result) {
   console.log(`  - Install: ${gbrain.install_command}`);
   console.log(`  - Upgrade: ${gbrain.upgrade_command}`);
   console.log(`  - Manual sync: ${gbrain.sync_command}`);
+  console.log("");
+
+  const codegraph = result.tools.codegraph;
+  console.log(`CodeGraph [${codegraph.status}]`);
+  console.log(`  - CLI: ${codegraph.cli_present ? `present${codegraph.version ? ` (v${codegraph.version})` : ""}` : "missing"}`);
+  for (const host of SELECTED_HOSTS) {
+    const entry = codegraph.mcp_hosts[host];
+    console.log(`  - ${entry.label} MCP: ${entry.status}`);
+  }
+  console.log(`  - Project index: ${codegraph.project_index.status}`);
+  console.log(`  - Updates: ${codegraph.update_status} (${codegraph.update_reason})`);
+  console.log(`  - Impact: code-navigation=${codegraph.impact.code_navigation}, hooks=${codegraph.impact.hook_correctness}`);
+  console.log(`  - Install: ${codegraph.install_command}`);
+  console.log(`  - Init index: ${codegraph.init_command}`);
+  console.log(`  - Sync index: ${codegraph.sync_command}`);
 }
 
 if (jsonOutput) {
   console.log(JSON.stringify(report, null, 2));
 } else {
   printText(report);
+}
+
+if (strictFailures.length > 0) {
+  for (const failure of strictFailures) {
+    console.error(`[readiness] ${failure}`);
+  }
+  process.exit(2);
 }
 NODE_EOF

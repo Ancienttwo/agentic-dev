@@ -23,5 +23,5 @@ Use this command when the user asks whether the harness, migration, or release s
 ## Boundaries
 
 - Does not mutate repo files by default.
-- Does not silently ignore advisory tooling hangs or skipped checks.
+- Does not silently ignore CodeGraph readiness failures, advisory tooling hangs, or skipped checks.
 - Does not claim release readiness if source repo and installed runtime copy are out of sync.

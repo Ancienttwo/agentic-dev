@@ -103,10 +103,12 @@ describe("create-project-dirs scaffold parity", () => {
         "./interfaces/types.ts",
         "./package.json",
         "./scripts/architecture-drift.sh",
+        "./scripts/architecture-event.ts",
         "./scripts/archive-architecture-request.sh",
         "./scripts/archive-workflow.sh",
         "./scripts/capability-config.ts",
         "./scripts/capability-resolver.ts",
+        "./scripts/capture-plan.sh",
         "./scripts/check-agent-tooling.sh",
         "./scripts/check-brain-manifest.sh",
         "./scripts/check-context-files.sh",
@@ -133,6 +135,7 @@ describe("create-project-dirs scaffold parity", () => {
         "./scripts/select-agent-context-blocks.sh",
         "./scripts/summarize-failures.sh",
         "./scripts/switch-plan.sh",
+        "./scripts/sync-brain-docs.sh",
         "./scripts/verify-contract.sh",
         "./scripts/verify-sprint.sh",
         "./scripts/workflow-contract.ts",
@@ -149,6 +152,7 @@ describe("create-project-dirs scaffold parity", () => {
       expect(gitignore).toContain(".codex/*");
       expect(gitignore).toContain("!.codex/hooks.json");
       expect(gitignore).toContain("_ref/");
+      expect(gitignore).toContain(".codegraph/");
       expect(gitignore).toContain("_ops/");
       expect(gitignore).not.toContain("_ops/secrets/");
       expect(gitignore).not.toContain("!_ops/env/.env.example");

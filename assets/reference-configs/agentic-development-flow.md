@@ -57,14 +57,21 @@ work, or shared contracts, report the P1/P2/P3 evidence explicitly.
 1. Route the request by intent before reading broadly.
 2. Read the repo-local contract first: `AGENTS.md` or `CLAUDE.md`, `tasks/todo.md`, `tasks/lessons.md`, and `.ai/harness/policy.json`.
 3. Use the selected skill or mode to produce either an approved plan, a root cause, or a review verdict.
-4. Approved plans must include `## Evidence Contract` with state/progress path, verification evidence, evaluator rubric, stop condition, and rollback surface before execution.
-5. Convert approved complex plans to execution with `scripts/plan-to-todo.sh --plan <plan>`. Contract-level plans are projected into a linked `codex/<slug>` worktree when the policy enables it.
-6. After substantive changes, run project checks and record evidence in `tasks/`. For contract worktrees, run Waza `/check` before `scripts/contract-worktree.sh finish`.
+4. When Codex Plan mode, Waza `/think`, or `agentic-dev-plan` produces a decision-complete plan, capture it into `plans/` with `scripts/capture-plan.sh --slug <slug> --title <title>` and the plan text on stdin.
+5. Approved plans must include `## Evidence Contract` with state/progress path, verification evidence, evaluator rubric, stop condition, and rollback surface before execution. `capture-plan.sh` supplies this contract for captured planning output.
+6. Convert approved plans to execution with `scripts/plan-to-todo.sh --plan <plan>`; if approval is already explicit, use `scripts/capture-plan.sh --status Approved --execute ...`. Contract-level plans are projected into a linked `codex/<slug>` worktree when the policy enables it.
+7. After substantive changes, run project checks and record evidence in `tasks/`. For contract worktrees, run Waza `/check` before `scripts/contract-worktree.sh finish`.
+
+## Passive Plan Capture
+
+- Codex Plan mode and Waza `/think` do not need the user to remember `new-sprint` or `plan-to-todo`.
+- The agent should capture decision-complete planning output with `scripts/capture-plan.sh`; the script sets `.claude/.active-plan` and writes a timestamped `plans/plan-*.md` artifact.
+- Planning capture is allowed before implementation. Contract, review, todo, and worktree artifacts are generated only after explicit implementation approval.
 
 ## Boundaries
 
 - Do not route large architecture decisions through Waza `/think` by default.
 - Do not use gstack plan review for routine local edits where `/think` or direct execution is enough.
-- Hooks may emit advisory Waza `/check` and `/health` route hints on prompt submit, but must not block, mutate files, or auto-run skills based on semantic intent.
+- Hooks may emit advisory Waza `/check` and `/health` route hints on prompt submit, but must not block, mutate files, or auto-run skills based on semantic intent; plan capture is an agent action after a planning mode produces a concrete plan.
 - Keep `office-hours` for product-demand shaping; use `plan-eng-review` when engineering execution needs to be locked.
 - Treat subagent and parallel-agent execution as a main-agent decision based on task breadth, context impact, raw-log volume, and callable tools. Do not ask the user for spawn confirmation; if no runner is callable or spawning is not worth the context cost, complete the same P1/P2/P3 trace in the main thread and persist evidence-backed conclusions in `tasks/research.md`.

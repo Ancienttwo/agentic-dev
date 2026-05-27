@@ -38,6 +38,14 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+architecture_event() {
+  if command -v bun >/dev/null 2>&1 && [[ -f "scripts/architecture-event.ts" ]]; then
+    bun scripts/architecture-event.ts "$@"
+    return $?
+  fi
+  return 127
+}
+
 json_get() {
   local json_input="$1"
   local key="$2"
@@ -45,6 +53,11 @@ json_get() {
 
   if [[ -z "$json_input" ]]; then
     return 1
+  fi
+
+  if parsed="$(architecture_event json-get --key "$key" --json "$json_input" 2>/dev/null)"; then
+    printf '%s' "$parsed"
+    return 0
   fi
 
   if command -v jq >/dev/null 2>&1; then
@@ -85,6 +98,13 @@ try {
 
 safe_token() {
   local value="$1"
+  local parsed=""
+
+  if parsed="$(architecture_event safe-token --value "$value" 2>/dev/null)"; then
+    printf '%s' "$parsed"
+    return 0
+  fi
+
   value="$(printf '%s' "$value" | tr '[:upper:]' '[:lower:]')"
   value="$(printf '%s' "$value" | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//; s/-{2,}/-/g')"
   printf '%s' "${value:-root}"
@@ -92,11 +112,17 @@ safe_token() {
 
 derive_scope() {
   local block="$1"
+  local derived=""
   local block_slug
   local domain_slug
   local capability_slug
   local architecture_module
   local workstream_dir
+
+  if derived="$(architecture_event derive-scope --block "$block" 2>/dev/null)"; then
+    printf '%s\n' "$derived"
+    return 0
+  fi
 
   block_slug="$(safe_token "$block")"
   domain_slug="$block_slug"
@@ -213,6 +239,18 @@ sync_context_map() {
   local lsp_profile="${7:-typescript-lsp}"
   local context_map=".ai/context/context-map.json"
   local runtime=""
+
+  if architecture_event sync-context-map \
+    --context-map "$context_map" \
+    --block "$block" \
+    --capability-id "$capability_id" \
+    --contract-agents "$contract_agents" \
+    --contract-claude "$contract_claude" \
+    --architecture-domain "$domain_slug" \
+    --architecture-capability "$capability_slug" \
+    --lsp-profile "$lsp_profile" 2>/dev/null; then
+    return 0
+  fi
 
   if command -v node >/dev/null 2>&1; then
     runtime="node"
@@ -356,6 +394,27 @@ if [[ -z "$architecture_domain" || -z "$architecture_capability" || -z "$archite
   architecture_capability="${architecture_capability:-$(printf '%s\n' "$derived_scope" | sed -n '2p')}"
   architecture_module="${architecture_module:-$(printf '%s\n' "$derived_scope" | sed -n '3p')}"
   workstream_dir="${workstream_dir:-$(printf '%s\n' "$derived_scope" | sed -n '4p')}"
+fi
+
+if architecture_event sync-contract-files \
+  --functional-block "$functional_block" \
+  --capability-id "$capability_id" \
+  --matched-prefix "$matched_prefix" \
+  --architecture-domain "$architecture_domain" \
+  --architecture-capability "$architecture_capability" \
+  --architecture-module "$architecture_module" \
+  --workstream-dir "$workstream_dir" \
+  --contract-agents "$contract_agents" \
+  --contract-claude "$contract_claude" \
+  --event-ts "${event_ts:-unknown}" \
+  --file-path "${file_path:-unknown}" \
+  --severity "${severity:-unknown}" \
+  --change-type "${change_type:-unknown}" \
+  --request-file "${request_file:-unknown}" \
+  --lsp-profile "$lsp_profile" 2>/dev/null; then
+  sync_context_map "$functional_block" "$architecture_domain" "$architecture_capability" "$capability_id" "$contract_agents" "$contract_claude" "$lsp_profile"
+  echo "[ContextContractSync] Updated $contract_agents and $contract_claude."
+  exit 0
 fi
 
 latest_snapshot="$({ find docs/architecture/snapshots -type f -name "*${block_slug}*.md" 2>/dev/null || true; } | sort | tail -1)"

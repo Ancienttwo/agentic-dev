@@ -648,6 +648,7 @@ migrate_hooks() {
   local project_ai_hooks_dir="$repo/.ai/hooks"
   local project_settings="$project_claude_dir/settings.json"
   local project_settings_local="$project_claude_dir/settings.local.json"
+  local codex_hooks_template="$HOOK_ASSETS_DIR/codex.hooks.template.json"
   local project_codex_hooks="$project_codex_dir/hooks.json"
 
   run_or_echo "mkdir -p \"$project_claude_dir\" \"$project_codex_dir\" \"$project_ai_hooks_dir\""
@@ -691,27 +692,28 @@ migrate_hooks() {
   fi
 
   if [[ "$MODE" == "apply" ]]; then
-    if [[ -f "$project_codex_hooks" ]]; then
-      if command -v node >/dev/null 2>&1; then
-        backup_if_exists "$project_codex_hooks"
-        merge_hook_settings_json "$project_codex_hooks" "$HOOK_ASSETS_DIR/settings.template.json" "$project_codex_hooks.tmp"
-        mv "$project_codex_hooks.tmp" "$project_codex_hooks"
-        prune_removed_hook_commands "$project_codex_hooks"
-        log "Merged hook template into .codex/hooks.json"
+    if [[ -f "$codex_hooks_template" ]]; then
+      if [[ -f "$project_codex_hooks" ]]; then
+        if command -v node >/dev/null 2>&1; then
+          backup_if_exists "$project_codex_hooks"
+          merge_hook_settings_json "$project_codex_hooks" "$codex_hooks_template" "$project_codex_hooks.tmp"
+          mv "$project_codex_hooks.tmp" "$project_codex_hooks"
+          prune_removed_hook_commands "$project_codex_hooks"
+          log "Merged hook template into .codex/hooks.json"
+        else
+          log "Skipping automatic merge for .codex/hooks.json because node is unavailable; leaving existing file unchanged"
+        fi
       else
-        log "Skipping automatic merge for .codex/hooks.json because node is unavailable; leaving existing file unchanged"
+        if command -v node >/dev/null 2>&1; then
+          merge_hook_settings_json "$codex_hooks_template" "$codex_hooks_template" "$project_codex_hooks"
+        else
+          cp "$codex_hooks_template" "$project_codex_hooks"
+        fi
+        log "Wrote .codex/hooks.json from template"
       fi
-    else
-      if command -v node >/dev/null 2>&1; then
-        merge_hook_settings_json "$HOOK_ASSETS_DIR/settings.template.json" "$HOOK_ASSETS_DIR/settings.template.json" "$project_codex_hooks.tmp"
-        mv "$project_codex_hooks.tmp" "$project_codex_hooks"
-      else
-        cp "$HOOK_ASSETS_DIR/settings.template.json" "$project_codex_hooks"
-      fi
-      log "Wrote .codex/hooks.json from template"
     fi
   else
-    echo "[dry-run] merge/copy \"$HOOK_ASSETS_DIR/settings.template.json\" -> \"$project_codex_hooks\""
+    echo "[dry-run] merge/copy \"$codex_hooks_template\" -> \"$project_codex_hooks\""
   fi
 
   if [[ -f "$project_settings_local" ]]; then
@@ -785,6 +787,7 @@ migrate_workflow() {
   ensure_gitignore_entry "$repo_gitignore" "*.tgz"
   ensure_gitignore_entry "$repo_gitignore" "# External references"
   ensure_gitignore_entry "$repo_gitignore" "_ref/"
+  ensure_gitignore_entry "$repo_gitignore" ".codegraph/"
   ensure_gitignore_entry "$repo_gitignore" "# Local operations state"
   ensure_gitignore_entry "$repo_gitignore" "_ops/"
   ensure_gitignore_entry "$repo_gitignore" "# Environment"

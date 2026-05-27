@@ -1,7 +1,7 @@
 # Architecture Module: verification/evals-checks
 
 > **Capability ID**: `verification-evals-checks`
-> **Matched Prefixes**: `tests`, `evals`, `scripts/run-skill-evals.ts`, `scripts/check-task-workflow.sh`, `scripts/check-task-sync.sh`, `scripts/check-agent-tooling.sh`, `scripts/check-brain-manifest.sh`
+> **Matched Prefixes**: `tests`, `evals`, `scripts/run-skill-evals.ts`, `scripts/check-task-workflow.sh`, `scripts/check-task-sync.sh`, `scripts/check-agent-tooling.sh`, `scripts/check-brain-manifest.sh`, `scripts/sync-brain-docs.sh`
 > **Local Contracts**: `AGENTS.md`, `CLAUDE.md`
 
 ## P1 Map
@@ -15,6 +15,7 @@ Authoritative checks:
 - `bash scripts/check-deploy-sql-order.sh`
 - `bash scripts/check-task-sync.sh`
 - `bash scripts/check-task-workflow.sh --strict`
+- `bash scripts/sync-brain-docs.sh --check` for opted-in default-brain mirrors.
 - `bun scripts/inspect-project-state.ts --repo . --format text`
 - `bash scripts/migrate-project-template.sh --repo . --dry-run`
 - `bun run benchmark:skills --dry-run` for eval-harness smoke.
@@ -26,14 +27,15 @@ boundaries -> runs unit/regression tests -> checks task sync -> checks workflow
 strict readiness -> inspects repo state -> dry-runs self-migration -> reports
 whether release or merge readiness is blocked.
 
-Inputs are current git state, tracked files, ignored runtime paths, and advisory
-tooling state. Outputs are command exit codes and concise readiness evidence.
+Inputs are current git state, tracked files, ignored runtime paths, required
+CodeGraph readiness, and advisory tooling state. Outputs are command exit codes
+and concise readiness evidence.
 
 Error paths:
 
 - `check-task-sync.sh` fails when substantive repo changes lack `tasks/` synchronization.
 - `check-task-workflow.sh --strict` fails for missing contract files, legacy docs, missing JSON runtime, broken deploy SQL order, or brain manifest drift.
-- External tooling update checks may be skipped or timed out; they remain advisory unless the user explicitly asks for tooling maintenance.
+- External tooling update checks may be skipped or timed out; CodeGraph host/index readiness is required for Codex agent code navigation, while version freshness and other external tooling remain advisory unless the user explicitly asks for tooling maintenance.
 
 ## P3 Decision
 

@@ -42,6 +42,14 @@ if [[ "$command_name" != "record" ]]; then
   exit 2
 fi
 
+architecture_event() {
+  if command -v bun >/dev/null 2>&1 && [[ -f "scripts/architecture-event.ts" ]]; then
+    bun scripts/architecture-event.ts "$@"
+    return $?
+  fi
+  return 127
+}
+
 json_escape() {
   local value="$1"
   value="${value//\\/\\\\}"
@@ -54,6 +62,13 @@ json_escape() {
 
 safe_token() {
   local value="$1"
+  local parsed=""
+
+  if parsed="$(architecture_event safe-token --value "$value" 2>/dev/null)"; then
+    printf '%s' "$parsed"
+    return 0
+  fi
+
   value="$(printf '%s' "$value" | tr '[:upper:]' '[:lower:]')"
   value="$(printf '%s' "$value" | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//; s/-{2,}/-/g')"
   printf '%s' "${value:-root}"
@@ -66,6 +81,11 @@ json_get() {
 
   if [[ -z "$json_input" ]]; then
     return 1
+  fi
+
+  if parsed="$(architecture_event json-get --key "$key" --json "$json_input" 2>/dev/null)"; then
+    printf '%s' "$parsed"
+    return 0
   fi
 
   if command -v jq >/dev/null 2>&1; then
@@ -90,31 +110,13 @@ try {
   printf '%s' "$parsed"
 }
 
-derive_scope() {
-  local block="$1"
-  local block_slug
-  local domain_slug
-  local capability_slug
-  local last_index
-
-  block_slug="$(safe_token "$block")"
-  domain_slug="$block_slug"
-  capability_slug="_domain"
-
-  IFS='/' read -r -a parts <<< "$block"
-  if [[ "${#parts[@]}" -ge 2 ]]; then
-    domain_slug="$(safe_token "${parts[0]}-${parts[1]}")"
-  fi
-  if [[ "${#parts[@]}" -gt 2 ]]; then
-    last_index=$((${#parts[@]} - 1))
-    capability_slug="$(safe_token "${parts[$last_index]}")"
-  fi
-
-  printf '%s\n%s\n' "$domain_slug" "$capability_slug"
-}
-
 repo_relative_path() {
   local value="$1"
+
+  if architecture_event repo-path --repo "$repo" --path "$value" 2>/dev/null; then
+    return 0
+  fi
+
   value="${value#file://}"
   case "$value" in
     "$repo"/*)
@@ -295,6 +297,49 @@ if [[ "$functional_block" != "root" ]]; then
   contract_claude="$(json_get "$capability_match" "contract_claude" || true)"
 fi
 
+event_json_args=(
+  event-json
+  --ts "$iso_timestamp"
+  --file-path "$rel_path"
+  --severity "$severity"
+  --functional-block "$functional_block"
+  --capability-id "$capability_id"
+  --matched-prefix "$matched_prefix"
+  --architecture-domain "$architecture_domain"
+  --architecture-capability "$architecture_capability"
+  --architecture-module "$architecture_module"
+  --workstream-dir "$workstream_dir"
+  --contract-agents "$contract_agents"
+  --contract-claude "$contract_claude"
+  --change-type "$change_type"
+  --request-file "$request_file"
+  --spawn-recommended "$spawn_recommended"
+  --contract-sync-required "$contract_sync_required"
+)
+
+if ! request_event_json="$(architecture_event "${event_json_args[@]}" --pretty 2>/dev/null)"; then
+  request_event_json="$(cat <<EOF_JSON
+{
+  "file_path": "$(json_escape "$rel_path")",
+  "severity": "$(json_escape "$severity")",
+  "functional_block": "$(json_escape "$functional_block")",
+  "capability_id": "$(json_escape "$capability_id")",
+  "matched_prefix": "$(json_escape "$matched_prefix")",
+  "architecture_domain": "$(json_escape "$architecture_domain")",
+  "architecture_capability": "$(json_escape "$architecture_capability")",
+  "architecture_module": "$(json_escape "$architecture_module")",
+  "workstream_dir": "$(json_escape "$workstream_dir")",
+  "contract_agents": "$(json_escape "$contract_agents")",
+  "contract_claude": "$(json_escape "$contract_claude")",
+  "change_type": "$(json_escape "$change_type")",
+  "request_file": "$(json_escape "$request_file")",
+  "spawn_recommended": ${spawn_recommended},
+  "contract_sync_required": ${contract_sync_required}
+}
+EOF_JSON
+)"
+fi
+
 mkdir -p docs/architecture/requests docs/architecture/snapshots docs/architecture/diagrams docs/architecture/domains docs/architecture/modules .ai/harness/architecture tasks/workstreams
 
 if [[ ! -f "$index_file" ]]; then
@@ -346,22 +391,7 @@ cat > "$request_file" <<EOF_REQUEST
 ## Event Fields
 
 \`\`\`json
-{
-  "file_path": "$(json_escape "$rel_path")",
-  "severity": "$(json_escape "$severity")",
-  "functional_block": "$(json_escape "$functional_block")",
-  "capability_id": "$(json_escape "$capability_id")",
-  "matched_prefix": "$(json_escape "$matched_prefix")",
-  "architecture_domain": "$(json_escape "$architecture_domain")",
-  "architecture_capability": "$(json_escape "$architecture_capability")",
-  "architecture_module": "$(json_escape "$architecture_module")",
-  "workstream_dir": "$(json_escape "$workstream_dir")",
-  "contract_agents": "$(json_escape "$contract_agents")",
-  "contract_claude": "$(json_escape "$contract_claude")",
-  "change_type": "$(json_escape "$change_type")",
-  "spawn_recommended": ${spawn_recommended},
-  "contract_sync_required": ${contract_sync_required}
-}
+${request_event_json}
 \`\`\`
 EOF_REQUEST
 
@@ -370,24 +400,26 @@ if ! grep -Fq "$request_file" "$index_file" 2>/dev/null && ! grep -Fq "requests/
   printf '%s\n' "$pending_line" >> "$index_file"
 fi
 
-event_json="$(printf '{"ts":"%s","file_path":"%s","severity":"%s","functional_block":"%s","capability_id":"%s","matched_prefix":"%s","architecture_domain":"%s","architecture_capability":"%s","architecture_module":"%s","workstream_dir":"%s","contract_agents":"%s","contract_claude":"%s","change_type":"%s","request_file":"%s","spawn_recommended":%s,"contract_sync_required":%s}\n' \
-  "$(json_escape "$iso_timestamp")" \
-  "$(json_escape "$rel_path")" \
-  "$(json_escape "$severity")" \
-  "$(json_escape "$functional_block")" \
-  "$(json_escape "$capability_id")" \
-  "$(json_escape "$matched_prefix")" \
-  "$(json_escape "$architecture_domain")" \
-  "$(json_escape "$architecture_capability")" \
-  "$(json_escape "$architecture_module")" \
-  "$(json_escape "$workstream_dir")" \
-  "$(json_escape "$contract_agents")" \
-  "$(json_escape "$contract_claude")" \
-  "$(json_escape "$change_type")" \
-  "$(json_escape "$request_file")" \
-  "$spawn_recommended" \
-  "$contract_sync_required")"
-printf '%s' "$event_json" >> "$event_file"
+if ! event_json="$(architecture_event "${event_json_args[@]}" 2>/dev/null)"; then
+  event_json="$(printf '{"ts":"%s","file_path":"%s","severity":"%s","functional_block":"%s","capability_id":"%s","matched_prefix":"%s","architecture_domain":"%s","architecture_capability":"%s","architecture_module":"%s","workstream_dir":"%s","contract_agents":"%s","contract_claude":"%s","change_type":"%s","request_file":"%s","spawn_recommended":%s,"contract_sync_required":%s}' \
+    "$(json_escape "$iso_timestamp")" \
+    "$(json_escape "$rel_path")" \
+    "$(json_escape "$severity")" \
+    "$(json_escape "$functional_block")" \
+    "$(json_escape "$capability_id")" \
+    "$(json_escape "$matched_prefix")" \
+    "$(json_escape "$architecture_domain")" \
+    "$(json_escape "$architecture_capability")" \
+    "$(json_escape "$architecture_module")" \
+    "$(json_escape "$workstream_dir")" \
+    "$(json_escape "$contract_agents")" \
+    "$(json_escape "$contract_claude")" \
+    "$(json_escape "$change_type")" \
+    "$(json_escape "$request_file")" \
+    "$spawn_recommended" \
+    "$contract_sync_required")"
+fi
+printf '%s\n' "$event_json" >> "$event_file"
 
 echo "[ArchitectureDrift] Request: $request_file"
 echo "[ArchitectureDrift] Event: $event_file"

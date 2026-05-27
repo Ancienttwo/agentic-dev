@@ -8,6 +8,40 @@ All notable changes to this skill are documented here.
 
 - Rebuilt Claude skill aliases during installed-copy sync so `~/.claude/skills/project-initializer` cannot remain on a stale legacy repo while Codex runtime aliases are current.
 
+## [5.2.3] - 2026-05-27
+
+### Fixed
+
+- Expanded anchored approval intent variants such as `go ahead with it`, `please proceed`, and `可以干了` so post-plan approvals reach `PlanCaptureGate` / `PlanExecutionGate` without treating broad bug-fix wording as approval capture.
+
+## [5.2.2] - 2026-05-27
+
+### Fixed
+
+- Started a Draft `plans/` artifact as soon as explicit Codex Plan mode or Waza `/think` planning begins, so plan lifecycle state exists before approval and execution gates run.
+- Let terse approval prompts such as `GO` and `可以干` reach the approved-plan capture/projection path instead of being blocked before the agent can run `capture-plan.sh` or `plan-to-todo.sh`.
+
+## [5.2.1] - 2026-05-27
+
+### Fixed
+
+- Fixed terse `GO` approval prompts after Codex Plan mode or Waza `/think` so they trigger `PlanStatusGuard` and route execution through captured `plans/` artifacts instead of bypassing the workflow gate.
+
+## [5.2.0] - 2026-05-27
+
+### Changed
+
+- Added passive plan capture so Codex Plan mode, Waza `/think`, and `agentic-dev-plan` outputs can become file-backed `plans/plan-*.md` artifacts through `scripts/capture-plan.sh`, with approved captures able to project directly through `plan-to-todo.sh`.
+- Added opt-in default-brain document mirroring through `scripts/sync-brain-docs.sh`, manifest `sync.direction=repo-to-brain` entries, and PostEdit hook integration for registered valuable docs.
+- Promoted CodeGraph from advisory setup guidance to required Codex agent readiness for code navigation, with read-only detector support, strict readiness checks, generated repo `.codegraph/` ignores, and non-vendored host install guidance.
+
+## [5.1.2] - 2026-05-27
+
+### Added
+
+- Added generated Codex hook adapter support through `.codex/hooks.json` while keeping `.ai/hooks/` as the shared hook implementation layer.
+- Updated init, scaffold, migration, workflow contract, docs, and tests so generated repos install both Claude and Codex hook adapters.
+
 ## [5.1.1] - 2026-05-26
 
 ### Fixed

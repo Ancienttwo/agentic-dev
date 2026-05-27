@@ -21,7 +21,7 @@ Strong dependencies:
 Weak dependencies:
 
 - Legacy names `agentic-dev-skill` and `project-initializer`.
-- External Waza/gstack/gbrain policy references, which remain advisory.
+- External Waza/gstack/gbrain policy references remain advisory; CodeGraph is required Codex agent readiness but is not vendored.
 
 Out of scope:
 

@@ -1,0 +1,246 @@
+#!/bin/bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/.."
+
+usage() {
+  cat <<'USAGE_EOF'
+Usage:
+  scripts/capture-plan.sh --slug <slug> [--title <title>] [--status Draft|Approved]
+                          [--source <codex-plan|waza-think|agentic-dev-plan>]
+                          [--route <route>] [--body-file <file>] [--execute]
+
+Reads a finished planning note from stdin or --body-file and stores it as a
+repo-local plans/plan-*.md artifact with a complete Evidence Contract.
+USAGE_EOF
+}
+
+normalize_slug() {
+  printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//; s/-{2,}/-/g'
+}
+
+extract_task_breakdown() {
+  local body="$1"
+  local section tasks
+
+  section="$(
+    printf '%s\n' "$body" | awk '
+      BEGIN { in_section = 0 }
+      /^## Task Breakdown[[:space:]]*$/ { in_section = 1; next }
+      in_section && /^## / { exit }
+      in_section { print }
+    '
+  )"
+  tasks="$(printf '%s\n' "$section" | grep -E '^[[:space:]]*-[[:space:]]\[[ xX]\][[:space:]]+' || true)"
+  if [[ -n "$tasks" ]]; then
+    printf '%s\n' "$tasks"
+    return 0
+  fi
+
+  tasks="$(printf '%s\n' "$body" | grep -E '^[[:space:]]*-[[:space:]]\[[ xX]\][[:space:]]+' || true)"
+  if [[ -n "$tasks" ]]; then
+    printf '%s\n' "$tasks"
+    return 0
+  fi
+
+  return 1
+}
+
+slug=""
+title=""
+status="Draft"
+source_name="codex-plan-or-waza-think"
+route="planning"
+body_file=""
+execute=0
+set_active=1
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --slug)
+      [[ -n "${2:-}" ]] || { echo "Error: --slug requires a value" >&2; usage; exit 1; }
+      slug="$2"
+      shift 2
+      ;;
+    --title)
+      [[ -n "${2:-}" ]] || { echo "Error: --title requires a value" >&2; usage; exit 1; }
+      title="$2"
+      shift 2
+      ;;
+    --status)
+      [[ -n "${2:-}" ]] || { echo "Error: --status requires a value" >&2; usage; exit 1; }
+      status="$2"
+      shift 2
+      ;;
+    --source)
+      [[ -n "${2:-}" ]] || { echo "Error: --source requires a value" >&2; usage; exit 1; }
+      source_name="$2"
+      shift 2
+      ;;
+    --route)
+      [[ -n "${2:-}" ]] || { echo "Error: --route requires a value" >&2; usage; exit 1; }
+      route="$2"
+      shift 2
+      ;;
+    --body-file)
+      [[ -n "${2:-}" ]] || { echo "Error: --body-file requires a value" >&2; usage; exit 1; }
+      body_file="$2"
+      shift 2
+      ;;
+    --execute)
+      execute=1
+      shift
+      ;;
+    --no-active)
+      set_active=0
+      shift
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+[[ -n "$slug" ]] || { echo "--slug is required" >&2; usage; exit 1; }
+slug="$(normalize_slug "$slug")"
+[[ -n "$slug" ]] || { echo "Slug is empty after normalization" >&2; exit 1; }
+[[ -n "$title" ]] || title="$slug"
+
+case "$status" in
+  Draft|Approved)
+    ;;
+  *)
+    echo "Status must be Draft or Approved (got: $status)" >&2
+    exit 1
+    ;;
+esac
+
+if [[ "$execute" -eq 1 && "$status" != "Approved" ]]; then
+  echo "--execute requires --status Approved" >&2
+  exit 1
+fi
+
+body=""
+if [[ -n "$body_file" ]]; then
+  [[ -f "$body_file" ]] || { echo "Body file not found: $body_file" >&2; exit 1; }
+  body="$(cat "$body_file")"
+elif [[ ! -t 0 ]]; then
+  body="$(cat)"
+fi
+
+if [[ -z "$(printf '%s' "$body" | tr -d '[:space:]')" ]]; then
+  echo "No captured planning content provided. Pipe content on stdin or use --body-file." >&2
+  exit 1
+fi
+
+timestamp="$(date +%Y%m%d-%H%M)"
+mkdir -p plans plans/archive .claude
+
+plan_file="plans/plan-${timestamp}-${slug}.md"
+counter=2
+while [[ -f "$plan_file" ]]; do
+  plan_file="plans/plan-${timestamp}-${slug}-v${counter}.md"
+  counter=$((counter + 1))
+done
+
+tasks="$(extract_task_breakdown "$body" || true)"
+if [[ -z "$tasks" ]]; then
+  tasks="- [ ] Execute captured plan: ${title}"
+fi
+
+cat > "$plan_file" <<PLAN_EOF
+# Plan: ${title}
+
+> **Status**: ${status}
+> **Created**: ${timestamp}
+> **Slug**: ${slug}
+> **Planning Source**: ${source_name}
+> **Spec**: \`docs/spec.md\`
+> **Research**: See \`tasks/research.md\`
+> **Sprint Contract**: \`tasks/contracts/${slug}.contract.md\`
+> **Sprint Review**: \`tasks/reviews/${slug}.review.md\`
+> **Implementation Notes**: \`tasks/notes/${slug}.notes.md\`
+
+## Agentic Routing
+- Selected route: ${route}
+- Routing reason: Captured from ${source_name} planning output.
+- Due diligence:
+  - P1 map: See captured planning output below.
+  - P2 trace: See captured planning output below.
+  - P3 decision rationale: See captured planning output below.
+
+## Approach
+### Strategy
+Use the captured planning output below as the execution source of truth.
+
+### Trade-offs
+| Option | Pros | Cons | Decision |
+|--------|------|------|----------|
+| Captured plan | Preserves the approved Codex Plan or Waza think decision | Requires the captured text to be concrete enough to execute | Use |
+
+## Detailed Design
+### File Changes
+| File | Action | Description |
+|------|--------|-------------|
+| See captured planning output | Follow | Implement only the approved scope named below |
+
+### Code Snippets
+See captured planning output.
+
+### Data Flow
+See captured planning output.
+
+## Risk Assessment
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Captured plan lacks enough detail | Medium | Execution may need clarification | Stop before implementation if the captured output contradicts repo rules or lacks concrete file targets |
+
+## Task Contracts
+- Contract file: \`tasks/contracts/${slug}.contract.md\`
+- Review file: \`tasks/reviews/${slug}.review.md\`
+- Implementation notes file: \`tasks/notes/${slug}.notes.md\`
+- Template: \`.claude/templates/contract.template.md\`
+- Verification command: \`bash scripts/verify-contract.sh --contract tasks/contracts/${slug}.contract.md --strict\`
+- Active plan rule: this captured plan is written to \`.claude/.active-plan\` unless --no-active is used
+
+## Handoff
+
+- Checks file: \`.ai/harness/checks/latest.json\`
+- Session handoff: \`.ai/harness/handoff/current.md\`
+
+## Evidence Contract
+
+- **State/progress path**: \`tasks/todo.md\`, \`tasks/contracts/${slug}.contract.md\`, \`tasks/reviews/${slug}.review.md\`, and \`tasks/notes/${slug}.notes.md\`
+- **Verification evidence**: \`.ai/harness/checks/latest.json\`, \`.ai/harness/runs/\`, and the commands named in the captured planning output
+- **Evaluator rubric**: \`tasks/reviews/${slug}.review.md\` must record a passing Waza /check style recommendation
+- **Stop condition**: all task breakdown items are complete, sprint verification passes, and the review recommends pass
+- **Rollback surface**: before execution remove \`${plan_file}\`; after execution revert branch \`codex/${slug}\` or the generated task artifacts
+
+## Captured Planning Output
+
+${body}
+
+## Annotations
+<!-- [NOTE]: prefixed inline. Claude processes all and revises. -->
+
+## Task Breakdown
+${tasks}
+PLAN_EOF
+
+if [[ "$set_active" -eq 1 ]]; then
+  printf '%s' "$plan_file" > ".claude/.active-plan"
+fi
+
+echo "Captured plan: $plan_file"
+
+if [[ "$execute" -eq 1 ]]; then
+  [[ -f "scripts/plan-to-todo.sh" ]] || { echo "Missing scripts/plan-to-todo.sh" >&2; exit 1; }
+  bash "scripts/plan-to-todo.sh" --plan "$plan_file"
+fi

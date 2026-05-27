@@ -55,6 +55,7 @@ describe("agentic-dev action command skills", () => {
     for (const command of ["agentic-dev-plan", "agentic-dev-review", "agentic-dev-autoplan"]) {
       expect(readCommand(command)).toContain("Does not edit");
     }
+    expect(readCommand("agentic-dev-plan")).toContain("capture-plan.sh");
   });
 
   test("autoplan packages repeated workflows only through an evidence-first approval gate", () => {

@@ -37,7 +37,7 @@ Error paths:
 
 - Contract/runtime parity drift is caught by `tests/workflow-contract.test.ts`.
 - Capability orphan modules are caught by `capability-resolver.ts validate`.
-- Brain manifest drift is caught by `scripts/check-brain-manifest.sh`.
+- Brain manifest drift is caught by `scripts/check-brain-manifest.sh`; opted-in repo-to-brain mirror drift is caught by `scripts/sync-brain-docs.sh --check`.
 
 ## P3 Decision
 
@@ -54,4 +54,4 @@ self-migration dry-run.
 ## Optimization Backlog
 
 - Promote `bun scripts/capability-resolver.ts validate --format text` into the strict workflow gate after one more real architecture slice.
-- Keep optional long-form docs in default brain stubs; do not grow the generated reference-config footprint by default.
+- Keep optional long-form docs in default brain stubs; mirror valuable repo-authored docs only through manifest `sync.direction=repo-to-brain` entries.

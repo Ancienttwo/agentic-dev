@@ -52,6 +52,7 @@ This repo has two hook surfaces on purpose:
 
 - `assets/hooks/` defines what downstream generated repos receive.
 - `.ai/hooks/` defines this self-hosted repo's current runtime behavior.
+- `.claude/settings.json` and `.codex/hooks.json` are host adapters only.
 
 Every hook change should state whether it affects `self-host`, `generated`, or
 `both`. If behavior must stay aligned, update both surfaces in the same change.

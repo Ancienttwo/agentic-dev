@@ -1,7 +1,7 @@
 # Architecture Domain: Verification
 
 > **Source**: `.ai/context/capabilities.json`
-> **Owner**: Regression tests, workflow gates, eval harness, and advisory tooling checks.
+> **Owner**: Regression tests, workflow gates, eval harness, CodeGraph readiness, and advisory tooling checks.
 
 ## Purpose
 
@@ -18,7 +18,8 @@ repos, command facades, hooks, migration helpers, and installed runtime copies.
 - `bun test` is the broad regression gate.
 - `check-task-sync.sh` enforces that substantive repo changes update `tasks/`.
 - `check-task-workflow.sh --strict` is the repo-local harness readiness gate.
-- External tooling probes remain advisory and read-only by default.
+- `sync-brain-docs.sh --check` verifies manifest-controlled repo-to-brain mirrors without making gbrain or MCP part of hook correctness.
+- External tooling probes remain read-only by default; CodeGraph readiness is required for Codex agent code navigation, while other external tooling remains advisory.
 
 ## Verification Surface
 

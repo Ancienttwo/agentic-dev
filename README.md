@@ -113,12 +113,13 @@ Most common guards:
 - Root routing docs: `CLAUDE.md`, `AGENTS.md`
 - Shared hook layer: `.ai/hooks/`
 - Claude adapter layer: `.claude/settings.json`
+- Codex adapter layer: `.codex/hooks.json`
 - Active execution surface: `tasks/`
 - Plan source of truth: `plans/`
 - Durable progress: `tasks/workstreams/`
 - Release history: `docs/CHANGELOG.md`
 
-## Current Model (5.1.1)
+## Current Model (5.2.3)
 
 - Question flow uses **12 grouped decision points** with harness defaults inferred first.
 - Plan menu is tiered:

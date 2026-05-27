@@ -126,7 +126,8 @@
         "scripts/check-task-workflow.sh",
         "scripts/check-task-sync.sh",
         "scripts/check-agent-tooling.sh",
-        "scripts/check-brain-manifest.sh"
+        "scripts/check-brain-manifest.sh",
+        "scripts/sync-brain-docs.sh"
       ],
       "contract_files": {
         "agents": "AGENTS.md",

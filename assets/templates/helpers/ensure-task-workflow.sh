@@ -502,7 +502,6 @@ ARCHITECTURE_INDEX_EOF
     "map_file": ".ai/context/context-map.json",
     "capability_registry_file": ".ai/context/capabilities.json",
     "capability_resolver": "scripts/capability-resolver.ts",
-    "capability_config": "scripts/capability-config.ts",
     "capability_match_rule": "longest-prefix; same-length ambiguity fails",
     "functional_block_selector": {
       "script": "scripts/select-agent-context-blocks.sh",
@@ -565,7 +564,10 @@ ARCHITECTURE_INDEX_EOF
       "project_path": "icloud/brain/<project>/*",
       "manifest_file": ".ai/harness/brain-manifest.json",
       "drift_check": "scripts/check-brain-manifest.sh",
-      "rule": "external knowledge stores long-lived explanations, runbooks, and patterns only; repo-local contracts, hooks, scripts, checks, and evidence remain authoritative"
+      "sync_script": "scripts/sync-brain-docs.sh",
+      "hook_trigger": "PostToolUse Edit|Write for manifest entries with sync.direction=repo-to-brain",
+      "rule": "external knowledge stores long-lived explanations, runbooks, and patterns only; repo-local contracts, hooks, scripts, checks, and evidence remain authoritative",
+      "sync_rule": "only explicitly opted-in repo-to-brain manifest entries may be written to the default brain vault; pointer-only externalized stubs remain check-only"
     }
   },
   "context_budget": {
@@ -590,6 +592,11 @@ ARCHITECTURE_INDEX_EOF
     "resume_packet_file": ".ai/harness/handoff/resume.md",
     "global_handoff_dir": "~/.codex/handoffs",
     "auto_start_new_session": false
+  },
+  "plan_capture": {
+    "script": "scripts/capture-plan.sh",
+    "sources": ["codex-plan-mode", "waza-think", "agentic-dev-plan"],
+    "rule": "Codex Plan mode and Waza think planning should capture decision-complete plans into plans/plan-*.md; implementation approval then projects the active approved plan through scripts/plan-to-todo.sh"
   },
   "sidecar_research": {
     "default": true,
@@ -672,8 +679,9 @@ ARCHITECTURE_INDEX_EOF
       "claude-code",
       "codex"
     ],
-    "mode": "guidance-only",
+    "mode": "agent-readiness-required",
     "detection": "init-migrate",
+    "readiness_gate": "scripts/check-agent-tooling.sh --host codex --strict-readiness",
     "waza": {
       "source_repo": "tw93/Waza",
       "source_url": "https://github.com/tw93/Waza.git",
@@ -705,6 +713,19 @@ ARCHITECTURE_INDEX_EOF
     },
     "gbrain": {
       "mcp": "candidate-disabled"
+    },
+    "codegraph": {
+      "package": "@colbymchenry/codegraph",
+      "primary_host": "codex",
+      "install_mode": "global-codex-mcp",
+      "codex_config_path": "~/.codex/config.toml",
+      "index_dir": ".codegraph",
+      "readiness": "required-for-codex-agent-code-navigation",
+      "hook_policy": "do-not-block-hooks",
+      "install_command": "npm install -g @colbymchenry/codegraph && mkdir -p ~/.local/bin && ln -sfn \"$(npm config get prefix)/bin/codegraph\" ~/.local/bin/codegraph && PATH=\"$HOME/.local/bin:$PATH\" codegraph install --target codex --location global --yes",
+      "project_init_command": "codegraph init -i .",
+      "sync_command": "codegraph sync .",
+      "vendoring_policy": "do-not-add-package-dependency"
     }
   },
   "agentic_development": {
@@ -741,7 +762,7 @@ POLICY_EOF
   "rules": [
     "repo-local contracts, hooks, scripts, checks, and evidence remain authoritative",
     "default brain stores long-lived explanations, runbooks, decisions, references, and patterns",
-    "hook runtime must not query gbrain, iCloud, MCP, or default brain"
+    "hook runtime may sync explicitly opted-in repo-to-brain entries only; it must not query gbrain, MCP, or unregistered default brain paths"
   ],
   "entries": []
 }

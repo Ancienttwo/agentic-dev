@@ -54,6 +54,8 @@ artifacts/
 *.tgz
 _ref/
 _ops/
+.codegraph/
+.understand-anything/
 # Environment
 .env
 .env.*

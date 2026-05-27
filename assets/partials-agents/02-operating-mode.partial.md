@@ -24,20 +24,21 @@
 - Plan archive: `plans/archive/`.
 - Todo archive: `tasks/archive/`.
 - Shared automation layer: `.ai/hooks/`.
-- Claude adapter layer: `.claude/settings.json` calls `.ai/hooks/run-hook.sh`.
-- Codex adapter layer: `.codex/hooks.json` calls `.ai/hooks/run-hook.sh`.
+- Host adapters: `.claude/settings.json` and `.codex/hooks.json` call `.ai/hooks/run-hook.sh`.
 - External reference cache: `_ref/` is an occasional ignored external checkout cache, read/refresh-only comparison material, and must stay out of commits; decisions based on it must cite repo+commit/tag+path in notes or research.
 - Deployment operations workspace: `deploy/` is commit-ready for runbooks, submission materials, release checklists, helper scripts, ordered SQL files under `deploy/sql/`, and env examples.
 - Local operations state: `_ops/` is ignored and private for secrets, real env files, provider state, artifacts, logs, and scratch files; do not commit or agent-edit `_ops/*`.
 - Agentic skill routing: product discovery -> gstack `office-hours`; complex engineering plans -> gstack `plan-eng-review`; design plans -> gstack `plan-design-review`; daily small/medium planning, bug hunts, and checks -> Waza `/think`, `/hunt`, `/check`.
 - Knowledge sync and handoff retrieval -> `gbrain`.
 - Codex automation profile: required `health`, `check`, and `diagram-design` from `~/.codex/skills`; do not vendor skill bodies.
+- CodeGraph readiness: required for Codex agent code navigation; keep `.codegraph/` ignored and use `codegraph sync/context/query/callers/callees/impact` for P1/P2 discovery.
 - External tooling reference: `docs/reference-configs/agentic-development-flow.md` for routing details, `docs/reference-configs/external-tooling.md` for install/update guidance.
 - Waza runtime boundary: Codex reads `~/.codex/skills`; `~/.agents/skills` is only skills CLI staging/cache and must be copied into Codex with verification after updates.
-- Advisory environment check: `bash scripts/check-agent-tooling.sh --host both --check-updates`.
+- Environment check: `bash scripts/check-agent-tooling.sh --host both --check-updates`.
 - After substantive repo changes, run `bash scripts/check-task-sync.sh` and `bash scripts/check-task-workflow.sh --strict`.
 - Primary worktree warns by default; enforce via `.claude/.require-worktree`.
 - Contract-level execution is worktree-first: `scripts/plan-to-todo.sh --plan <approved-plan>` starts a linked `codex/<slug>` worktree when policy enables it, and `scripts/contract-worktree.sh finish` merges back only after Waza `/check` and sprint verification pass.
+- After Codex Plan mode, Waza `/think`, or `agentic-dev-plan` produces a decision-complete plan, capture it with `scripts/capture-plan.sh --slug <slug> --title <title>`; if implementation is already approved, capture with `--status Approved --execute` or run `scripts/plan-to-todo.sh --plan <active-plan>`.
 - If repo state conflicts with the task, use an isolated `codex/<task-slug>` worktree, validate with Waza `/check`, and merge back to `main` without unrelated dirty changes.
 
 ---

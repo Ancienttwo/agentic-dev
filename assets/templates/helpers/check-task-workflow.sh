@@ -279,6 +279,7 @@ check_required_file "scripts/check-context-files.sh"
 check_required_file "scripts/check-brain-manifest.sh"
 check_required_file "scripts/select-agent-context-blocks.sh"
 check_required_file "scripts/capability-config.ts"
+check_required_file "scripts/architecture-event.ts"
 check_required_file "scripts/architecture-drift.sh"
 check_required_file "scripts/archive-architecture-request.sh"
 check_required_file "scripts/context-contract-sync.sh"
@@ -337,6 +338,12 @@ fi
 if [[ -f "scripts/check-brain-manifest.sh" ]]; then
   if ! bash "scripts/check-brain-manifest.sh"; then
     report_issue "Brain manifest check failed."
+  fi
+fi
+
+if [[ -f "scripts/sync-brain-docs.sh" ]]; then
+  if ! bash "scripts/sync-brain-docs.sh" --check; then
+    report_issue "Brain doc sync check failed."
   fi
 fi
 

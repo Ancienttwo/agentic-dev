@@ -13,7 +13,9 @@
 ### 3. Plan Node Default
 - Enter plan mode for non-trivial tasks.
 - If no stable product truth exists, run `bash scripts/new-spec.sh`.
-- If no active plan exists, run `bash scripts/new-sprint.sh --slug <slug> --title <title>`.
+- When Codex Plan mode or Waza `/think` reaches a decision-complete plan, capture it with `bash scripts/capture-plan.sh --slug <slug> --title <title>` and the plan text on stdin.
+- If no captured active plan exists, run `bash scripts/new-sprint.sh --slug <slug> --title <title>`.
+- When the user approves implementation, run `bash scripts/plan-to-todo.sh --plan <active-plan>` or capture the approved plan with `--status Approved --execute`.
 - Re-plan when execution drifts.
 
 ### 4. Research Delegation Strategy

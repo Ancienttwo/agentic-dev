@@ -43,7 +43,7 @@ describe("workflow contract manifest", () => {
   });
 
   test("hook asset files should stay in parity with self-hosted .ai/hooks", () => {
-    const assetFiles = collectFiles(join(ROOT, "assets/hooks")).filter((file) => file !== "./settings.template.json");
+    const assetFiles = collectFiles(join(ROOT, "assets/hooks")).filter((file) => !["./settings.template.json", "./codex.hooks.template.json"].includes(file));
     const runtimeFiles = collectFiles(join(ROOT, ".ai/hooks"));
 
     expect(runtimeFiles).toEqual(assetFiles);
@@ -58,9 +58,11 @@ describe("workflow contract manifest", () => {
   test("helper inventory should come from the workflow contract", () => {
     const contract = loadWorkflowContract(join(ROOT, "assets/workflow-contract.v1.json"));
     expect(contract.helpers.scripts).toContain("contract-worktree.sh");
+    expect(contract.helpers.scripts).toContain("capture-plan.sh");
     expect(contract.helpers.scripts).toContain("switch-plan.sh");
     expect(contract.helpers.scripts).toContain("context-budget.ts");
     expect(contract.helpers.scripts).toContain("capability-resolver.ts");
+    expect(contract.helpers.scripts).toContain("architecture-event.ts");
     expect(contract.helpers.scripts).toContain("capability-config.ts");
     expect(contract.helpers.scripts).toContain("architecture-drift.sh");
     expect(contract.helpers.scripts).toContain("archive-architecture-request.sh");
@@ -70,6 +72,7 @@ describe("workflow contract manifest", () => {
     expect(contract.helpers.scripts).toContain("codex-handoff-resume.sh");
     expect(contract.helpers.scripts).toContain("select-agent-context-blocks.sh");
     expect(contract.helpers.scripts).toContain("check-brain-manifest.sh");
+    expect(contract.helpers.scripts).toContain("sync-brain-docs.sh");
     expect(contract.helpers.scripts).toContain("check-deploy-sql-order.sh");
     expect(contract.externalTooling?.waza?.primaryHost).toBe("codex");
     expect(contract.externalTooling?.waza?.managedSkills).toContain("think");
@@ -82,11 +85,15 @@ describe("workflow contract manifest", () => {
     expect(contract.agenticDevelopment?.routing.bugOrRegression).toBe("waza:hunt");
     expect(contract.agenticDevelopment?.dueDiligence.levels).toContain("P2_DATA_FLOW_TRACE");
     expect(contract.artifacts.requiredFiles).toContain(".ai/harness/workflow-contract.json");
+    expect(contract.artifacts.requiredFiles).toContain(".codex/hooks.json");
     expect(contract.artifacts.requiredFiles).toContain(".ai/harness/brain-manifest.json");
     expect(contract.artifacts.requiredFiles).toContain(".ai/context/capabilities.json");
     expect(contract.artifacts.requiredFiles).toContain("scripts/capability-resolver.ts");
+    expect(contract.artifacts.requiredFiles).toContain("scripts/architecture-event.ts");
     expect(contract.artifacts.requiredFiles).toContain("scripts/capability-config.ts");
     expect(contract.artifacts.requiredFiles).toContain("scripts/contract-worktree.sh");
+    expect(contract.artifacts.requiredFiles).toContain("scripts/capture-plan.sh");
+    expect(contract.artifacts.requiredFiles).toContain("scripts/sync-brain-docs.sh");
     expect(contract.artifacts.requiredFiles).toContain("docs/architecture/index.md");
     expect(contract.artifacts.requiredFiles).toContain(".claude/templates/implementation-notes.template.md");
     expect(contract.artifacts.requiredFiles).toContain(".claude/settings.json");

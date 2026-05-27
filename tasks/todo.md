@@ -62,6 +62,19 @@
 - [x] Verified reference drift scan and repo workflow checks for the doc refresh
 - [x] Removed empty optional doc placeholders and refreshed command inventory docs for the current 13-command surface
 - [x] Bumped release metadata to 5.1.1 for package, skill manifest, README, stamp, and changelog
-- [x] Added Codex repo-local hook adapter generation for init, scaffold, and migration paths
+- [x] Added generated Codex hook adapter support through `.codex/hooks.json` while keeping `.ai/hooks/` as the shared implementation layer
 - [x] Added Codex Settings trust reminder after hook adapter configuration
 - [x] Fixed installed-copy sync so Claude skill aliases are refreshed with Codex runtime aliases
+- [x] Bumped release metadata to 5.1.2 for the Codex hook adapter release
+- [x] Added CodeGraph advisory install guidance and a Bun `architecture-event.ts` helper to reduce shell JSON/path glue in architecture drift and context contract sync
+- [x] Scoped Bun test discovery away from ignored advisory/runtime caches such as `_ref/` and `.codegraph/`
+- [x] Moved context contract block rendering and replacement into `architecture-event.ts` while keeping shell fallbacks
+- [x] Promoted CodeGraph from advisory setup guidance to required Codex agent readiness while keeping hooks non-blocking and `.codegraph/` ignored
+- [x] Added passive Codex Plan / Waza think capture through `scripts/capture-plan.sh` and wired it into routing docs, policy, manifests, and tests
+- [x] Added opt-in default-brain document sync through `scripts/sync-brain-docs.sh`, manifest `repo-to-brain` entries, and PostEdit hook integration
+- [x] Bumped release metadata to 5.2.0 for package, skill manifest, README, stamp, and changelog
+- [x] Fixed `GO` approval prompts bypassing the plan gate after Waza `/think` or Codex Plan output
+- [x] Corrected exact approval prompts so Waza `/think` After Approval can run `capture-plan.sh --status Approved --execute` before implementation gates enforce active task artifacts
+- [x] Added a plan-start bridge so explicit Waza `/think` / Codex Plan prompts create a Draft `plans/` artifact before approval
+- [x] Extended anchored approval intent variants so natural approval phrasing reaches plan capture/projection without broadening bug-fix implementation wording
+- [x] Bumped release metadata to 5.2.3 for the approval intent variant fix
