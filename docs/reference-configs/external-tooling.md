@@ -7,7 +7,7 @@ skill routing lives in `docs/reference-configs/agentic-development-flow.md`.
 - `Waza` supplies `/think`, `/hunt`, and `/check` for daily small/medium work
 - Codex automation requires `health`, `check`, and `diagram-design` from `~/.codex/skills`
 - `gbrain` supports knowledge capture, repo sync, and handoff retrieval
-- `CodeGraph` may supply advisory MCP/CLI structure queries for supported source files
+- `CodeGraph` is required Codex agent readiness for code navigation and impact tracing
 
 Waza is Codex-first in this contract. `~/.codex/skills` is the Codex runtime
 source, while `~/.agents/skills` is only the skills CLI staging/cache path used
@@ -21,7 +21,7 @@ installations.
 
 ## Detect Safely
 
-Use `bash scripts/check-agent-tooling.sh` for a read-only advisory report.
+Use `bash scripts/check-agent-tooling.sh` for a read-only tooling report.
 Init and migration reports run the detector without update checks by default;
 set `PROJECT_INITIALIZER_CHECK_TOOLING_UPDATES=1` when that advisory pass should
 also compare upstream versions.
@@ -31,6 +31,7 @@ Supported flags:
 - `--host claude|codex|both`
 - `--json`
 - `--check-updates`
+- `--strict-readiness`
 
 The detector intentionally avoids side-effecting commands. It does not run:
 
@@ -39,6 +40,9 @@ The detector intentionally avoids side-effecting commands. It does not run:
 - `npx skills update`
 - `gbrain serve`
 - `gbrain sync`
+- `codegraph init`
+- `codegraph sync`
+- `codegraph install`
 
 With `--check-updates`, Waza update checks fetch upstream GitHub raw
 `SKILL.md` and shared `rules/` files, then compare versions/hashes against each
@@ -109,10 +113,10 @@ bun add -g gbrain
 
 ### CodeGraph
 
-`CodeGraph` stays advisory-first in this contract. It can speed up agent
-exploration for indexed TypeScript and other supported languages, but it does
-not replace `.ai/context/capabilities.json`, workflow checks, or shell-script
-review.
+`CodeGraph` is required readiness for Codex agent code navigation. It speeds up
+agent exploration for indexed TypeScript and other supported languages, but it
+does not replace `.ai/context/capabilities.json`, workflow checks, tests,
+architecture drift events, or shell-script review.
 
 Do not ask users to copy MCP TOML by hand. The user-facing path is one terminal
 command, or explicit authorization for their agent to run the same command:
@@ -139,6 +143,18 @@ Project-local indexes are ignored runtime state:
 ```bash
 codegraph init -i .
 codegraph status .
+```
+
+Before non-trivial code work, agents should sync the local index and use it for
+P1/P2 discovery:
+
+```bash
+codegraph sync .
+codegraph context "<task>"
+codegraph query <symbol> --json
+codegraph callers <symbol> --json
+codegraph callees <symbol> --json
+codegraph impact <symbol> --json
 ```
 
 For this repo, do not treat `codegraph affected` as an authoritative test
@@ -225,10 +241,26 @@ the repo. The default brain stores reusable explanations, runbooks, decisions,
 and patterns only.
 
 Repo stubs that point to default brain pages are indexed in
-`.ai/harness/brain-manifest.json`. Run this check after changing those stubs:
+`.ai/harness/brain-manifest.json`. Valuable repo-authored docs can opt into
+one-way mirroring by adding a manifest entry with:
+
+```json
+{
+  "id": "project-decision-log",
+  "repo_path": "docs/decisions.md",
+  "brain_path": "icloud/brain/<project>/decisions/project-decision-log.md",
+  "gbrain_slug": "decisions/project-decision-log",
+  "sync": { "direction": "repo-to-brain" }
+}
+```
+
+After that, PostEdit hooks sync only that source file. Manual sync and drift
+checks are also available:
 
 ```bash
 bash scripts/check-brain-manifest.sh
+bash scripts/sync-brain-docs.sh --all
+bash scripts/sync-brain-docs.sh --check
 ```
 
 ## Why gbrain MCP Stays Off by Default

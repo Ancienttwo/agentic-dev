@@ -279,19 +279,19 @@
 ### Sources Checked
 - `colbymchenry/codegraph` cloned into `_ref/codegraph` at tag `v0.9.5`, commit `318cda18d10266d58aaf14c54cf55fca1d39e6ed`; checked `README.md`, `src/bin/codegraph.ts`, `src/installer/targets/codex.ts`, `src/installer/instructions-template.ts`, and `src/mcp/tools.ts`.
 - `Lum1104/Understand-Anything` cloned into `_ref/Understand-Anything` at tag `v2.3.1`, commit `ca5e3b8e21d611a129b27c6a0c24f15bab460ba0`; checked `README.md`, `.codex/INSTALL.md`, `understand-anything-plugin/hooks/hooks.json`, `understand-anything-plugin/skills/understand/SKILL.md`, and shell parser/config files under `understand-anything-plugin/packages/core/src`.
-- Current tool availability: `npx -y @colbymchenry/codegraph@0.9.5 --version` returns `0.9.5`; npm `latest` is `0.9.5`. After local pilot, `/Users/kito/.local/bin/codegraph` was created as a PATH-visible shim to the npm-installed CLI.
+- Current tool availability was first validated at `0.9.5`; by the readiness hardening slice, npm `latest` and local `codegraph --version` both report `0.9.6`. After local pilot, `/Users/kito/.local/bin/codegraph` was created as a PATH-visible shim to the npm-installed CLI.
 - Current repo shape: `rg --files -g '*.sh'` finds 82 shell scripts and `rg --files -g '*.ts'` finds 52 TypeScript files; `assets/hooks`, `.ai/hooks`, and `scripts` together include 74 shell files and 12 TypeScript files. Large shell pressure points include `scripts/lib/project-init-lib.sh` (1894 lines), `scripts/migrate-project-template.sh` (929), `.ai/hooks/hook-input.sh` (490), `scripts/context-contract-sync.sh` (431), `scripts/architecture-drift.sh` (394), and `scripts/check-task-workflow.sh` (391).
 
 ### Conclusion
-- CodeGraph is the better fit for runtime agent exploration and affected-surface evidence because it is MCP/CLI-first, local SQLite-backed, AST-derived, and exposes `context`, `trace`, `callers`, `callees`, `impact`, `files`, `status`, and `affected` surfaces. Its installer supports Codex by writing `~/.codex/config.toml` and `~/.codex/AGENTS.md`, but Codex has no project-local config in CodeGraph `v0.9.5`, so this repo should avoid automatic installer writes. Human-facing setup should be one non-interactive terminal command, or an explicitly authorized agent action; `codegraph install --print-config codex` is diagnostic only.
+- CodeGraph is the better fit for runtime agent exploration and affected-surface evidence because it is MCP/CLI-first, local SQLite-backed, AST-derived, and exposes `context`, `trace`, `callers`, `callees`, `impact`, `files`, `status`, and `affected` surfaces. Its installer supports Codex by writing `~/.codex/config.toml` and `~/.codex/AGENTS.md`, but Codex has no project-local config in CodeGraph `v0.9.x`, so this repo should avoid automatic installer writes. Human-facing setup should be one non-interactive terminal command, or an explicitly authorized agent action; `codegraph install --print-config codex` is diagnostic only.
 - Understand Anything is the better fit for human-facing architecture comprehension, onboarding, domain views, and shell-heavy explanation. It supports `shell` via simple function/source extraction and generates `.understand-anything/knowledge-graph.json` plus dashboard artifacts, but its pipeline is skill/multi-agent/documentation oriented rather than a low-latency hook/query substrate.
-- Neither tool should replace `.ai/context/capabilities.json`, `tasks/workstreams/`, architecture requests, or workflow contract checks. CodeGraph can be an advisory runtime index; Understand Anything can be an advisory documentation/dashboard layer.
+- Neither tool should replace `.ai/context/capabilities.json`, `tasks/workstreams/`, architecture requests, or workflow contract checks. CodeGraph is required Codex agent readiness for code navigation and P1/P2 discovery, while Understand Anything remains an advisory documentation/dashboard layer.
 
 ### Recommended Integration Boundary
 - Keep the hook adapter invariant: `.claude/settings.json` and `.codex/hooks.json` dispatch into `.ai/hooks/run-hook.sh`; do not add a second repo-local hook implementation tree.
-- Do not use CodeGraph to rewrite shell guards. First use it as an optional read-only evidence provider around TypeScript and importable source paths: `codegraph status`, `codegraph context`, `codegraph impact`, and `git diff --name-only HEAD | codegraph affected --stdin --quiet`.
-- Because CodeGraph does not support Bash/Shell as an indexed language in `v0.9.5`, shell-heavy guard semantics still need local file reads or a future TypeScript helper extraction path. Understand Anything can summarize shell scripts, but should not sit on the hot hook path.
-- Add `.codegraph/` to ignored local state before any project initialization. Treat it like `.understand-anything/` if used: advisory read model, not a committed workflow contract.
+- Do not use CodeGraph to rewrite shell guards. Use it as a required Codex agent code-navigation evidence provider around TypeScript and importable source paths: `codegraph status`, `codegraph sync`, `codegraph context`, `codegraph query`, `codegraph callers`, `codegraph callees`, and `codegraph impact`.
+- Because CodeGraph does not support Bash/Shell as an indexed language in `v0.9.x`, shell-heavy guard semantics still need local file reads or a future TypeScript helper extraction path. Understand Anything can summarize shell scripts, but should not sit on the hot hook path.
+- Add `.codegraph/` to ignored local state before any project initialization. Treat it like `.understand-anything/` if used: required agent read model for code navigation, not a committed workflow contract.
 - Do not guide users to hand-edit MCP TOML. Use `npm install -g @colbymchenry/codegraph && mkdir -p ~/.local/bin && ln -sfn "$(npm config get prefix)/bin/codegraph" ~/.local/bin/codegraph && PATH="$HOME/.local/bin:$PATH" codegraph install --target codex --location global --yes`, or let the user authorize their agent to run the equivalent.
 - If a Codex launch environment cannot see `~/.local/bin/codegraph`, the authorized agent should diagnose `PATH` and shim placement. The fallback is not user-authored MCP TOML.
 
@@ -304,7 +304,8 @@
 - `npm install -g @colbymchenry/codegraph@0.9.5` installed the package under `/Users/kito/.hermes/node/bin/codegraph`, but that bin directory is not on this Codex shell's `PATH`. The durable fix is a PATH-visible user-bin shim: `/Users/kito/.local/bin/codegraph -> /Users/kito/.hermes/node/bin/codegraph`.
 - MCP smoke test with `codegraph serve --mcp --path .` successfully attached to a shared daemon for this repo after the shim was added; the temporary daemon was killed after the test.
 - `codegraph install --print-config codex` produced only a global Codex config block for `~/.codex/config.toml`; it did not offer project-local Codex config.
-- Temporary-HOME smoke test confirmed `codegraph install --target codex --location global --yes` creates `~/.codex/config.toml` and `~/.codex/AGENTS.md`; `--location local` skips Codex because CodeGraph `v0.9.5` does not support local Codex installation.
+- Temporary-HOME smoke test confirmed `codegraph install --target codex --location global --yes` creates `~/.codex/config.toml` and `~/.codex/AGENTS.md`; `--location local` skips Codex because CodeGraph `v0.9.x` does not support local Codex installation.
+- `bash scripts/check-agent-tooling.sh --host codex --strict-readiness` now passes in this repo when CodeGraph CLI, Codex MCP config, and `.codegraph/` index are present; fake-env tests cover strict failure when Codex MCP is missing.
 
 ### Shell-Reduction Implication
 - The next shell-reduction slice is not "replace hooks with CodeGraph" or "use CodeGraph affected as a test selector." The first useful slice is to move duplicated JSON parsing, slugging, and capability lookup out of shell guards into existing Bun helpers, then use CodeGraph only to reduce agent exploration around those helpers.
@@ -326,3 +327,30 @@
 - Keep capability matching in `scripts/capability-resolver.ts`; `architecture-event.ts` should centralize adapter glue, not become a second capability registry.
 - Keep `context-contract-sync.sh` responsible for command routing, capability re-resolution, and compatibility fallback only; new rendering logic should live in `architecture-event.ts`.
 - Keep shell fallbacks until downstream generated repos have gone through at least one release cycle with `architecture-event.ts` installed by default.
+
+## 2026-05-27 Passive Plan Capture Notes
+
+### What Changed
+- Added `scripts/capture-plan.sh` and template mirror `assets/templates/helpers/capture-plan.sh` so Codex Plan mode, Waza `/think`, and `agentic-dev-plan` outputs can be captured as timestamped `plans/plan-*.md` artifacts without requiring the user to remember `new-sprint`.
+- The helper reads planning output from stdin or `--body-file`, fills a concrete Evidence Contract, extracts checkbox task breakdowns when present, writes `.claude/.active-plan` by default, and can run `plan-to-todo.sh` with `--status Approved --execute`.
+- `.ai/harness/policy.json` now has a `plan_capture` section, and the helper is part of `assets/workflow-contract.v1.json`, `.ai/harness/workflow-contract.json`, generated helper installation, and scaffold/migration parity tests.
+- Root `AGENTS.md` / `CLAUDE.md`, generated partials, `agentic-development-flow.md`, and `agentic-dev-plan` now direct planning modes to capture decision-complete plans before implementation.
+
+### What to Preserve
+- Hooks should remain gates and advisory route emitters; they should not infer semantic planning intent and mutate files on prompt submit.
+- Planning capture may write `plans/` and `.claude/.active-plan`, but `tasks/todo.md`, `tasks/contracts/`, `tasks/reviews/`, and worktrees should still wait for explicit implementation approval.
+- `capture-plan.sh --execute` is the approved fast path only when the user has already approved implementation; otherwise leave the captured plan in `Draft`.
+
+## 2026-05-27 Default Brain Document Sync Notes
+
+### What Changed
+- Added `scripts/sync-brain-docs.sh` and template mirror `assets/templates/helpers/sync-brain-docs.sh` for one-way repo-to-brain mirroring.
+- Sync is opt-in per `.ai/harness/brain-manifest.json` entry via `sync.direction=repo-to-brain`; pointer-only externalized stubs remain check-only so existing long-form brain files are not overwritten by short repo stubs.
+- `post-edit-guard.sh` now calls `scripts/sync-brain-docs.sh --changed <path>` after edits, so only the edited manifest-registered source file can be mirrored.
+- `scripts/check-task-workflow.sh --strict` runs `scripts/sync-brain-docs.sh --check` to detect drift for opted-in entries when the local brain vault is available.
+- The self-host repo now opts in `docs/reference-configs/agentic-development-flow.md`, `docs/reference-configs/harness-overview.md`, and `docs/reference-configs/external-tooling.md`; these were synced to `icloud/brain/agentic-dev/references/`.
+
+### What to Preserve
+- Do not auto-sync arbitrary docs or all `docs/**`; sync must remain manifest-controlled and one-way from repo source to default brain.
+- Do not make hook correctness depend on `gbrain`, MCP, or querying the default brain. The hook may write exact opted-in files and should remain non-blocking.
+- Keep repo-local contracts, hooks, scripts, checks, and evidence authoritative; brain files are durable advisory knowledge, not the active workflow source of truth.

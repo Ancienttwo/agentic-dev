@@ -176,6 +176,161 @@ describe("Workflow helper scripts", () => {
     }
   });
 
+  test("capture-plan should save planning output as an active plan artifact", () => {
+    const cwd = tmpWorkspace("helper-capture-plan");
+    try {
+      mkdirSync(join(cwd, "plans"), { recursive: true });
+      copyHelpers(cwd);
+      writeFileSync(
+        join(cwd, "captured.md"),
+        [
+          "## Approved design summary",
+          "- Building: passive plan capture",
+          "- Verification: run helper tests",
+          "",
+          "## Task Breakdown",
+          "- [ ] Add capture helper",
+          "- [ ] Update routing docs",
+        ].join("\n")
+      );
+
+      const res = run("bash", [
+        "scripts/capture-plan.sh",
+        "--slug",
+        "passive-plan",
+        "--title",
+        "Passive Plan",
+        "--source",
+        "waza-think",
+        "--route",
+        "waza:think",
+        "--body-file",
+        "captured.md",
+      ], cwd);
+
+      expect(res.status).toBe(0);
+      expect(res.stdout).toContain("Captured plan:");
+
+      const plans = readdirSync(join(cwd, "plans")).filter((name) => /^plan-\d{8}-\d{4}-passive-plan\.md$/.test(name));
+      expect(plans.length).toBe(1);
+      const planPath = join(cwd, "plans", plans[0]);
+      const plan = readFileSync(planPath, "utf-8");
+      expect(plan).toContain("> **Status**: Draft");
+      expect(plan).toContain("> **Planning Source**: waza-think");
+      expect(plan).toContain("- Selected route: waza:think");
+      expect(plan).toContain("## Evidence Contract");
+      expect(plan).toContain("tasks/contracts/passive-plan.contract.md");
+      expect(plan).toContain("## Captured Planning Output");
+      expect(plan).toContain("- [ ] Add capture helper");
+      expect(readFileSync(join(cwd, ".claude/.active-plan"), "utf-8")).toBe(`plans/${plans[0]}`);
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
+  test("capture-plan should execute an already approved plan through plan-to-todo", () => {
+    const cwd = tmpWorkspace("helper-capture-plan-execute");
+    try {
+      mkdirSync(join(cwd, "plans"), { recursive: true });
+      copyHelpers(cwd);
+      writeFileSync(
+        join(cwd, "approved.md"),
+        [
+          "## Approved design summary",
+          "- Building: approved capture",
+          "- Verification: sprint verification",
+          "",
+          "## Task Breakdown",
+          "- [ ] Implement approved capture",
+        ].join("\n")
+      );
+
+      const res = run("bash", [
+        "scripts/capture-plan.sh",
+        "--slug",
+        "approved-capture",
+        "--title",
+        "Approved Capture",
+        "--status",
+        "Approved",
+        "--execute",
+        "--body-file",
+        "approved.md",
+      ], cwd);
+
+      expect(res.status).toBe(0);
+      expect(res.stdout).toContain("Captured plan:");
+      expect(res.stdout).toContain("Updated tasks/todo.md");
+      expect(readFileSync(join(cwd, "tasks/todo.md"), "utf-8")).toContain("**Status**: Executing");
+      expect(readFileSync(join(cwd, "tasks/todo.md"), "utf-8")).toContain("- [ ] Implement approved capture");
+      expect(existsSync(join(cwd, "tasks/contracts/approved-capture.contract.md"))).toBe(true);
+      expect(existsSync(join(cwd, "tasks/reviews/approved-capture.review.md"))).toBe(true);
+      expect(existsSync(join(cwd, "tasks/notes/approved-capture.notes.md"))).toBe(true);
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
+  test("sync-brain-docs mirrors opted-in repo docs and checks drift", () => {
+    const cwd = tmpWorkspace("helper-sync-brain-docs");
+    try {
+      copyHelpers(cwd);
+      const brainRoot = join(cwd, "brain");
+      mkdirSync(join(cwd, "docs"), { recursive: true });
+      mkdirSync(join(cwd, ".ai/harness"), { recursive: true });
+      mkdirSync(brainRoot, { recursive: true });
+
+      writeFileSync(join(cwd, "docs/valuable.md"), "# Valuable Doc\n\nStable project knowledge.\n");
+      writeFileSync(
+        join(cwd, ".ai/harness/brain-manifest.json"),
+        JSON.stringify(
+          {
+            version: 1,
+            project: "demo",
+            mode: "repo-contract-external-knowledge",
+            default_brain_path: "icloud/brain/demo/*",
+            entries: [
+              {
+                id: "valuable",
+                role: "repo-authored",
+                repo_path: "docs/valuable.md",
+                brain_path: "icloud/brain/demo/references/valuable.md",
+                gbrain_slug: "references/valuable",
+                sync: { direction: "repo-to-brain" },
+              },
+            ],
+          },
+          null,
+          2
+        ) + "\n"
+      );
+
+      const syncRes = run("bash", ["scripts/sync-brain-docs.sh", "--all"], cwd, {
+        ICLOUD_BRAIN_ROOT: brainRoot,
+      });
+      expect(syncRes.status).toBe(0);
+      expect(syncRes.stdout).toContain("[BrainSync] synced docs/valuable.md");
+
+      const brainFile = join(brainRoot, "demo/references/valuable.md");
+      expect(readFileSync(brainFile, "utf-8")).toContain("Stable project knowledge.");
+
+      const checkRes = run("bash", ["scripts/sync-brain-docs.sh", "--check"], cwd, {
+        ICLOUD_BRAIN_ROOT: brainRoot,
+      });
+      expect(checkRes.status).toBe(0);
+      expect(checkRes.stdout).toContain("[BrainSync] OK");
+
+      writeFileSync(join(cwd, "docs/valuable.md"), "# Valuable Doc\n\nUpdated knowledge.\n");
+      const changedRes = run("bash", ["scripts/sync-brain-docs.sh", "--changed", "docs/valuable.md"], cwd, {
+        ICLOUD_BRAIN_ROOT: brainRoot,
+      });
+      expect(changedRes.status).toBe(0);
+      expect(readFileSync(brainFile, "utf-8")).toContain("Updated knowledge.");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
   test("new-sprint should create a Draft plan only", () => {
     const cwd = tmpWorkspace("helper-new-sprint");
     try {

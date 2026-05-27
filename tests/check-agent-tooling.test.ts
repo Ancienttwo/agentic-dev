@@ -142,6 +142,58 @@ function writeFakeGbrain(fakeBin: string, logFile?: string) {
   );
 }
 
+function writeFakeCodeGraph(
+  fakeBin: string,
+  options: { version?: string; status?: "up-to-date" | "stale" | "not-initialized"; logFile?: string } = {}
+) {
+  const version = options.version ?? "0.9.6";
+  const status = options.status ?? "up-to-date";
+  const statusLines =
+    status === "up-to-date"
+      ? ["echo 'CodeGraph Status'", "echo '✓ Index is up to date'"]
+      : status === "stale"
+        ? ["echo 'CodeGraph Status'", "echo 'Pending Changes:'", "echo 'Run \"codegraph sync\" to update the index'"]
+        : ["echo 'CodeGraph Status'", "echo '⚠ Not initialized'", "echo 'Run \"codegraph init\" to initialize'"];
+
+  writeExecutable(
+    join(fakeBin, "codegraph"),
+    [
+      "#!/bin/bash",
+      "set -euo pipefail",
+      options.logFile ? `echo "codegraph $*" >> "${options.logFile}"` : "",
+      "case \"${1:-}\" in",
+      "  \"--version\")",
+      `    echo '${version}'`,
+      "    ;;",
+      "  \"status\")",
+      ...statusLines.map((line) => `    ${line}`),
+      "    ;;",
+      "  *)",
+      "    exit 1",
+      "    ;;",
+      "esac",
+      "",
+    ].join("\n")
+  );
+}
+
+function writeFakeNpm(fakeBin: string, version: string, logFile?: string) {
+  writeExecutable(
+    join(fakeBin, "npm"),
+    [
+      "#!/bin/bash",
+      "set -euo pipefail",
+      logFile ? `echo "npm $*" >> "${logFile}"` : "",
+      "if [[ \"$*\" == \"view @colbymchenry/codegraph version --json\" ]]; then",
+      `  echo '"${version}"'`,
+      "  exit 0",
+      "fi",
+      "exit 1",
+      "",
+    ].join("\n")
+  );
+}
+
 function writeFakeCurl(fakeBin: string, version: string, logFile?: string) {
   writeExecutable(
     join(fakeBin, "curl"),
@@ -196,7 +248,7 @@ describe("check-agent-tooling", () => {
       mkdirSync(join(envRoot.home, ".agents", "skills"), { recursive: true });
       writeFileSync(join(envRoot.home, ".claude", "skills", "gstack", "VERSION"), "1.2.3\n");
       writeFileSync(join(envRoot.home, ".claude", "settings.json"), "{}\n");
-      writeFileSync(join(envRoot.home, ".codex", "config.toml"), "# no gbrain mcp\n");
+      writeFileSync(join(envRoot.home, ".codex", "config.toml"), "[mcp_servers.codegraph]\ncommand = \"codegraph\"\n# no gbrain mcp\n");
       writeWazaBundle(join(envRoot.home, ".agents", "skills"), "3.0.0");
       writeWazaBundle(join(envRoot.home, ".codex", "skills"), "3.0.0");
       writeWazaRules(join(envRoot.home, ".agents"), "3.0.0");
@@ -206,6 +258,7 @@ describe("check-agent-tooling", () => {
       writeWazaLock(envRoot.home);
       writeFakeNpx(envRoot.fakeBin);
       writeFakeGbrain(envRoot.fakeBin);
+      writeFakeCodeGraph(envRoot.fakeBin);
 
       const res = spawnSync("bash", [SCRIPT, "--json", "--host", "both"], {
         cwd: ROOT,
@@ -242,6 +295,12 @@ describe("check-agent-tooling", () => {
       expect(report.tools.gbrain.mcp_hosts.claude.status).toBe("disabled");
       expect(report.tools.gbrain.mcp_hosts.codex.status).toBe("disabled");
       expect(report.tools.gbrain.impact.knowledge_tasks).toBe("manual-only");
+      expect(report.tools.codegraph.status).toBe("present");
+      expect(report.tools.codegraph.primary_host).toBe("codex");
+      expect(report.tools.codegraph.version).toBe("0.9.6");
+      expect(report.tools.codegraph.mcp_hosts.codex.status).toBe("configured");
+      expect(report.tools.codegraph.project_index.status).toBe("up-to-date");
+      expect(report.tools.codegraph.impact.code_navigation).toBe("full");
     } finally {
       rmSync(envRoot.root, { recursive: true, force: true });
     }
@@ -256,7 +315,7 @@ describe("check-agent-tooling", () => {
       mkdirSync(join(envRoot.home, ".agents", "skills"), { recursive: true });
       writeFileSync(join(envRoot.home, ".claude", "skills", "gstack", "VERSION"), "1.2.3\n");
       writeFileSync(join(envRoot.home, ".claude", "settings.json"), "{}\n");
-      writeFileSync(join(envRoot.home, ".codex", "config.toml"), "# no gbrain mcp\n");
+      writeFileSync(join(envRoot.home, ".codex", "config.toml"), "[mcp_servers.codegraph]\ncommand = \"codegraph\"\n# no gbrain mcp\n");
       writeWazaBundle(join(envRoot.home, ".agents", "skills"), "3.0.0");
       writeWazaBundle(join(envRoot.home, ".codex", "skills"), "3.0.0");
       writeWazaRules(join(envRoot.home, ".agents"), "3.0.0");
@@ -305,6 +364,8 @@ describe("check-agent-tooling", () => {
       );
 
       writeFakeGbrain(envRoot.fakeBin, logFile);
+      writeFakeCodeGraph(envRoot.fakeBin, { logFile });
+      writeFakeNpm(envRoot.fakeBin, "0.9.6", logFile);
       writeFakeCurl(envRoot.fakeBin, "3.0.0", logFile);
 
       const res = spawnSync("bash", [SCRIPT, "--json", "--check-updates", "--host", "both"], {
@@ -329,12 +390,47 @@ describe("check-agent-tooling", () => {
       expect(log).toContain("gbrain doctor --json");
       expect(log).toContain("gbrain check-update --json");
       expect(log).toContain("gbrain integrations list --json");
+      expect(log).toContain("codegraph --version");
+      expect(log).toContain("codegraph status .");
+      expect(log).toContain("npm view @colbymchenry/codegraph version --json");
       expect(log).not.toContain("setup");
       expect(log).not.toContain("skills check");
       expect(log).not.toContain("skills update");
       expect(log).not.toContain("gbrain serve");
       expect(log).not.toContain("gbrain sync");
       expect(log).not.toContain("gbrain upgrade");
+      expect(log).not.toContain("codegraph init");
+      expect(log).not.toContain("codegraph sync");
+      expect(log).not.toContain("codegraph install");
+    } finally {
+      rmSync(envRoot.root, { recursive: true, force: true });
+    }
+  });
+
+  test("fails strict readiness when CodeGraph is not configured for Codex", () => {
+    const envRoot = setupFakeEnvironment("check-agent-tooling-codegraph-strict");
+    try {
+      mkdirSync(join(envRoot.home, ".codex"), { recursive: true });
+      writeFileSync(join(envRoot.home, ".codex", "config.toml"), "# no codegraph mcp\n");
+      writeFakeNpx(envRoot.fakeBin);
+      writeFakeGbrain(envRoot.fakeBin);
+      writeFakeCodeGraph(envRoot.fakeBin);
+
+      const res = spawnSync("bash", [SCRIPT, "--json", "--host", "codex", "--strict-readiness"], {
+        cwd: ROOT,
+        encoding: "utf-8",
+        env: {
+          ...process.env,
+          HOME: envRoot.home,
+          PATH: `${envRoot.fakeBin}:${process.env.PATH ?? ""}`,
+        },
+      });
+
+      expect(res.status).toBe(2);
+      const report = JSON.parse(res.stdout);
+      expect(report.tools.codegraph.status).toBe("partial");
+      expect(report.tools.codegraph.mcp_hosts.codex.status).toBe("missing");
+      expect(res.stderr).toContain("CodeGraph readiness is partial");
     } finally {
       rmSync(envRoot.root, { recursive: true, force: true });
     }
@@ -347,7 +443,7 @@ describe("check-agent-tooling", () => {
       mkdirSync(join(envRoot.home, ".claude"), { recursive: true });
       mkdirSync(join(envRoot.home, ".codex"), { recursive: true });
       writeFileSync(join(envRoot.home, ".claude", "settings.json"), "{}\n");
-      writeFileSync(join(envRoot.home, ".codex", "config.toml"), "# no gbrain mcp\n");
+      writeFileSync(join(envRoot.home, ".codex", "config.toml"), "[mcp_servers.codegraph]\ncommand = \"codegraph\"\n# no gbrain mcp\n");
       writeWazaBundle(join(envRoot.home, ".agents", "skills"), "9.0.0");
       writeWazaBundle(join(envRoot.home, ".codex", "skills"), "1.0.0");
       writeWazaRules(join(envRoot.home, ".agents"), "9.0.0");
@@ -357,6 +453,8 @@ describe("check-agent-tooling", () => {
       writeWazaLock(envRoot.home);
       writeFakeNpx(envRoot.fakeBin);
       writeFakeGbrain(envRoot.fakeBin);
+      writeFakeCodeGraph(envRoot.fakeBin);
+      writeFakeNpm(envRoot.fakeBin, "0.9.6");
       writeFakeCurl(envRoot.fakeBin, "9.0.0");
 
       const res = spawnSync("bash", [SCRIPT, "--json", "--check-updates", "--host", "both"], {
@@ -397,7 +495,7 @@ describe("check-agent-tooling", () => {
       mkdirSync(join(envRoot.home, ".claude"), { recursive: true });
       mkdirSync(join(envRoot.home, ".codex"), { recursive: true });
       writeFileSync(join(envRoot.home, ".claude", "settings.json"), "{}\n");
-      writeFileSync(join(envRoot.home, ".codex", "config.toml"), "# no gbrain mcp\n");
+      writeFileSync(join(envRoot.home, ".codex", "config.toml"), "[mcp_servers.codegraph]\ncommand = \"codegraph\"\n# no gbrain mcp\n");
       writeWazaBundle(join(envRoot.home, ".agents", "skills"), "3.0.0");
       writeWazaBundle(join(envRoot.home, ".codex", "skills"), "3.0.0");
       writeWazaRules(join(envRoot.home, ".agents"), "3.0.0");
@@ -410,6 +508,8 @@ describe("check-agent-tooling", () => {
       writeWazaLock(envRoot.home);
       writeFakeNpx(envRoot.fakeBin);
       writeFakeGbrain(envRoot.fakeBin);
+      writeFakeCodeGraph(envRoot.fakeBin);
+      writeFakeNpm(envRoot.fakeBin, "0.9.6");
       writeFakeCurl(envRoot.fakeBin, "3.0.0");
 
       const res = spawnSync("bash", [SCRIPT, "--json", "--check-updates", "--host", "codex"], {

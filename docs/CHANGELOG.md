@@ -4,6 +4,14 @@ All notable changes to this skill are documented here.
 
 ## [Unreleased]
 
+## [5.2.0] - 2026-05-27
+
+### Changed
+
+- Added passive plan capture so Codex Plan mode, Waza `/think`, and `agentic-dev-plan` outputs can become file-backed `plans/plan-*.md` artifacts through `scripts/capture-plan.sh`, with approved captures able to project directly through `plan-to-todo.sh`.
+- Added opt-in default-brain document mirroring through `scripts/sync-brain-docs.sh`, manifest `sync.direction=repo-to-brain` entries, and PostEdit hook integration for registered valuable docs.
+- Promoted CodeGraph from advisory setup guidance to required Codex agent readiness for code navigation, with read-only detector support, strict readiness checks, generated repo `.codegraph/` ignores, and non-vendored host install guidance.
+
 ## [5.1.2] - 2026-05-27
 
 ### Added

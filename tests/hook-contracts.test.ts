@@ -127,6 +127,7 @@ describe("Hook contracts", () => {
     expect(script).toContain("[TaskHandoff]");
     expect(script).toContain("architecture-drift.sh");
     expect(script).toContain("context-contract-sync.sh");
+    expect(script).toContain("sync-brain-docs.sh");
     expect(read("assets/templates/helpers/archive-architecture-request.sh")).toContain("[ArchitectureArchive]");
     expect(read("assets/templates/helpers/workstream-sync.sh")).toContain("tasks/workstreams");
     expect(script).toContain("tasks/todo.md");

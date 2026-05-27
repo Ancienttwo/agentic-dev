@@ -79,6 +79,7 @@ describe("Migration script contract", () => {
     expect(workflowContract).toContain("new-spec.sh");
     expect(workflowContract).toContain("new-sprint.sh");
     expect(workflowContract).toContain("new-plan.sh");
+    expect(workflowContract).toContain("capture-plan.sh");
     expect(workflowContract).toContain("plan-to-todo.sh");
     expect(workflowContract).toContain("contract-worktree.sh");
     expect(workflowContract).toContain("archive-workflow.sh");
@@ -91,6 +92,7 @@ describe("Migration script contract", () => {
     expect(workflowContract).toContain("check-agent-tooling.sh");
     expect(workflowContract).toContain("check-context-files.sh");
     expect(workflowContract).toContain("check-brain-manifest.sh");
+    expect(workflowContract).toContain("sync-brain-docs.sh");
     expect(workflowContract).toContain("ensure-task-workflow.sh");
     expect(workflowContract).toContain("check-task-workflow.sh");
     expect(workflowContract).toContain("maintenance-triage.sh");
@@ -212,6 +214,7 @@ describe("Migration script contract", () => {
       expect(existsSync(join(repo, "scripts/new-spec.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/new-sprint.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/new-plan.sh"))).toBe(true);
+      expect(existsSync(join(repo, "scripts/capture-plan.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/plan-to-todo.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/contract-worktree.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/archive-workflow.sh"))).toBe(true);
@@ -224,6 +227,7 @@ describe("Migration script contract", () => {
       expect(existsSync(join(repo, "scripts/check-agent-tooling.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/check-context-files.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/check-brain-manifest.sh"))).toBe(true);
+      expect(existsSync(join(repo, "scripts/sync-brain-docs.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/ensure-task-workflow.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/check-task-workflow.sh"))).toBe(true);
       expect(existsSync(join(repo, "scripts/maintenance-triage.sh"))).toBe(true);
@@ -316,7 +320,8 @@ describe("Migration script contract", () => {
         knowledge: "gbrain",
       });
       expect(policy.external_tooling.hosts).toEqual(["claude-code", "codex"]);
-      expect(policy.external_tooling.mode).toBe("guidance-only");
+      expect(policy.external_tooling.mode).toBe("agent-readiness-required");
+      expect(policy.external_tooling.readiness_gate).toBe("scripts/check-agent-tooling.sh --host codex --strict-readiness");
       expect(policy.external_tooling.waza.primary_host).toBe("codex");
       expect(policy.external_tooling.waza.sync_mode).toBe("stage-upstream-then-copy-to-codex");
       expect(policy.external_tooling.codex_automation_profile.required_skills).toEqual(["health", "check", "diagram-design"]);
@@ -324,6 +329,11 @@ describe("Migration script contract", () => {
       expect(policy.external_tooling.codex_automation_profile.routes.architecture_diagram).toBe("diagram-design");
       expect(policy.external_tooling.codex_automation_profile.vendoring_policy).toBe("do-not-vendor-skill-body");
       expect(policy.external_tooling.gbrain.mcp).toBe("candidate-disabled");
+      expect(policy.external_tooling.codegraph.primary_host).toBe("codex");
+      expect(policy.external_tooling.codegraph.index_dir).toBe(".codegraph");
+      expect(policy.external_tooling.codegraph.readiness).toBe("required-for-codex-agent-code-navigation");
+      expect(policy.external_tooling.codegraph.hook_policy).toBe("do-not-block-hooks");
+      expect(policy.external_tooling.codegraph.vendoring_policy).toBe("do-not-add-package-dependency");
       expect(policy.agentic_development.routing).toEqual({
         product_discovery: "gstack:office-hours",
         complex_engineering_plan: "gstack:plan-eng-review",
@@ -350,6 +360,7 @@ describe("Migration script contract", () => {
       expect(policy.information_lifecycle.evidence.snapshots_dir).toBe(".ai/harness/runs");
       expect(policy.information_lifecycle.external_knowledge.manifest_file).toBe(".ai/harness/brain-manifest.json");
       expect(policy.information_lifecycle.external_knowledge.drift_check).toBe("scripts/check-brain-manifest.sh");
+      expect(policy.information_lifecycle.external_knowledge.sync_script).toBe("scripts/sync-brain-docs.sh");
       expect(policy.information_lifecycle.assets.promotion_rule).toContain("verified reuse across tasks");
       expect(policy.documentation.profile).toBe("minimal-agentic");
       expect(policy.lsp_profiles.default).toBe("typescript-lsp");
@@ -372,6 +383,7 @@ describe("Migration script contract", () => {
       const workflowContract = JSON.parse(readFileSync(join(repo, ".ai/harness/workflow-contract.json"), "utf-8"));
       expect(workflowContract.helpers.scripts).toContain("check-agent-tooling.sh");
       expect(workflowContract.helpers.scripts).toContain("check-brain-manifest.sh");
+      expect(workflowContract.helpers.scripts).toContain("sync-brain-docs.sh");
       expect(workflowContract.helpers.scripts).toContain("check-deploy-sql-order.sh");
       expect(workflowContract.helpers.scripts).toContain("switch-plan.sh");
       expect(workflowContract.helpers.scripts).toContain("contract-worktree.sh");
@@ -388,6 +400,7 @@ describe("Migration script contract", () => {
       expect(workflowContract.artifacts.requiredDirectories).toContain("deploy/sql");
       expect(workflowContract.artifacts.requiredFiles).toContain(".ai/context/capabilities.json");
       expect(workflowContract.artifacts.requiredFiles).toContain(".ai/harness/brain-manifest.json");
+      expect(workflowContract.artifacts.requiredFiles).toContain("scripts/sync-brain-docs.sh");
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/agentic-development-flow.md");
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/document-generation.md");
       expect(workflowContract.artifacts.requiredFiles).toContain("docs/reference-configs/global-working-rules.md");
@@ -405,6 +418,7 @@ describe("Migration script contract", () => {
       expect(pkg.scripts["check:deploy-sql"]).toBe("bash scripts/check-deploy-sql-order.sh");
       expect(pkg.scripts["check:task-sync"]).toBe("bash scripts/check-task-sync.sh");
       expect(pkg.scripts["check:task-workflow"]).toBe("bash scripts/check-task-workflow.sh --strict");
+      expect(pkg.scripts["sync:brain-docs"]).toBe("bash scripts/sync-brain-docs.sh --all");
 
       const gitignore = readFileSync(join(repo, ".gitignore"), "utf-8");
       expect(gitignore).toContain("# BEGIN: claude-runtime-temp (managed by project-initializer)");
@@ -412,6 +426,7 @@ describe("Migration script contract", () => {
       expect(gitignore).toContain(".codex/*");
       expect(gitignore).toContain("!.codex/hooks.json");
       expect(gitignore).toContain("_ref/");
+      expect(gitignore).toContain(".codegraph/");
       expect(gitignore).toContain("_ops/");
       expect(gitignore).not.toContain("_ops/secrets/");
       expect(gitignore).not.toContain("!_ops/env/.env.example");
@@ -608,6 +623,8 @@ describe("Migration script contract", () => {
       expect(policy.external_tooling.codex_automation_profile.required_skills).toEqual(["health", "check", "diagram-design"]);
       expect(policy.external_tooling.codex_automation_profile.source).toBe("~/.codex/skills");
       expect(policy.external_tooling.gbrain.mcp).toBe("configured");
+      expect(policy.external_tooling.codegraph.primary_host).toBe("codex");
+      expect(policy.external_tooling.codegraph.index_dir).toBe(".codegraph");
       expect(policy.agentic_development.routing.complex_engineering_plan).toBe("gstack:plan-eng-review");
       expect(policy.upgrade.strategy_version).toBe(1);
       expect(policy.upgrade.cleanup.custom_hooks).toBe("preserve");

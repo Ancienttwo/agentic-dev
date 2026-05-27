@@ -67,3 +67,7 @@
 - [x] Added CodeGraph advisory install guidance and a Bun `architecture-event.ts` helper to reduce shell JSON/path glue in architecture drift and context contract sync
 - [x] Scoped Bun test discovery away from ignored advisory/runtime caches such as `_ref/` and `.codegraph/`
 - [x] Moved context contract block rendering and replacement into `architecture-event.ts` while keeping shell fallbacks
+- [x] Promoted CodeGraph from advisory setup guidance to required Codex agent readiness while keeping hooks non-blocking and `.codegraph/` ignored
+- [x] Added passive Codex Plan / Waza think capture through `scripts/capture-plan.sh` and wired it into routing docs, policy, manifests, and tests
+- [x] Added opt-in default-brain document sync through `scripts/sync-brain-docs.sh`, manifest `repo-to-brain` entries, and PostEdit hook integration
+- [x] Bumped release metadata to 5.2.0 for package, skill manifest, README, stamp, and changelog

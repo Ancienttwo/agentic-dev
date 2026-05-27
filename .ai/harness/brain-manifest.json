@@ -10,7 +10,7 @@
   "rules": [
     "repo-local contracts, hooks, scripts, checks, and evidence remain authoritative",
     "default brain stores long-lived explanations, runbooks, decisions, references, and patterns",
-    "hook runtime must not query gbrain, iCloud, MCP, or default brain"
+    "hook runtime may sync explicitly opted-in repo-to-brain entries only; it must not query gbrain, MCP, or unregistered default brain paths"
   ],
   "entries": [
     {
@@ -102,6 +102,39 @@
       "brain_path": "icloud/brain/agentic-dev/runbooks/runbook-agentic-dev-hook-troubleshooting.md",
       "gbrain_slug": "runbooks/runbook-agentic-dev-hook-troubleshooting",
       "max_repo_lines": 100
+    },
+    {
+      "id": "agentic-development-flow",
+      "role": "repo-authored",
+      "repo_path": "docs/reference-configs/agentic-development-flow.md",
+      "asset_path": "assets/reference-configs/agentic-development-flow.md",
+      "brain_path": "icloud/brain/agentic-dev/references/agentic-development-flow.md",
+      "gbrain_slug": "references/agentic-development-flow",
+      "sync": {
+        "direction": "repo-to-brain"
+      }
+    },
+    {
+      "id": "harness-overview",
+      "role": "repo-authored",
+      "repo_path": "docs/reference-configs/harness-overview.md",
+      "asset_path": "assets/reference-configs/harness-overview.md",
+      "brain_path": "icloud/brain/agentic-dev/references/harness-overview.md",
+      "gbrain_slug": "references/harness-overview",
+      "sync": {
+        "direction": "repo-to-brain"
+      }
+    },
+    {
+      "id": "external-tooling",
+      "role": "repo-authored",
+      "repo_path": "docs/reference-configs/external-tooling.md",
+      "asset_path": "assets/reference-configs/external-tooling.md",
+      "brain_path": "icloud/brain/agentic-dev/references/external-tooling.md",
+      "gbrain_slug": "references/external-tooling",
+      "sync": {
+        "direction": "repo-to-brain"
+      }
     }
   ]
 }

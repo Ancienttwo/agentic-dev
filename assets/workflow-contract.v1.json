@@ -81,6 +81,7 @@
       "new-spec.sh",
       "new-sprint.sh",
       "new-plan.sh",
+      "capture-plan.sh",
       "plan-to-todo.sh",
       "contract-worktree.sh",
       "archive-workflow.sh",
@@ -93,6 +94,7 @@
       "check-agent-tooling.sh",
       "check-context-files.sh",
       "check-brain-manifest.sh",
+      "sync-brain-docs.sh",
       "check-skill-version.ts",
       "select-agent-context-blocks.sh",
       "ensure-task-workflow.sh",
@@ -162,6 +164,7 @@
       "scripts/new-spec.sh",
       "scripts/new-sprint.sh",
       "scripts/new-plan.sh",
+      "scripts/capture-plan.sh",
       "scripts/plan-to-todo.sh",
       "scripts/contract-worktree.sh",
       "scripts/archive-workflow.sh",
@@ -173,6 +176,7 @@
       "scripts/check-deploy-sql-order.sh",
       "scripts/check-agent-tooling.sh",
       "scripts/check-context-files.sh",
+      "scripts/sync-brain-docs.sh",
       "scripts/check-skill-version.ts",
       "scripts/select-agent-context-blocks.sh",
       "scripts/ensure-task-workflow.sh",
@@ -424,9 +428,10 @@
           "ownership": "user_local",
           "paths": [
             "_ref/",
+            ".codegraph/",
             "_ops/"
           ],
-          "summary": "Never migrate, delete, or vendor ignored external references, private operations state, secrets, or local environment values."
+          "summary": "Never migrate, delete, or vendor ignored external references, local CodeGraph indexes, private operations state, secrets, or local environment values."
         }
       ]
     }

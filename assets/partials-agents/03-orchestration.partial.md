@@ -12,7 +12,7 @@
 ### 3. Plan Node Default
 - Enter plan mode for non-trivial tasks.
 - If `docs/spec.md` is missing, run `bash scripts/new-spec.sh` first.
-- If no active plan exists, run `bash scripts/new-sprint.sh --slug <slug> --title <title>` before implementation.
+- Capture decision-complete Codex Plan mode or Waza `/think` output with `bash scripts/capture-plan.sh --slug <slug> --title <title>`; if no captured active plan exists, use `new-sprint.sh`; after approval, run `plan-to-todo.sh` or capture with `--status Approved --execute`.
 - Keep active checklist items in `tasks/todo.md`.
 
 ### 4. Research Delegation Strategy

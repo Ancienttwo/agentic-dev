@@ -786,6 +786,7 @@ migrate_workflow() {
   ensure_gitignore_entry "$repo_gitignore" "*.tgz"
   ensure_gitignore_entry "$repo_gitignore" "# External references"
   ensure_gitignore_entry "$repo_gitignore" "_ref/"
+  ensure_gitignore_entry "$repo_gitignore" ".codegraph/"
   ensure_gitignore_entry "$repo_gitignore" "# Local operations state"
   ensure_gitignore_entry "$repo_gitignore" "_ops/"
   ensure_gitignore_entry "$repo_gitignore" "# Environment"

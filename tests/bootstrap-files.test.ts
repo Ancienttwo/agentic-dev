@@ -59,6 +59,7 @@ describe("Bootstrap Script Contracts", () => {
     expect(pkg.scripts["check:deploy-sql"]).toBe("bash scripts/check-deploy-sql-order.sh");
     expect(pkg.scripts["check:task-workflow"]).toBe("bash scripts/check-task-workflow.sh --strict");
     expect(pkg.scripts["check:context-files"]).toBe("bash scripts/check-context-files.sh");
+    expect(pkg.scripts["sync:brain-docs"]).toBe("bash scripts/sync-brain-docs.sh --all");
   });
 
   test("create-project-dirs should create tasks primary files", () => {
@@ -72,6 +73,7 @@ describe("Bootstrap Script Contracts", () => {
     expect(content).toContain("cat > tasks/research.md");
     expect(content).not.toContain("docs/TODO.md");
     expect(sharedLib).toContain("new-plan.sh");
+    expect(sharedLib).toContain("capture-plan.sh");
     expect(sharedLib).toContain("plan-to-todo.sh");
     expect(sharedLib).toContain("contract-worktree.sh");
     expect(sharedLib).toContain("archive-workflow.sh");
@@ -80,6 +82,7 @@ describe("Bootstrap Script Contracts", () => {
     expect(sharedLib).toContain("check:context-files");
     expect(sharedLib).toContain("check:deploy-sql");
     expect(sharedLib).toContain("check:brain-manifest");
+    expect(sharedLib).toContain("sync:brain-docs");
     expect(sharedLib).toContain("spawn_decision");
     expect(sharedLib).toContain("fallback_runner");
     expect(sharedLib).toContain("if spawning is not worthwhile");
@@ -89,6 +92,7 @@ describe("Bootstrap Script Contracts", () => {
     expect(content).toContain(".ai/harness/policy.json");
     expect(content).toContain(".ai/context/context-map.json");
     expect(contract.helpers.scripts).toContain("maintenance-triage.sh");
+    expect(contract.helpers.scripts).toContain("capture-plan.sh");
     expect(contract.helpers.scripts).toContain("context-budget.ts");
     expect(contract.helpers.scripts).toContain("architecture-drift.sh");
     expect(contract.helpers.scripts).toContain("archive-architecture-request.sh");
@@ -102,6 +106,7 @@ describe("Bootstrap Script Contracts", () => {
     expect(contract.helpers.scripts).toContain("codex-handoff-resume.sh");
     expect(contract.helpers.scripts).toContain("check-agent-tooling.sh");
     expect(contract.helpers.scripts).toContain("check-brain-manifest.sh");
+    expect(contract.helpers.scripts).toContain("sync-brain-docs.sh");
     expect(contract.helpers.scripts).toContain("check-deploy-sql-order.sh");
     expect(contract.helpers.scripts).toContain("check-context-files.sh");
     expect(contract.helpers.scripts).toContain("select-agent-context-blocks.sh");
@@ -130,6 +135,8 @@ describe("Bootstrap Script Contracts", () => {
     expect(contract.helpers.scripts).toContain("architecture-event.ts");
     expect(contract.helpers.scripts).toContain("capability-config.ts");
     expect(contract.artifacts.requiredFiles).toContain("scripts/contract-worktree.sh");
+    expect(contract.artifacts.requiredFiles).toContain("scripts/capture-plan.sh");
+    expect(contract.artifacts.requiredFiles).toContain("scripts/sync-brain-docs.sh");
     expect(contract.artifacts.requiredFiles).toContain("scripts/capability-config.ts");
     expect(contract.artifacts.requiredFiles).toContain(".ai/harness/workflow-contract.json");
     expect(contract.artifacts.requiredFiles).toContain(".codex/hooks.json");
@@ -185,11 +192,13 @@ describe("Bootstrap Script Contracts", () => {
     expect(sharedLib).toContain("pi_print_external_tooling_report");
     expect(sharedLib).toContain("check-task-sync.sh");
     expect(sharedLib).toContain("ensure-task-workflow.sh");
+    expect(sharedLib).toContain("capture-plan.sh");
     expect(sharedLib).toContain("check-task-workflow.sh");
     expect(content).toContain(".ai/context");
     expect(content).toContain(".ai/harness/policy.json");
     expect(content).toContain(".ai/context/context-map.json");
     expect(contract.helpers.scripts).toContain("maintenance-triage.sh");
+    expect(contract.helpers.scripts).toContain("capture-plan.sh");
     expect(contract.helpers.scripts).toContain("context-budget.ts");
     expect(contract.helpers.scripts).toContain("prepare-codex-handoff.sh");
     expect(contract.helpers.scripts).toContain("codex-handoff-resume.sh");
@@ -202,6 +211,7 @@ describe("Bootstrap Script Contracts", () => {
     expect(contract.helpers.scripts).toContain("workstream-sync.sh");
     expect(contract.helpers.scripts).toContain("contract-worktree.sh");
     expect(contract.artifacts.requiredFiles).toContain("docs/reference-configs/agentic-development-flow.md");
+    expect(contract.artifacts.requiredFiles).toContain("scripts/capture-plan.sh");
     expect(contract.artifacts.requiredFiles).toContain(".claude/templates/implementation-notes.template.md");
     expect(contract.artifacts.requiredDirectories).toContain("tasks/notes");
     expect(contract.artifacts.requiredDirectories).toContain("tasks/workstreams");

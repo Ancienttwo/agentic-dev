@@ -126,9 +126,13 @@ const manifestRel = normalizeRel(manifestPath);
 const externalKnowledge = policy?.information_lifecycle?.external_knowledge || {};
 const policyManifest = externalKnowledge.manifest_file;
 const policyProjectPath = externalKnowledge.project_path;
+const policySyncScript = externalKnowledge.sync_script;
 
 if (policyManifest && policyManifest !== manifestRel) {
   issue(`Policy external_knowledge.manifest_file points to ${policyManifest}, expected ${manifestRel}`);
+}
+if (policySyncScript && !fs.existsSync(path.resolve(repoRoot, policySyncScript))) {
+  issue(`Policy external_knowledge.sync_script is missing: ${policySyncScript}`);
 }
 
 if (!manifest.version) {
@@ -172,11 +176,16 @@ for (const entry of entries) {
   const brainPath = entry.brain_path;
   const gbrainSlug = entry.gbrain_slug;
   const maxRepoLines = Number(entry.max_repo_lines || 0);
+  const syncDirection = entry.sync?.direction || entry.sync_direction || "";
+  const isRepoToBrainSync = syncDirection === "repo-to-brain";
 
   if (!entry.id) issue("Entry is missing id");
   if (!repoPath) issue(`Entry ${id} is missing repo_path`);
   if (!brainPath) issue(`Entry ${id} is missing brain_path`);
   if (!gbrainSlug) issue(`Entry ${id} is missing gbrain_slug`);
+  if (syncDirection && syncDirection !== "repo-to-brain") {
+    issue(`Entry ${id} has unsupported sync.direction: ${syncDirection}`);
+  }
 
   if (brainPath && defaultPrefix && !String(brainPath).startsWith(defaultPrefix)) {
     issue(`Entry ${id} brain_path is outside default_brain_path: ${brainPath}`);
@@ -188,10 +197,10 @@ for (const entry of entries) {
       issue(`Entry ${id} repo_path is missing: ${repoPath}`);
     } else {
       const content = fs.readFileSync(repoFile, "utf8");
-      if (brainPath && !content.includes(brainPath)) {
+      if (!isRepoToBrainSync && brainPath && !content.includes(brainPath)) {
         issue(`Entry ${id} repo stub does not mention brain_path: ${repoPath}`);
       }
-      if (gbrainSlug && !content.includes(gbrainSlug)) {
+      if (!isRepoToBrainSync && gbrainSlug && !content.includes(gbrainSlug)) {
         issue(`Entry ${id} repo stub does not mention gbrain_slug: ${repoPath}`);
       }
       if (maxRepoLines > 0) {

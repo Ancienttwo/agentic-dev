@@ -12,6 +12,7 @@ coverage/
 
 # ===== External References =====
 _ref/
+.codegraph/
 
 # ===== Local Operations State =====
 _ops/

@@ -1,6 +1,6 @@
 {
-  "version": "5.1.2",
-  "templateVersion": "5.1.2",
+  "version": "5.2.0",
+  "templateVersion": "5.2.0",
   "skillName": "agentic-dev",
   "contractId": "tasks-first-harness-v1",
   "legacyAliases": [
@@ -91,6 +91,10 @@
     {
       "version": "5.1.2",
       "description": "Adds generated Codex hook adapter support through .codex/hooks.json while keeping .ai/hooks as the shared implementation layer"
+    },
+    {
+      "version": "5.2.0",
+      "description": "Adds passive plan capture, opt-in repo-to-brain document sync, and required CodeGraph readiness for Codex code navigation"
     }
   ],
   "generatedProjectStamp": {

@@ -1,6 +1,6 @@
 {
   "name": "agentic-dev",
-  "version": "5.1.2",
+  "version": "5.2.0",
   "description": "Installs, migrates, audits, and repairs repo-local agentic development harnesses",
   "repository": {
     "type": "git",
@@ -16,6 +16,7 @@
     "check:deploy-sql": "bash scripts/check-deploy-sql-order.sh",
     "check:task-sync": "bash scripts/check-task-sync.sh",
     "check:task-workflow": "bash scripts/check-task-workflow.sh --strict",
+    "sync:brain-docs": "bash scripts/sync-brain-docs.sh --all",
     "sync:codex-installed": "bash scripts/sync-codex-installed-copies.sh"
   },
   "devDependencies": {

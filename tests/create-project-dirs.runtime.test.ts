@@ -81,6 +81,7 @@ describe("create-project-dirs runtime smoke", () => {
       expect(existsSync(join(cwd, "scripts/check-task-sync.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/check-deploy-sql-order.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/check-brain-manifest.sh"))).toBe(true);
+      expect(existsSync(join(cwd, "scripts/sync-brain-docs.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/check-context-files.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/select-agent-context-blocks.sh"))).toBe(true);
       expect(existsSync(join(cwd, "scripts/capability-resolver.ts"))).toBe(true);
@@ -133,6 +134,7 @@ describe("create-project-dirs runtime smoke", () => {
       const workflowContract = JSON.parse(readFileSync(join(cwd, ".ai/harness/workflow-contract.json"), "utf-8"));
       expect(workflowContract.helpers.scripts).toContain("check-agent-tooling.sh");
       expect(workflowContract.helpers.scripts).toContain("check-brain-manifest.sh");
+      expect(workflowContract.helpers.scripts).toContain("sync-brain-docs.sh");
       expect(workflowContract.helpers.scripts).toContain("check-deploy-sql-order.sh");
       expect(workflowContract.helpers.scripts).toContain("check-task-workflow.sh");
       expect(workflowContract.helpers.scripts).toContain("contract-worktree.sh");
@@ -185,7 +187,8 @@ describe("create-project-dirs runtime smoke", () => {
         knowledge: "gbrain",
       });
       expect(policy.external_tooling.hosts).toEqual(["claude-code", "codex"]);
-      expect(policy.external_tooling.mode).toBe("guidance-only");
+      expect(policy.external_tooling.mode).toBe("agent-readiness-required");
+      expect(policy.external_tooling.readiness_gate).toBe("scripts/check-agent-tooling.sh --host codex --strict-readiness");
       expect(policy.external_tooling.waza.primary_host).toBe("codex");
       expect(policy.external_tooling.waza.managed_skills).toEqual(["check", "design", "health", "hunt", "learn", "read", "think", "write"]);
       expect(policy.external_tooling.waza.codex_primary_path).toBe("~/.codex/skills");
@@ -199,6 +202,11 @@ describe("create-project-dirs runtime smoke", () => {
       });
       expect(policy.external_tooling.codex_automation_profile.vendoring_policy).toBe("do-not-vendor-skill-body");
       expect(policy.external_tooling.gbrain.mcp).toBe("candidate-disabled");
+      expect(policy.external_tooling.codegraph.primary_host).toBe("codex");
+      expect(policy.external_tooling.codegraph.index_dir).toBe(".codegraph");
+      expect(policy.external_tooling.codegraph.readiness).toBe("required-for-codex-agent-code-navigation");
+      expect(policy.external_tooling.codegraph.hook_policy).toBe("do-not-block-hooks");
+      expect(policy.external_tooling.codegraph.vendoring_policy).toBe("do-not-add-package-dependency");
       expect(policy.tasks.notes_dir).toBe("tasks/notes");
       expect(policy.tasks.workstreams_dir).toBe("tasks/workstreams");
       expect(policy.reference_material.dir).toBe("_ref");
@@ -214,6 +222,7 @@ describe("create-project-dirs runtime smoke", () => {
       expect(policy.information_lifecycle.evidence.snapshots_dir).toBe(".ai/harness/runs");
       expect(policy.information_lifecycle.external_knowledge.manifest_file).toBe(".ai/harness/brain-manifest.json");
       expect(policy.information_lifecycle.external_knowledge.drift_check).toBe("scripts/check-brain-manifest.sh");
+      expect(policy.information_lifecycle.external_knowledge.sync_script).toBe("scripts/sync-brain-docs.sh");
       expect(policy.agentic_development.routing).toEqual({
         product_discovery: "gstack:office-hours",
         complex_engineering_plan: "gstack:plan-eng-review",
@@ -268,6 +277,7 @@ describe("create-project-dirs runtime smoke", () => {
       expect(pkg.scripts["check:deploy-sql"]).toBe("bash scripts/check-deploy-sql-order.sh");
       expect(pkg.scripts["check:task-sync"]).toBe("bash scripts/check-task-sync.sh");
       expect(pkg.scripts["check:task-workflow"]).toBe("bash scripts/check-task-workflow.sh --strict");
+      expect(pkg.scripts["sync:brain-docs"]).toBe("bash scripts/sync-brain-docs.sh --all");
       expect(existsSync(join(cwd, "scripts/contract-worktree.sh"))).toBe(true);
     } finally {
       rmSync(cwd, { recursive: true, force: true });

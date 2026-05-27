@@ -338,6 +338,12 @@ if [[ -f "scripts/check-brain-manifest.sh" ]]; then
   fi
 fi
 
+if [[ -f "scripts/sync-brain-docs.sh" ]]; then
+  if ! bash "scripts/sync-brain-docs.sh" --check; then
+    report_issue "Brain doc sync check failed."
+  fi
+fi
+
 todo_source="$(todo_source_plan || true)"
 if [[ -f "$todo_file" ]]; then
   if [[ -z "$todo_source" ]]; then

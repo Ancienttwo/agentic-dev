@@ -1222,6 +1222,57 @@ describe("Hook runtime behavior", () => {
     }
   });
 
+  test("post-edit-guard: syncs opted-in repo docs to the default brain vault", () => {
+    const cwd = tmpWorkspace("post-edit-brain-sync");
+    try {
+      initGitRepo(cwd);
+      installHooks(cwd);
+      mkdirSync(join(cwd, "scripts"), { recursive: true });
+      mkdirSync(join(cwd, "docs"), { recursive: true });
+      mkdirSync(join(cwd, ".ai/harness"), { recursive: true });
+      const brainRoot = join(cwd, "brain");
+      mkdirSync(brainRoot, { recursive: true });
+      copyFileSync(join(ROOT, "assets/templates/helpers/sync-brain-docs.sh"), join(cwd, "scripts/sync-brain-docs.sh"));
+      expect(run("chmod", ["+x", "scripts/sync-brain-docs.sh"], cwd).status).toBe(0);
+
+      writeFileSync(join(cwd, "docs/valuable.md"), "# Valuable Doc\n\nHook mirrored knowledge.\n");
+      writeFileSync(
+        join(cwd, ".ai/harness/brain-manifest.json"),
+        JSON.stringify(
+          {
+            version: 1,
+            project: "demo",
+            mode: "repo-contract-external-knowledge",
+            default_brain_path: "icloud/brain/demo/*",
+            entries: [
+              {
+                id: "valuable",
+                role: "repo-authored",
+                repo_path: "docs/valuable.md",
+                brain_path: "icloud/brain/demo/references/valuable.md",
+                gbrain_slug: "references/valuable",
+                sync: { direction: "repo-to-brain" },
+              },
+            ],
+          },
+          null,
+          2
+        ) + "\n"
+      );
+
+      const res = runHook("post-edit-guard.sh", cwd, {
+        stdin: JSON.stringify({ tool_input: { file_path: "docs/valuable.md" } }),
+        env: { ICLOUD_BRAIN_ROOT: brainRoot },
+      });
+
+      expect(res.status).toBe(0);
+      expect(res.stdout).toContain("[BrainSync] synced docs/valuable.md");
+      expect(readFileSync(join(brainRoot, "demo/references/valuable.md"), "utf-8")).toContain("Hook mirrored knowledge.");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
   test("post-edit-guard: creates handoff summary when completed tasks increase", () => {
     const cwd = tmpWorkspace("task-handoff");
     try {
