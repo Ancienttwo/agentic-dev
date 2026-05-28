@@ -85,12 +85,15 @@ if [[ "$mode_all" -eq 0 && "$mode_check" -eq 0 && "${#changed_paths[@]}" -eq 0 ]
   exit 2
 fi
 
-changed_json="$(
-  "$runtime" -e '
+changed_json='[]'
+if [[ "${#changed_paths[@]}" -gt 0 ]]; then
+  changed_json="$(
+    "$runtime" -e '
 const values = process.argv.slice(1);
 process.stdout.write(JSON.stringify(values));
 ' "${changed_paths[@]}"
-)"
+  )"
+fi
 
 "$runtime" - "$manifest_path" "$mode_all" "$mode_check" "$dry_run" "$require_root" "$scope" "$changed_json" <<'JS_EOF'
 const fs = require("fs");
@@ -274,7 +277,8 @@ if (!fs.existsSync(manifestPath)) {
 
 const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
 const project = manifest.project || path.basename(repoRoot);
-const defaultPrefix = stripWildcard(manifest.default_brain_path || `brain/${project}/*`);
+const defaultPrefix = stripWildcard(manifest.default_brain_path || `brain/${project}/*`)
+  .replace(/^icloud\/brain\//, "brain/");
 const selected = [];
 const changedSet = new Set(changedPaths);
 
