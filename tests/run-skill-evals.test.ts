@@ -46,7 +46,7 @@ for arg in "$@"; do
   fi
   prompt="$arg"
 done
-if [[ "$disable" -eq 0 && -L ".claude/skills/project-initializer" ]]; then
+if [[ "$disable" -eq 0 && -L ".claude/skills/agentic-dev" ]]; then
   printf "\\n- claude with skill\\n" >> AGENTS.md
   echo "claude with skill: $prompt"
 else
@@ -207,7 +207,7 @@ describe("run-skill-evals execution", () => {
       expect(claudeWithSkill?.graderStatus).toBe("passed");
       expect(claudeWithSkill?.graderSummary.total).toBeGreaterThan(0);
       expect(claudeWithSkill?.graderReportPath).not.toBeNull();
-      expect(existsSync(join(claudeWithSkill!.workspacePath, ".claude/skills/project-initializer"))).toBe(
+      expect(existsSync(join(claudeWithSkill!.workspacePath, ".claude/skills/agentic-dev"))).toBe(
         true
       );
 

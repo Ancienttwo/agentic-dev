@@ -9,6 +9,7 @@
 
 import { Command } from 'commander';
 import { runInstall, type InstallTargetSpec } from './commands/install';
+import { runInit } from './commands/init';
 import { runHook } from './commands/hook';
 import { formatStatus, runStatus } from './commands/status';
 import { formatDoctor, runDoctor } from './commands/doctor';
@@ -17,7 +18,7 @@ import { buildToolsCommand } from './commands/tools';
 import type { Location } from './installer/types';
 import type { HookEvent, RouteId } from './hook/route-registry';
 
-export const SUBCOMMANDS = ['install', 'hook', 'status', 'doctor', 'migrate', 'tools'] as const;
+export const SUBCOMMANDS = ['init', 'install', 'hook', 'status', 'doctor', 'migrate', 'tools'] as const;
 export type Subcommand = (typeof SUBCOMMANDS)[number];
 
 const VALID_TARGETS: readonly InstallTargetSpec[] = ['codex', 'claude', 'both'];
@@ -30,6 +31,50 @@ export function buildProgram(): Command {
     .description('Repo-local agentic development harness CLI')
     .version('0.0.0-phase1c')
     .exitOverride();
+
+  program
+    .command('init')
+    .description('Install or refresh the agentic-dev workflow in an existing repo')
+    .option('--repo <path>', 'Target repository path (defaults to cwd)')
+    .option('--dry-run', 'Plan repo harness changes without applying them')
+    .option('--target <target>', `Host target for adapters and external skills: ${VALID_TARGETS.join('|')}`, 'both')
+    .option('--no-sync-skill', 'Skip refreshing agentic-dev skill aliases under host skill roots')
+    .option('--no-host-adapters', 'Skip writing global Codex/Claude hook adapters')
+    .option('--no-external-skills', 'Skip Waza and diagram-design skill bootstrap')
+    .option('--no-verify', 'Skip repo workflow verification after apply')
+    .option('--json', 'Output JSON instead of human-readable text')
+    .action((rawOpts: {
+      repo?: string;
+      dryRun?: boolean;
+      target: string;
+      syncSkill?: boolean;
+      hostAdapters?: boolean;
+      externalSkills?: boolean;
+      verify?: boolean;
+      json?: boolean;
+    }) => {
+      if (!VALID_TARGETS.includes(rawOpts.target as InstallTargetSpec)) {
+        console.error(
+          `agentic-dev init: invalid --target "${rawOpts.target}" (expected: ${VALID_TARGETS.join(', ')})`,
+        );
+        process.exit(2);
+      }
+      const result = runInit({
+        repo: rawOpts.repo,
+        apply: rawOpts.dryRun !== true,
+        target: rawOpts.target as InstallTargetSpec,
+        syncSkill: rawOpts.syncSkill !== false,
+        hostAdapters: rawOpts.hostAdapters !== false,
+        externalSkills: rawOpts.externalSkills !== false,
+        verify: rawOpts.verify !== false,
+      });
+      if (rawOpts.json === true) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        for (const line of result.lines) console.log(line);
+      }
+      process.exit(result.exitCode);
+    });
 
   program
     .command('install')

@@ -130,7 +130,7 @@ describe("workflow contract manifest", () => {
     expect(contract.migrations.upgrade?.actions.some((action) => action.action === "remove" && action.ownership === "known_generated")).toBe(true);
   });
 
-  test("upstream skill root resolver prefers the new env var while preserving the legacy alias", () => {
+  test("upstream skill root resolver prefers the canonical env var while preserving the agentic-dev-skill alias", () => {
     const code = [
       'import { resolveAgenticDevRoot, resolveAgenticDevSkillRoot, resolveProjectInitializerRoot } from "./scripts/workflow-contract.ts";',
       'console.log(resolveAgenticDevRoot());',
@@ -144,7 +144,6 @@ describe("workflow contract manifest", () => {
         ...process.env,
         AGENTIC_DEV_ROOT: "/tmp/agentic-dev-root",
         AGENTIC_DEV_SKILL_ROOT: "/tmp/agentic-dev-skill-root",
-        PROJECT_INITIALIZER_ROOT: "/tmp/project-initializer-root",
       },
     });
     expect(preferred.status).toBe(0);
@@ -161,7 +160,6 @@ describe("workflow contract manifest", () => {
         ...process.env,
         AGENTIC_DEV_ROOT: "",
         AGENTIC_DEV_SKILL_ROOT: "/tmp/agentic-dev-skill-root",
-        PROJECT_INITIALIZER_ROOT: "/tmp/project-initializer-root",
       },
     });
     expect(renamedLegacy.status).toBe(0);
@@ -171,7 +169,7 @@ describe("workflow contract manifest", () => {
       "/tmp/agentic-dev-skill-root",
     ]);
 
-    const legacy = spawnSync("bun", ["-e", code], {
+    const retiredLegacy = spawnSync("bun", ["-e", code], {
       cwd: ROOT,
       encoding: "utf-8",
       env: {
@@ -181,12 +179,8 @@ describe("workflow contract manifest", () => {
         PROJECT_INITIALIZER_ROOT: "/tmp/project-initializer-root",
       },
     });
-    expect(legacy.status).toBe(0);
-    expect(legacy.stdout.trim().split("\n")).toEqual([
-      "/tmp/project-initializer-root",
-      "/tmp/project-initializer-root",
-      "/tmp/project-initializer-root",
-    ]);
+    expect(retiredLegacy.status).toBe(0);
+    expect(retiredLegacy.stdout).not.toContain("/tmp/project-initializer-root");
   });
 
   test("runtime harness artifacts should be ignored local state, not tracked deliverables", () => {

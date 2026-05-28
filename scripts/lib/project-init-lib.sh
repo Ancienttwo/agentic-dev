@@ -839,7 +839,7 @@ pi_print_external_tooling_report() {
   fi
 
   local detector_args=(--host both)
-  if [[ "${PROJECT_INITIALIZER_CHECK_TOOLING_UPDATES:-0}" == "1" ]]; then
+  if [[ "${AGENTIC_DEV_CHECK_TOOLING_UPDATES:-${PROJECT_INITIALIZER_CHECK_TOOLING_UPDATES:-0}}" == "1" ]]; then
     detector_args+=(--check-updates)
   fi
 

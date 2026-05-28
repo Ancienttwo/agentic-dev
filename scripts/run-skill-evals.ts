@@ -313,7 +313,7 @@ function buildCodexWrapper(existingAgents: string, skillMarkdown: string): strin
     "# Benchmark Skill Wrapper",
     "",
     "Treat the embedded `agentic-dev` skill as the primary routing contract for this benchmark run.",
-    "The benchmark still mounts Claude's legacy skill alias path at `.claude/skills/project-initializer` for compatibility.",
+    "The benchmark mounts Claude's canonical skill path at `.claude/skills/agentic-dev`.",
     "When the embedded skill references `scripts/`, `references/`, `assets/`, or `evals/` files, resolve them relative to `.skill-src/`.",
     "Preserve any fixture-specific instructions listed below unless they conflict with the embedded skill.",
     "",
@@ -341,7 +341,7 @@ export function prepareWorkspaceForRun(
   }
 
   if (agent === "claude") {
-    const linkPath = join(workspacePath, ".claude", "skills", "project-initializer");
+    const linkPath = join(workspacePath, ".claude", "skills", "agentic-dev");
     ensureDir(dirname(linkPath));
     rmSync(linkPath, { recursive: true, force: true });
     symlinkSync(skillPath, linkPath, "dir");

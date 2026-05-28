@@ -7,7 +7,7 @@
 ## Product Outcome
 
 Generate and migrate repo-local agentic workflow contracts for Claude and Codex.
-The skill, formerly `agentic-dev-skill` and `project-initializer`, keeps root context stable, exposes
+The skill, formerly `agentic-dev-skill`, keeps root context stable, exposes
 deeper context progressively, externalizes workflow state into repo-local
 artifacts, and lets this repository self-host the same critical contract it
 generates for downstream repos.
@@ -66,9 +66,10 @@ generates for downstream repos.
   When
   the action command surface routes the request,
   Then
-  `agentic-dev-init` handles existing repo adoption and `agentic-dev-scaffold`
-  handles new project or module creation, while hook and docs initialization
-  remain internal implementation steps.
+  `agentic-dev init` and `agentic-dev-init` handle existing repo adoption from
+  the target repo root without requiring `--repo .`, and
+  `agentic-dev-scaffold` handles new project or module creation, while hook and
+  docs initialization remain internal implementation steps.
 
 ## Open Questions
 

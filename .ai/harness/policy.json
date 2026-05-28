@@ -328,11 +328,11 @@
       "readiness": "required-for-codex-agent-code-navigation",
       "hook_policy": "do-not-block-hooks",
       "install_command": "bun install",
-      "ensure_command": "bash scripts/ensure-codegraph.sh",
       "project_init_command": "bash scripts/ensure-codegraph.sh --init",
       "sync_command": "bash scripts/ensure-codegraph.sh --sync",
-      "mcp_install_command": "npm install -g @colbymchenry/codegraph && mkdir -p ~/.local/bin && ln -sfn \"$(npm config get prefix)/bin/codegraph\" ~/.local/bin/codegraph && PATH=\"$HOME/.local/bin:$PATH\" codegraph install --target codex --location global --yes",
-      "vendoring_policy": "self-host-dev-dependency; downstream-generated-default-remains-do-not-add-package-dependency"
+      "vendoring_policy": "self-host-dev-dependency; downstream-generated-default-remains-do-not-add-package-dependency",
+      "ensure_command": "bash scripts/ensure-codegraph.sh",
+      "mcp_install_command": "npm install -g @colbymchenry/codegraph && mkdir -p ~/.local/bin && ln -sfn \"$(npm config get prefix)/bin/codegraph\" ~/.local/bin/codegraph && PATH=\"$HOME/.local/bin:$PATH\" codegraph install --target codex --location global --yes"
     }
   },
   "agentic_development": {

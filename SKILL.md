@@ -1,20 +1,20 @@
 ---
 name: agentic-dev
 description: installs, migrates, audits, and repairs repo-local agentic development harnesses
-when_to_use: "agentic-dev, agentic-dev-skill, project-initializer, initialize repo-local agentic development harness, migrate repo-local agentic development harness, audit repo-local agentic development harness, repair repo-local agentic development harness"
+when_to_use: "agentic-dev, agentic-dev-skill, initialize repo-local agentic development harness, migrate repo-local agentic development harness, audit repo-local agentic development harness, repair repo-local agentic development harness"
 ---
 
 # agentic-dev
 
-`agentic-dev` is the repo-local agentic development harness skill, formerly `agentic-dev-skill` and `project-initializer`.
+`agentic-dev` is the repo-local agentic development harness skill, formerly `agentic-dev-skill`.
 It is a thin router over a versioned workflow engine.
 
 Compatibility boundary:
 
 - internal engine: tasks-first harness
 - contract ID: tasks-first-harness-v1
-- legacy aliases: `agentic-dev-skill`, `project-initializer`
-- legacy install paths remain valid for this release cycle
+- compatibility alias: `agentic-dev-skill`
+- retired install aliases: `project-initializer` under `~/.codex/skills` and `~/.claude/skills`
 
 The skill should not carry the whole workflow contract in prose. It should:
 
@@ -167,7 +167,8 @@ Migration defaults:
 - move hidden contracts and deep findings into `tasks/research.md`
 - distill repeated corrections into `tasks/lessons.md`
 - merge missing `external_tooling` defaults into `.ai/harness/policy.json` without overwriting explicit user values
-- keep gstack/Waza/gbrain detection advisory-only; do not auto-install, auto-upgrade, auto-sync, or auto-enable MCP
+- keep gstack/gbrain/CodeGraph detection advisory-only; do not auto-install, auto-upgrade, auto-sync, or auto-enable MCP
+- let `agentic-dev init` bootstrap required Codex/Claude runtime skills in one pass: Waza (`check`, `design`, `health`, `hunt`, `learn`, `read`, `think`, `write`) plus `diagram-design` when a source copy exists
 - treat Waza as Codex-first: `~/.codex/skills` is the Codex runtime source, `~/.agents/skills` is only skills CLI staging/cache, and updates require stage -> copy to Codex -> `cmp` verification
 
 ## Repo-Local Contract

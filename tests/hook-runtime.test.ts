@@ -605,6 +605,39 @@ describe("Hook runtime behavior", () => {
     }
   });
 
+  test("context-pressure: Codex apply_patch warns on dirty plan annotations", () => {
+    const cwd = tmpWorkspace("context-pressure-plan-guard");
+    try {
+      initGitRepo(cwd);
+      installHooks(cwd);
+      mkdirSync(join(cwd, "plans"), { recursive: true });
+
+      writeFileSync(
+        join(cwd, "plans/plan-20260304-1200-test.md"),
+        "# Plan: test\n\n> **Status**: Draft\n"
+      );
+      expect(run("git", ["add", "."], cwd).status).toBe(0);
+      expect(run("git", ["commit", "-m", "seed plan"], cwd).status).toBe(0);
+
+      appendFileSync(join(cwd, "plans/plan-20260304-1200-test.md"), "- [NOTE]: codex annotation\n");
+
+      const applyPatchRes = runHook("context-pressure-hook.sh", cwd, {
+        stdin: JSON.stringify({ tool_name: "apply_patch" }),
+      });
+      expect(applyPatchRes.status).toBe(0);
+      expect(applyPatchRes.stdout).toContain("[AnnotationGuard]");
+      expect(applyPatchRes.stdout).toContain("plans/plan-20260304-1200-test.md");
+
+      const bashRes = runHook("context-pressure-hook.sh", cwd, {
+        stdin: JSON.stringify({ tool_name: "Bash" }),
+      });
+      expect(bashRes.status).toBe(0);
+      expect(bashRes.stdout).not.toContain("[AnnotationGuard]");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
   test("hooks resolve repo root when cwd drifts", () => {
     const workspace = tmpWorkspace("cwd-drift");
     try {

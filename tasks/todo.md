@@ -1,39 +1,42 @@
 # Task Execution Checklist (Primary)
 
-> **Source Plan**: plans/plan-20260528-1652-codegraph-readiness.md
+> **Source Plan**: plans/plan-20260528-1906-init-cli-external-skills.md
 > **Status**: Complete
-> **Phase Progress**: CodeGraph dependency, detector, CLI `tools ensure codegraph`, doctor readiness check, and shell adapter parity are implemented; final verification is recorded in `tasks/reviews/codegraph-readiness.review.md`
-> **Generated**: 2026-05-28 18:37
-> **Source Plan Slug**: codegraph-readiness
-> **Review File**: tasks/reviews/codegraph-readiness.review.md
-> **Notes File**: tasks/notes/codegraph-readiness.notes.md
-> **Capability ID**: verification-codegraph-readiness
-> **Parent Run ID**: run-20260528T1758
-> **Follows Merged Dependency**: plans/plan-20260528-1436-hook-global-runtime.md
+> **Phase Progress**: `agentic-dev init` is implemented, `project-initializer` installed aliases are retired, required checks pass, and Codex local runtime init succeeded.
+> **Generated**: 2026-05-28 19:06
+> **Source Plan Slug**: init-cli-external-skills
+> **Notes File**: tasks/notes/init-cli-external-skills.notes.md
+> **Capability ID**: public-surface-root-router
 
 ## Execution
 
-- [x] Materialize `tasks/contracts/codegraph-readiness.contract.md`, `tasks/notes/codegraph-readiness.notes.md`, and `tasks/reviews/codegraph-readiness.review.md`
-- [x] Add `@colbymchenry/codegraph` as a self-host dev dependency and generate `bun.lock`
-- [x] Add `scripts/ensure-codegraph.sh` and retire temporary `src/cli/tools/codegraph-runner.ts` after formal CLI registration
-- [x] Add `src/cli/tools/codegraph.ts` facade for future CLI reuse
-- [x] Update `scripts/check-agent-tooling.sh` to resolve CodeGraph local-first and report global drift/fallback
-- [x] Keep generated downstream policy default explicit: no package dependency unless local policy opts in
-- [x] Document self-host CodeGraph readiness and register the capability/architecture module
-- [x] Verify read-only check paths do not run `bun install`, `codegraph init`, `codegraph sync`, or `codegraph install`
-- [x] Repair the broad `bun test` gate so ignored `_ref/` checkouts do not enter repo-owned verification
-- [x] Register `checkCodegraph()` and `ensureCodegraph()` on the merged `agentic-dev` CLI surface (`src/cli/index.ts`, `src/cli/commands/doctor.ts`, `src/cli/commands/tools.ts`)
-- [x] Update `tasks/reviews/codegraph-readiness.review.md` to `Recommendation: pass` only after the full contract exit criteria pass
+- [x] Add `agentic-dev init` to the CLI and default the target repo to cwd when `--repo` is omitted.
+- [x] Make init refresh installed `agentic-dev` aliases, install host adapters, apply the harness, bootstrap Waza plus `diagram-design`, and verify the target repo.
+- [x] Stop maintaining `~/.codex/skills/project-initializer` and `~/.claude/skills/project-initializer`; remove them during installed-copy sync.
+- [x] Remove `project-initializer` upstream lookup fallbacks from generated helper resolution.
+- [x] Update user-facing docs, architecture notes, version stamp wording, and tests for the retired alias.
+- [x] Run targeted tests and full required checks.
+- [x] Run installed-copy sync and `agentic-dev init --target codex` on this machine.
+- [ ] Commit the local update.
 
 ## Verification
 
 ```bash
+bun test tests/cli/init.test.ts tests/installed-copy-sync.test.ts tests/workflow-contract.test.ts tests/migration-script.test.ts tests/skill-version.test.ts tests/run-skill-evals.test.ts
 bun test
 bash scripts/check-deploy-sql-order.sh
 bash scripts/check-task-sync.sh
 bash scripts/check-task-workflow.sh --strict
 bun scripts/inspect-project-state.ts --repo . --format text
 bash scripts/migrate-project-template.sh --repo . --dry-run
-bash scripts/ensure-codegraph.sh --check --json
-bash scripts/check-agent-tooling.sh --host codex --strict-readiness --json
 ```
+
+## Evidence
+
+- `bun test`: 421 pass, 6 skip, 0 fail.
+- `bash scripts/check-deploy-sql-order.sh`: OK.
+- `bash scripts/check-task-sync.sh`: OK.
+- `bash scripts/check-task-workflow.sh --strict`: OK.
+- `bun scripts/inspect-project-state.ts --repo . --format text`: `mode: audit`, no drift signals.
+- `bash scripts/migrate-project-template.sh --repo . --dry-run`: OK.
+- `bun src/cli/index.ts init --target codex`: OK after rerun with an isolated npm cache because the first `npx` attempt hit an `ENOTEMPTY` cache rename under `~/.npm-cache/_npx`.

@@ -20,8 +20,10 @@ Strong dependencies:
 
 Weak dependencies:
 
-- Legacy names `agentic-dev-skill` and `project-initializer`.
-- External Waza/gstack/gbrain policy references remain advisory; this self-host repo vendors CodeGraph as a dev dependency while downstream generated repos keep global setup explicit unless policy opts in.
+- Compatibility name `agentic-dev-skill`.
+- Retired `project-initializer` install paths, which are cleanup targets only.
+- `agentic-dev init` owns the one-shot Codex/Claude runtime bootstrap for Waza and `diagram-design`.
+- gstack/gbrain policy references remain advisory; this self-host repo vendors CodeGraph as a dev dependency while downstream generated repos keep global MCP setup explicit unless policy opts in.
 
 Out of scope:
 
@@ -32,10 +34,12 @@ Out of scope:
 ## P2 Trace
 
 Concrete route: user asks for an existing repo install -> root `SKILL.md`
-selects `agentic-dev-init` semantics -> the command facade requires
+selects `agentic-dev-init` semantics -> `agentic-dev init` defaults the target
+repo to cwd unless `--repo` is supplied -> the command runs
 `inspect-project-state.ts --repo <repo> --format text` -> if no legacy state is
 found, `migrate-project-template.sh --repo <repo> --apply` installs or refreshes
-the workflow -> `check-task-workflow.sh --strict` verifies the target repo.
+the workflow -> Waza and `diagram-design` are bootstrapped for the selected
+host target -> `check-task-workflow.sh --strict` verifies the target repo.
 
 Input source of truth is the target repo path, not the user's wording. The first
 type transformation is repo filesystem state into `mode`, `legacy_contract_version`,
@@ -44,7 +48,7 @@ file-backed harness plus verification report.
 
 Error paths:
 
-- Missing repo path stops before mutation.
+- Missing cwd/repo path stops before mutation.
 - Legacy docs route to migration before template refresh.
 - Missing JSON runtime fails strict workflow verification.
 

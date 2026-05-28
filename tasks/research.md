@@ -403,6 +403,19 @@
 
 ### What to Preserve
 - Do not make correctness depend on Spawn/subagent availability. The main agent must be able to complete P1/P2/P3 research in-thread when tooling blocks delegation or spawning is not worth the context cost.
+
+## 2026-05-28 Init CLI and Project-Initializer Retirement Notes
+
+### What Changed
+- `agentic-dev init` is now the operator-facing one-shot existing-repo bootstrap. It defaults the target repo to cwd, so callers already inside the project do not need `--repo .`.
+- Init refreshes the installed `agentic-dev` skill aliases, installs global Codex/Claude hook adapters, applies the repo harness, bootstraps Waza skills (`check`, `design`, `health`, `hunt`, `learn`, `read`, `think`, `write`), syncs `diagram-design` into selected host skill roots when a source copy exists, and runs `scripts/check-task-workflow.sh --strict`.
+- `project-initializer` is retired as an installed Codex/Claude skill path. `scripts/sync-codex-installed-copies.sh` removes `~/.codex/skills/project-initializer` and `~/.claude/skills/project-initializer` instead of maintaining them.
+- Upstream runtime resolution no longer searches `PROJECT_INITIALIZER_ROOT` or `project-initializer` installed skill directories. `AGENTIC_DEV_ROOT` is canonical, and `AGENTIC_DEV_SKILL_ROOT` remains the only compatibility root env.
+- Generated footer stamps now say `agentic-dev@{version}`; `.claude/.skill-version` keeps the stable `skill_version=` and `template_version=` fields.
+
+### What to Preserve
+- Keep `agentic-dev-skill` as the compatibility alias until a separate compatibility cutoff removes it.
+- Keep CodeGraph, gstack, gbrain, provider setup, and daemon enablement outside automatic init; `agentic-dev init` owns Waza/diagram-design and host adapter setup only.
 - Keep sidecar outputs concise and evidence-backed: conclusions and file/artifact paths belong in `tasks/research.md`; raw logs belong in harness evidence or local scratch surfaces.
 
 ## 2026-05-27 CodeGraph vs Understand Anything Research Notes

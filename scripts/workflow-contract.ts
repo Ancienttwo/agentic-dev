@@ -104,8 +104,7 @@ const LOCAL_ASSET_PATH = join(REPO_ROOT, "assets", "workflow-contract.v1.json");
 export function resolveAgenticDevRoot(_repoRoot = REPO_ROOT): string {
   const configuredRoot =
     process.env.AGENTIC_DEV_ROOT ||
-    process.env.AGENTIC_DEV_SKILL_ROOT ||
-    process.env.PROJECT_INITIALIZER_ROOT;
+    process.env.AGENTIC_DEV_SKILL_ROOT;
   if (configuredRoot && configuredRoot.length > 0) return configuredRoot;
 
   if (existsSync(LOCAL_ASSET_PATH)) return REPO_ROOT;
@@ -116,13 +115,10 @@ export function resolveAgenticDevRoot(_repoRoot = REPO_ROOT): string {
       join(home, "Projects", "agentic-dev"),
       join(home, ".codex", "skills", "agentic-dev"),
       join(home, ".codex", "skills", "agentic-dev-skill"),
-      join(home, ".codex", "skills", "project-initializer"),
       join(home, ".claude", "skills", "agentic-dev"),
       join(home, ".claude", "skills", "agentic-dev-skill"),
-      join(home, ".claude", "skills", "project-initializer"),
       join(home, ".agents", "skills", "agentic-dev"),
       join(home, ".agents", "skills", "agentic-dev-skill"),
-      join(home, ".agents", "skills", "project-initializer"),
     ];
 
     for (const candidate of candidates) {

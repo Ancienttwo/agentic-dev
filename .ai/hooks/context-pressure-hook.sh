@@ -35,6 +35,22 @@ ZONE=""
 SOURCE=""
 MESSAGE=""
 
+emit_codex_plan_change_guard() {
+  local tool_name changed_plan
+
+  tool_name="$(hook_get_tool_name "${1:-}")"
+  if [[ "$tool_name" != "apply_patch" ]]; then
+    return 0
+  fi
+
+  changed_plan="$(has_changes_glob '^plans/plan-.*\.md$' || true)"
+  if [[ -n "$changed_plan" ]]; then
+    echo "[AnnotationGuard] ${changed_plan} has annotations. Process all notes and revise. Do not implement yet."
+  fi
+}
+
+emit_codex_plan_change_guard "${1:-}"
+
 if command -v bun >/dev/null 2>&1 && [[ -f "scripts/context-budget.ts" ]]; then
   BUDGET_JSON="$(
     bun scripts/context-budget.ts \

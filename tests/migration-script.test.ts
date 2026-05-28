@@ -42,18 +42,18 @@ describe("Migration script contract", () => {
     expect(migrator).toContain("docs/PROGRESS.md");
   });
 
-  test("generated migration wrapper should support agentic-dev and legacy roots", () => {
+  test("generated migration wrapper should support agentic-dev roots without retired project-initializer paths", () => {
     const wrapper = read("assets/templates/helpers/migrate-project-template.sh");
     expect(wrapper).toContain("AGENTIC_DEV_ROOT");
     expect(wrapper).toContain("AGENTIC_DEV_SKILL_ROOT");
-    expect(wrapper).toContain("PROJECT_INITIALIZER_ROOT");
     expect(wrapper).toContain("Projects/agentic-dev");
     expect(wrapper).toContain(".codex/skills/agentic-dev");
     expect(wrapper).toContain(".codex/skills/agentic-dev-skill");
-    expect(wrapper).toContain(".codex/skills/project-initializer");
     expect(wrapper).toContain(".claude/skills/agentic-dev");
     expect(wrapper).toContain(".claude/skills/agentic-dev-skill");
-    expect(wrapper).toContain(".claude/skills/project-initializer");
+    expect(wrapper).not.toContain("PROJECT_INITIALIZER_ROOT");
+    expect(wrapper).not.toContain(".codex/skills/project-initializer");
+    expect(wrapper).not.toContain(".claude/skills/project-initializer");
   });
 
   test("should migrate workflow files and runtime ignore block", () => {
@@ -305,14 +305,14 @@ describe("Migration script contract", () => {
       const inspectRes = spawnSync(
         "bun",
         ["scripts/inspect-project-state.ts", "--repo", repo, "--format", "text"],
-        { cwd: repo, encoding: "utf-8", env: { ...process.env, PROJECT_INITIALIZER_ROOT: ROOT } }
+        { cwd: repo, encoding: "utf-8", env: { ...process.env, AGENTIC_DEV_ROOT: ROOT } }
       );
       expect(inspectRes.status).toBe(0);
       expect(inspectRes.stdout).toContain("mode: audit");
       const versionRes = spawnSync("bun", ["scripts/check-skill-version.ts", "--project", "."], {
         cwd: repo,
         encoding: "utf-8",
-        env: { ...process.env, PROJECT_INITIALIZER_ROOT: ROOT },
+        env: { ...process.env, AGENTIC_DEV_ROOT: ROOT },
       });
       expect(versionRes.status).toBe(0);
       expect(versionRes.stdout).toContain("Project at . is up to date");

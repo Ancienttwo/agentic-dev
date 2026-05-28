@@ -23,8 +23,8 @@ describe("README DX contract", () => {
     const maintainer = section(readme, "Maintainer Reference");
 
     expect(readme.indexOf("## First 5 Minutes")).toBeLessThan(readme.indexOf("## Current Model"));
-    expect(firstFive).toContain("bash scripts/migrate-project-template.sh --repo . --dry-run");
-    expect(firstFive.match(/migrate-project-template\.sh --repo \. --dry-run/g)?.length).toBe(1);
+    expect(firstFive).toContain("agentic-dev init --dry-run");
+    expect(firstFive.match(/agentic-dev init --dry-run/g)?.length).toBe(1);
     expect(firstFive).not.toContain("bun scripts/assemble-template.ts");
     expect(firstFive).toContain("=== Migration Report ===");
     expect(firstFive).toContain("Project hooks synced from:");

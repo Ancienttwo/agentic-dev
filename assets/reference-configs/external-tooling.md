@@ -14,6 +14,11 @@ source, while `~/.agents/skills` is only the skills CLI staging/cache path used
 to receive upstream `tw93/Waza` updates before syncing verified copies into
 Codex.
 
+`agentic-dev init` is allowed to bootstrap the workflow-owned runtime skills in
+one pass: Waza (`check`, `design`, `health`, `hunt`, `learn`, `read`, `think`,
+`write`) plus `diagram-design` for Codex and/or Claude. It must not silently
+install unrelated toolchains.
+
 The Codex automation profile is a runtime reference, not a vendored copy. It
 requires Waza `health`, Waza `check`, and the standalone `diagram-design` skill
 to exist under `~/.codex/skills`; the skill bodies stay owned by their original
@@ -23,7 +28,7 @@ installations.
 
 Use `bash scripts/check-agent-tooling.sh` for a read-only tooling report.
 Init and migration reports run the detector without update checks by default;
-set `PROJECT_INITIALIZER_CHECK_TOOLING_UPDATES=1` when that advisory pass should
+set `AGENTIC_DEV_CHECK_TOOLING_UPDATES=1` when that advisory pass should
 also compare upstream versions.
 
 Supported flags:
@@ -144,7 +149,7 @@ npm install -g @colbymchenry/codegraph && mkdir -p ~/.local/bin && ln -sfn "$(np
 ```
 
 This writes global Codex MCP config and may create `~/.codex/AGENTS.md`, so do
-not run it automatically from `agentic-dev init`, `migrate`, or `upgrade`.
+not run CodeGraph setup automatically from `agentic-dev init`, `migrate`, or `upgrade`.
 Restart Codex after the installer finishes so the MCP server is discovered.
 If a Codex launch environment still cannot find `codegraph`, an authorized
 agent should diagnose `PATH` and the `~/.local/bin/codegraph` shim. Do not make

@@ -129,6 +129,23 @@ create_legacy_alias() {
   done < <(find "$SOURCE_ROOT/assets" -mindepth 1 -maxdepth 1)
 }
 
+remove_retired_aliases() {
+  local root="$1"
+  if [[ -z "$root" ]]; then
+    return 0
+  fi
+
+  local retired_name
+  local retired_dest
+  for retired_name in project-initializer; do
+    retired_dest="$root/$retired_name"
+    if [[ -e "$retired_dest" || -L "$retired_dest" ]]; then
+      remove_managed_dest "$retired_dest"
+      echo "[sync-installed] retired alias removed: $retired_dest"
+    fi
+  done
+}
+
 sync_claude_alias_links() {
   if [[ -z "$CLAUDE_SKILLS_ROOT" ]]; then
     return 0
@@ -137,7 +154,7 @@ sync_claude_alias_links() {
   mkdir -p "$CLAUDE_SKILLS_ROOT"
   local alias_name
   local alias_dest
-  for alias_name in agentic-dev agentic-dev-skill project-initializer; do
+  for alias_name in agentic-dev agentic-dev-skill; do
     alias_dest="$CLAUDE_SKILLS_ROOT/$alias_name"
     remove_managed_dest "$alias_dest"
     ln -s "$SOURCE_ROOT" "$alias_dest"
@@ -153,7 +170,7 @@ sync_claude_alias_copies() {
   mkdir -p "$CLAUDE_SKILLS_ROOT"
   local alias_name
   local alias_dest
-  for alias_name in agentic-dev agentic-dev-skill project-initializer; do
+  for alias_name in agentic-dev agentic-dev-skill; do
     alias_dest="$CLAUDE_SKILLS_ROOT/$alias_name"
     sync_copy "$alias_dest"
     echo "[sync-installed] Claude skill copy: $alias_dest"
@@ -167,13 +184,15 @@ if [[ "$LINK_INSTALLED_COPIES" == "1" ]]; then
   ln -s "$SOURCE_ROOT" "$canonical_dest"
   echo "[sync-installed] canonical skill link: $canonical_dest -> $SOURCE_ROOT"
 
-  for legacy_name in agentic-dev-skill project-initializer; do
+  for legacy_name in agentic-dev-skill; do
     legacy_dest="$CODEX_SKILLS_ROOT/$legacy_name"
     create_legacy_alias "$legacy_dest"
     echo "[sync-installed] legacy runtime alias: $legacy_dest -> $SOURCE_ROOT"
   done
 
+  remove_retired_aliases "$CODEX_SKILLS_ROOT"
   sync_claude_alias_links
+  remove_retired_aliases "$CLAUDE_SKILLS_ROOT"
   echo "[sync-installed] OK"
   exit 0
 fi
@@ -181,19 +200,20 @@ fi
 sync_copy "$canonical_dest"
 echo "[sync-installed] canonical skill copy: $canonical_dest"
 
-for legacy_name in agentic-dev-skill project-initializer; do
+for legacy_name in agentic-dev-skill; do
   legacy_dest="$CODEX_SKILLS_ROOT/$legacy_name"
   sync_copy "$legacy_dest"
 
   # Legacy dirs are runtime fallback bundles, not discoverable Codex skills.
   # Keep scripts/assets for old resolver paths, but remove every skill facade.
-  # -H handles existing legacy symlinks such as
-  # ~/.codex/skills/project-initializer -> ~/.claude/skills/project-initializer.
+  # -H handles existing legacy symlinks.
   find -H "$legacy_dest" -name SKILL.md -type f -delete
   rm -rf "$legacy_dest/assets/skill-commands"
 
   echo "[sync-installed] legacy runtime fallback bundle: $legacy_dest"
 done
 
+remove_retired_aliases "$CODEX_SKILLS_ROOT"
 sync_claude_alias_copies
+remove_retired_aliases "$CLAUDE_SKILLS_ROOT"
 echo "[sync-installed] OK"

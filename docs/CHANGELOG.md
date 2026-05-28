@@ -4,6 +4,15 @@ All notable changes to this skill are documented here.
 
 ## [Unreleased]
 
+### Added
+
+- Added `agentic-dev init` as a one-shot existing-repo bootstrap that defaults `--repo` to the current working directory, refreshes host adapters, applies the harness, installs Waza runtime skills, syncs `diagram-design`, and verifies the repo-local workflow.
+
+### Changed
+
+- Retired `project-initializer` as a Codex/Claude installed skill path and upstream resolver fallback; installed-copy sync now removes those directories instead of maintaining them.
+- Switched generated footer stamps to `agentic-dev@...` while keeping `.claude/.skill-version` semantic version fields stable.
+
 ### Fixed
 
 - Rebuilt Claude skill aliases during installed-copy sync so `~/.claude/skills/project-initializer` cannot remain on a stale legacy repo while Codex runtime aliases are current.

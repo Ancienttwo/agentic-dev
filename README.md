@@ -1,7 +1,9 @@
 # agentic-dev
 
 Repo-local agentic development harness skill for Claude/Codex workflows.
-Formerly `agentic-dev-skill` and `project-initializer`; legacy skill aliases and install paths stay valid during the compatibility rename.
+Formerly `agentic-dev-skill` and `project-initializer`; `agentic-dev-skill`
+remains a compatibility alias, while `project-initializer` install paths are
+retired and removed by installed-copy sync.
 Repository: `https://github.com/Ancienttwo/agentic-dev`
 
 This repository now dogfoods its own tasks-first contract. It is both:
@@ -14,27 +16,31 @@ This repository now dogfoods its own tasks-first contract. It is both:
 This is the fastest path for an AI tooling owner evaluating whether the workflow is
 safe to adopt in a real repo.
 
-### Install or refresh the local skill
+### Install or refresh the local runtime
 
 ```bash
 git clone https://github.com/Ancienttwo/agentic-dev.git ~/Projects/agentic-dev
 cd ~/Projects/agentic-dev
-bash scripts/sync-codex-installed-copies.sh
+agentic-dev init
 ```
+
+When the `agentic-dev` bin is not on `PATH` yet, run the same command from the
+checkout with `bun src/cli/index.ts init`.
 
 Local path model:
 
 - Source repo: `~/Projects/agentic-dev`
-- Claude skill aliases: `~/.claude/skills/agentic-dev`, `~/.claude/skills/agentic-dev-skill`, `~/.claude/skills/project-initializer`
+- Claude skill aliases: `~/.claude/skills/agentic-dev`, `~/.claude/skills/agentic-dev-skill`
 - Codex discoverable skill alias: `~/.codex/skills/agentic-dev`
-- Codex legacy fallback aliases: `~/.codex/skills/agentic-dev-skill`, `~/.codex/skills/project-initializer`
+- Codex compatibility fallback alias: `~/.codex/skills/agentic-dev-skill`
 
 The `~/Projects/agentic-dev` repo is the only editable source of truth. Local
 Claude/Codex paths are symlink-backed runtime entrypoints. Only
 `~/.codex/skills/agentic-dev` should expose `SKILL.md` and
-`assets/skill-commands/`; the legacy Codex directories exist only so older
-generated repos can still resolve upstream assets without duplicate command
-discovery.
+`assets/skill-commands/`; compatibility directories exist only so renamed
+repos can still resolve upstream assets without duplicate command discovery.
+The retired `project-initializer` directories under `~/.codex/skills` and
+`~/.claude/skills` are deleted by `scripts/sync-codex-installed-copies.sh`.
 
 ### Minimum prerequisites
 
@@ -45,16 +51,16 @@ discovery.
 
 ### Start here
 
-For an existing repo:
+For an existing repo, run from the repo root:
 
 ```bash
-bash scripts/migrate-project-template.sh --repo . --dry-run
+agentic-dev init --dry-run
 ```
 
 Apply only after the dry-run report looks correct:
 
 ```bash
-bash scripts/migrate-project-template.sh --repo . --apply
+agentic-dev init
 ```
 
 For a new project or module, use the `agentic-dev-scaffold` command skill. For
@@ -145,10 +151,16 @@ Most common guards:
   - `complex -> gstack`
   - `simple -> Waza` with Codex-first runtime copies in `~/.codex/skills`
   - `knowledge -> gbrain`
-- External tooling stays advisory-only:
+- `agentic-dev init` bootstraps the Codex/Claude runtime pieces needed for the
+  default workflow:
+  - refreshes `agentic-dev` skill aliases
+  - installs global Codex/Claude hook adapters
+  - installs Waza skills (`check`, `design`, `health`, `hunt`, `learn`, `read`, `think`, `write`) through the skills CLI
+  - syncs `diagram-design` into Codex/Claude skill roots when a source copy exists
+- Other external tooling stays advisory-only:
   - `bash scripts/check-agent-tooling.sh --host both --check-updates`
   - Waza update checks compare upstream `tw93/Waza` `SKILL.md` hashes without running `npx skills check`
-  - no automatic global install, upgrade, daemon, sync, or MCP enablement
+  - no automatic gstack, gbrain, CodeGraph MCP, daemon, or provider setup
 - Manual distillation stays repo-local:
   - repeated corrections -> `tasks/lessons.md`
   - deep findings and hidden contracts -> `tasks/research.md`
@@ -181,10 +193,11 @@ passes. These commands call existing repo-local helpers and keep their scope
 narrow instead of refreshing the full harness.
 
 Codex installed-copy rule: only `~/.codex/skills/agentic-dev` exposes the root
-skill and `agentic-dev-*` command facades. Legacy compatibility directories
-`~/.codex/skills/agentic-dev-skill` and `~/.codex/skills/project-initializer`
-are runtime fallback bundles only; they must not contain `SKILL.md` files or
-`assets/skill-commands/`.
+skill and `agentic-dev-*` command facades. The compatibility directory
+`~/.codex/skills/agentic-dev-skill` is a runtime fallback bundle only; it must
+not contain `SKILL.md` files or `assets/skill-commands/`. The retired
+`~/.codex/skills/project-initializer` and `~/.claude/skills/project-initializer`
+directories are removed during sync.
 
 After cloning or moving this source repo, rebuild the local runtime aliases with:
 
