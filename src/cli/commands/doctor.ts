@@ -2,11 +2,7 @@
  * `agentic-dev doctor` — read-only readiness diagnostics.
  *
  * Built-in checks: PATH resolution, CLI version, per-host install detection,
- * Codex user-level trust state count. Never mutates.
- *
- * Plugin registry (registerCheck) is the codegraph-readiness Phase 2 hook
- * point — codegraph wires `checkCodegraph()` here without modifying this file.
- * See plans/plan-20260528-1652-codegraph-readiness.md § Phase 2.
+ * Codex user-level trust state count, and CodeGraph readiness. Never mutates.
  */
 
 import * as fs from 'fs';
@@ -14,6 +10,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { spawnSync } from 'child_process';
 import { ALL_TARGETS } from '../installer/targets/registry';
+import { checkCodegraph, type CodegraphCheckResult } from '../tools/codegraph';
 import { CLI_VERSION } from './status';
 
 const TRUST_STATE_LINE = /^\[hooks\.state\."[^"]+\/\.codex\/hooks\.json:/;
@@ -127,7 +124,73 @@ function checkCodexTrustState(): DoctorCheckResult {
   }
 }
 
-export function runDoctor(): DoctorReport {
+function doctorStatusForCodegraph(status: CodegraphCheckResult['status']): CheckStatus {
+  if (status === 'present') return 'ok';
+  if (status === 'missing') return 'fail';
+  return 'warn';
+}
+
+function formatCodegraphDetail(result: CodegraphCheckResult): string {
+  const raw = result.raw as Record<string, any>;
+  const indexStatus = raw.project_index?.status ?? 'unknown';
+  const codexMcpStatus = raw.mcp_hosts?.codex?.status ?? 'unknown';
+  const bits = [
+    result.reason,
+    `source=${result.resolution.source}`,
+    `version=${result.resolution.version ?? 'unknown'}`,
+    `codex-mcp=${codexMcpStatus}`,
+    `index=${indexStatus}`,
+  ];
+  if (result.resolution.globalFallbackUsed) bits.push('global-fallback=true');
+  const remediation = codegraphRemediation(result);
+  if (remediation) bits.push(`remediation=${remediation}`);
+  return bits.join('; ');
+}
+
+function codegraphRemediation(result: CodegraphCheckResult): string | null {
+  if (result.status === 'present') return null;
+
+  const raw = result.raw as Record<string, any>;
+  if (result.resolution.source === 'missing') {
+    return String(raw.install_command ?? 'bash scripts/ensure-codegraph.sh');
+  }
+  if (result.resolution.globalFallbackUsed) {
+    return String(raw.install_command ?? 'bun install');
+  }
+  if (raw.mcp_hosts?.codex?.status !== 'configured') {
+    return String(raw.mcp_install_command ?? 'codegraph install --target codex --location global --yes');
+  }
+  if (raw.project_index?.status === 'not-initialized') {
+    return String(raw.init_command ?? 'bash scripts/ensure-codegraph.sh --init');
+  }
+  if (raw.project_index?.status === 'stale') {
+    return String(raw.sync_command ?? 'bash scripts/ensure-codegraph.sh --sync');
+  }
+  return String(raw.ensure_command ?? raw.sync_command ?? 'bash scripts/ensure-codegraph.sh --check');
+}
+
+function checkCodegraphReadiness(cwd: string): DoctorCheckResult {
+  const id = 'codegraph-readiness';
+  const describe = 'CodeGraph CLI, MCP, and project index readiness';
+  try {
+    const result = checkCodegraph({ repoRoot: cwd });
+    return {
+      id,
+      describe,
+      status: doctorStatusForCodegraph(result.status),
+      detail: formatCodegraphDetail(result),
+    };
+  } catch (err) {
+    return {
+      id,
+      describe,
+      status: 'fail',
+      detail: `error checking CodeGraph readiness: ${(err as Error).message}`,
+    };
+  }
+}
+
+export function runDoctor(cwd: string = process.cwd()): DoctorReport {
   const checks: DoctorCheckResult[] = [];
   checks.push(checkPath());
   checks.push(checkVersion());
@@ -137,6 +200,7 @@ export function runDoctor(): DoctorReport {
     }
   }
   checks.push(checkCodexTrustState());
+  checks.push(checkCodegraphReadiness(cwd));
   for (const plugin of REGISTERED_CHECKS) {
     const r = plugin.run();
     checks.push({ id: plugin.id, describe: plugin.describe, ...r });

@@ -1,13 +1,22 @@
 import { spawnSync } from "child_process";
+import { mkdirSync, readFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
 export type CodegraphSource = "local" | "global" | "missing";
 export type CodegraphStatus = "present" | "warning" | "partial" | "missing";
+export type CodegraphActionStatus = "changed" | "unchanged" | "failed";
 
 export interface CodegraphResolveOptions {
   repoRoot: string;
   env?: NodeJS.ProcessEnv;
+}
+
+export interface CodegraphEnsureOptions extends CodegraphResolveOptions {
+  checkOnly?: boolean;
+  init?: boolean;
+  sync?: boolean;
+  installDeps?: boolean;
 }
 
 export interface CodegraphResolution {
@@ -29,7 +38,16 @@ export interface CodegraphCheckResult {
 
 export interface CodegraphEnsureResult extends CodegraphCheckResult {
   changed: boolean;
-  actions: Array<Record<string, unknown>>;
+  readOnly: boolean;
+  actions: CodegraphAction[];
+}
+
+export interface CodegraphAction {
+  action: string;
+  status: CodegraphActionStatus;
+  command: string[];
+  stdout?: string;
+  stderr?: string;
 }
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
@@ -49,6 +67,66 @@ function runJson(command: string, args: string[], repoRoot: string, env?: NodeJS
   return JSON.parse(result.stdout);
 }
 
+function run(command: string, args: string[], cwd: string, env?: NodeJS.ProcessEnv) {
+  const result = spawnSync(command, args, {
+    cwd,
+    encoding: "utf8",
+    env: { ...process.env, ...(env ?? {}) },
+  });
+
+  return {
+    ok: result.status === 0 && !result.error,
+    status: result.status ?? 1,
+    stdout: result.stdout ?? "",
+    stderr: result.stderr ?? "",
+    error: result.error ? String(result.error.message || result.error) : "",
+  };
+}
+
+function trimOutput(value: string) {
+  if (value.length <= 4096) return value;
+  return `${value.slice(0, 4096)}\n[output truncated]`;
+}
+
+function readJson(path: string) {
+  try {
+    return JSON.parse(readFileSync(path, "utf8"));
+  } catch (_error) {
+    return null;
+  }
+}
+
+function readToolingReport(repoRoot: string, env?: NodeJS.ProcessEnv) {
+  const checker = join(REPO_ROOT, "scripts", "check-agent-tooling.sh");
+  const report = runJson("bash", [checker, "--json", "--host", "codex"], repoRoot, env);
+  return report.tools.codegraph;
+}
+
+function hasCodegraphDependency(repoRoot: string) {
+  const pkg = readJson(join(repoRoot, "package.json"));
+  return Boolean(
+    pkg?.devDependencies?.["@colbymchenry/codegraph"] ||
+      pkg?.dependencies?.["@colbymchenry/codegraph"] ||
+      pkg?.optionalDependencies?.["@colbymchenry/codegraph"]
+  );
+}
+
+function appendAction(
+  actions: CodegraphAction[],
+  action: string,
+  command: string[],
+  result: ReturnType<typeof run>
+): boolean {
+  actions.push({
+    action,
+    status: result.ok ? "changed" : "failed",
+    command,
+    stdout: trimOutput(result.stdout),
+    stderr: trimOutput(result.stderr || result.error),
+  });
+  return result.ok;
+}
+
 function normalize(raw: Record<string, any>): CodegraphCheckResult {
   return {
     status: raw.status,
@@ -66,21 +144,49 @@ function normalize(raw: Record<string, any>): CodegraphCheckResult {
   };
 }
 
-export async function checkCodegraph(opts: CodegraphResolveOptions): Promise<CodegraphCheckResult> {
-  const report = runJson("bash", [join(REPO_ROOT, "scripts", "check-agent-tooling.sh"), "--json", "--host", "codex"], opts.repoRoot, opts.env);
-  return normalize(report.tools.codegraph);
+export function checkCodegraph(opts: CodegraphResolveOptions): CodegraphCheckResult {
+  return normalize(readToolingReport(opts.repoRoot, opts.env));
 }
 
-export async function resolveCodegraph(opts: CodegraphResolveOptions): Promise<CodegraphResolution> {
-  return (await checkCodegraph(opts)).resolution;
+export function resolveCodegraph(opts: CodegraphResolveOptions): CodegraphResolution {
+  return checkCodegraph(opts).resolution;
 }
 
-export async function ensureCodegraph(opts: CodegraphResolveOptions): Promise<CodegraphEnsureResult> {
-  const report = runJson("bash", [join(REPO_ROOT, "scripts", "ensure-codegraph.sh"), "--json", "--repo", opts.repoRoot], opts.repoRoot, opts.env);
-  const normalized = normalize(report.codegraph);
+export function ensureCodegraph(opts: CodegraphEnsureOptions): CodegraphEnsureResult {
+  const actions: CodegraphAction[] = [];
+
+  if (opts.checkOnly) {
+    return {
+      ...checkCodegraph(opts),
+      changed: false,
+      readOnly: true,
+      actions,
+    };
+  }
+
+  let codegraph = readToolingReport(opts.repoRoot, opts.env);
+  if (opts.installDeps !== false && hasCodegraphDependency(opts.repoRoot) && !codegraph.local_bin_path) {
+    appendAction(actions, "install-deps", ["bun", "install"], run("bun", ["install"], opts.repoRoot, opts.env));
+    codegraph = readToolingReport(opts.repoRoot, opts.env);
+  }
+
+  const binPath = codegraph.bin_path;
+  if (binPath && opts.init && codegraph.project_index?.status === "not-initialized") {
+    appendAction(actions, "init-index", [binPath, "init", "-i", "."], run(binPath, ["init", "-i", "."], opts.repoRoot, opts.env));
+    codegraph = readToolingReport(opts.repoRoot, opts.env);
+  }
+
+  if (binPath && opts.sync) {
+    mkdirSync(join(opts.repoRoot, ".codegraph"), { recursive: true });
+    appendAction(actions, "sync-index", [binPath, "sync", "."], run(binPath, ["sync", "."], opts.repoRoot, opts.env));
+    codegraph = readToolingReport(opts.repoRoot, opts.env);
+  }
+
+  const normalized = normalize(codegraph);
   return {
     ...normalized,
-    changed: Boolean(report.changed),
-    actions: Array.isArray(report.actions) ? report.actions : [],
+    changed: actions.some((entry) => entry.status === "changed"),
+    readOnly: false,
+    actions,
   };
 }

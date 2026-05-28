@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import { spawnSync } from 'child_process';
 import {
   clearRegisteredChecks,
   formatDoctor,
@@ -22,6 +23,68 @@ function withTempHome(fn: (home: string) => void): void {
   }
 }
 
+function writeExecutable(filePath: string, content: string): void {
+  fs.writeFileSync(filePath, content);
+  fs.chmodSync(filePath, 0o755);
+}
+
+function setupFakeEnvironment(prefix: string) {
+  const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), `${prefix}-`)));
+  const home = path.join(root, 'home');
+  const fakeBin = path.join(root, 'fakebin');
+  fs.mkdirSync(home, { recursive: true });
+  fs.mkdirSync(fakeBin, { recursive: true });
+  return { root, home, fakeBin };
+}
+
+function writeFakeCodeGraph(fakeBin: string, logFile: string): void {
+  writeExecutable(
+    path.join(fakeBin, 'codegraph'),
+    [
+      '#!/bin/bash',
+      'set -euo pipefail',
+      `echo "codegraph $*" >> "${logFile}"`,
+      'case "${1:-}" in',
+      '  "--version") echo "0.9.6" ;;',
+      '  "status") echo "CodeGraph Status"; echo "Index is up to date" ;;',
+      '  "init"|"sync"|"install") echo "unexpected mutation" >&2; exit 2 ;;',
+      '  *) exit 1 ;;',
+      'esac',
+      '',
+    ].join('\n'),
+  );
+}
+
+function writeFakeGbrain(fakeBin: string): void {
+  writeExecutable(
+    path.join(fakeBin, 'gbrain'),
+    [
+      '#!/bin/bash',
+      'set -euo pipefail',
+      'case "$1 ${2:-}" in',
+      '  "--version ") echo "gbrain 0.12.0" ;;',
+      '  "doctor --json") echo "{\\"status\\":\\"warnings\\",\\"health_score\\":90}" ;;',
+      '  "integrations list") echo "{\\"local\\":[]}" ;;',
+      '  *) exit 1 ;;',
+      'esac',
+      '',
+    ].join('\n'),
+  );
+}
+
+function writeFakeNpx(fakeBin: string): void {
+  writeExecutable(
+    path.join(fakeBin, 'npx'),
+    [
+      '#!/bin/bash',
+      'set -euo pipefail',
+      'if [[ "$*" == *"skills ls -g --json"* ]]; then echo "[]"; exit 0; fi',
+      'exit 1',
+      '',
+    ].join('\n'),
+  );
+}
+
 afterEach(() => {
   clearRegisteredChecks();
 });
@@ -36,6 +99,7 @@ describe('doctor command (Phase 1C)', () => {
       expect(ids).toContain('codex-adapter');
       expect(ids).toContain('claude-adapter');
       expect(ids).toContain('codex-trust-state');
+      expect(ids).toContain('codegraph-readiness');
     });
   });
 
@@ -60,7 +124,7 @@ describe('doctor command (Phase 1C)', () => {
     });
   });
 
-  test('registerCheck adds plugin entries (codegraph Phase 2 hook point)', () => {
+  test('registerCheck still supports additional plugin entries', () => {
     withTempHome(() => {
       registerCheck({
         id: 'codegraph-test',
@@ -104,4 +168,48 @@ describe('doctor command (Phase 1C)', () => {
       expect(parsed.summary).toBeDefined();
     });
   });
+
+  test('CLI doctor includes CodeGraph readiness without mutating CodeGraph state', () => {
+    const envRoot = setupFakeEnvironment('agentic-dev-doctor-codegraph');
+    const logFile = path.join(envRoot.root, 'tool.log');
+    try {
+      fs.mkdirSync(path.join(envRoot.home, '.codex'), { recursive: true });
+      fs.writeFileSync(
+        path.join(envRoot.home, '.codex', 'config.toml'),
+        '[mcp_servers.codegraph]\ncommand = "codegraph"\n',
+      );
+      writeFakeCodeGraph(envRoot.fakeBin, logFile);
+      writeFakeGbrain(envRoot.fakeBin);
+      writeFakeNpx(envRoot.fakeBin);
+
+      const root = path.join(import.meta.dir, '..', '..');
+      const res = spawnSync('bun', [path.join(root, 'src/cli/index.ts'), 'doctor', '--json'], {
+        cwd: root,
+        encoding: 'utf-8',
+        env: {
+          ...process.env,
+          HOME: envRoot.home,
+          PATH: `${envRoot.fakeBin}:${process.env.PATH ?? ''}`,
+          AGENTIC_DEV_CODEGRAPH_ALLOW_REPO_LOCAL: '0',
+        },
+      });
+
+      expect(res.status).toBe(0);
+      const report = JSON.parse(res.stdout);
+      const codegraph = report.checks.find((entry: { id: string }) => entry.id === 'codegraph-readiness');
+      expect(codegraph).toBeDefined();
+      expect(codegraph.status).toBe('warn');
+      expect(codegraph.detail).toContain('source=global');
+      expect(codegraph.detail).toContain('remediation=bun install');
+
+      const log = fs.readFileSync(logFile, 'utf-8');
+      expect(log).toContain('codegraph --version');
+      expect(log).toContain('codegraph status .');
+      expect(log).not.toContain('codegraph init');
+      expect(log).not.toContain('codegraph sync');
+      expect(log).not.toContain('codegraph install');
+    } finally {
+      fs.rmSync(envRoot.root, { recursive: true, force: true });
+    }
+  }, 15000);
 });

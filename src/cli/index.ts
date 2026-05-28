@@ -2,10 +2,9 @@
 /**
  * agentic-dev CLI entry — Phase 1B.
  *
- * Wires commander.js to install + hook command bodies. status / doctor /
- * migrate remain stubbed (Phase 1C). Keeps the Phase 1A `SUBCOMMANDS` /
- * `Subcommand` exports importable by Phase 1A tests so the scaffold
- * contract survives the rewrite.
+ * Wires commander.js to install, hook, status, doctor, migrate, and tools
+ * command bodies. Keeps the Phase 1A `SUBCOMMANDS` / `Subcommand` exports
+ * importable by Phase 1A tests so the scaffold contract survives the rewrite.
  */
 
 import { Command } from 'commander';
@@ -14,10 +13,11 @@ import { runHook } from './commands/hook';
 import { formatStatus, runStatus } from './commands/status';
 import { formatDoctor, runDoctor } from './commands/doctor';
 import { formatMigratePlan, runMigrate } from './commands/migrate';
+import { buildToolsCommand } from './commands/tools';
 import type { Location } from './installer/types';
 import type { HookEvent, RouteId } from './hook/route-registry';
 
-export const SUBCOMMANDS = ['install', 'hook', 'status', 'doctor', 'migrate'] as const;
+export const SUBCOMMANDS = ['install', 'hook', 'status', 'doctor', 'migrate', 'tools'] as const;
 export type Subcommand = (typeof SUBCOMMANDS)[number];
 
 const VALID_TARGETS: readonly InstallTargetSpec[] = ['codex', 'claude', 'both'];
@@ -28,7 +28,7 @@ export function buildProgram(): Command {
   program
     .name('agentic-dev')
     .description('Repo-local agentic development harness CLI')
-    .version('0.0.0-phase1b')
+    .version('0.0.0-phase1c')
     .exitOverride();
 
   program
@@ -100,6 +100,8 @@ export function buildProgram(): Command {
       console.log(formatMigratePlan(plan, rawOpts.json === true));
       process.exit(0);
     });
+
+  program.addCommand(buildToolsCommand());
 
   return program;
 }

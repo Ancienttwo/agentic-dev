@@ -1,12 +1,12 @@
 # Sprint Contract: codegraph-readiness
 
-> **Status**: Partial
+> **Status**: Fulfilled
 > **Plan**: plans/plan-20260528-1652-codegraph-readiness.md
 > **Owner**: ancienttwo
 > **Capability ID**: verification-codegraph-readiness
 > **Architecture Domain**: verification
 > **Architecture Module**: docs/architecture/modules/verification/codegraph-readiness.md
-> **Last Updated**: 2026-05-28 17:30
+> **Last Updated**: 2026-05-28 18:57 +0800
 > **Review File**: `tasks/reviews/codegraph-readiness.review.md`
 > **Notes File**: `tasks/notes/codegraph-readiness.notes.md`
 
@@ -136,20 +136,16 @@ exit_criteria:
     - bun test tests/create-project-dirs.runtime.test.ts tests/migration-script.test.ts
     - bash scripts/check-task-sync.sh
     - bash scripts/check-task-workflow.sh --strict
-  manual_checks:
-    - "doctor is read-only: no bun install, codegraph init, codegraph sync, or MCP config writes during agentic-dev doctor --json"
-    - "ensure default does not mutate ~/.codex/config.toml or Claude MCP config"
-    - "local node_modules/.bin/codegraph wins over global codegraph when both exist"
-    - "other repos that rely on global codegraph continue to work after this repo vendors CodeGraph"
 ```
 
 ## Acceptance Notes (Human Review)
 
-- Functional behavior:
-- Edge cases:
-- Regression risks:
+- Functional behavior: `agentic-dev tools ensure codegraph` owns CodeGraph lifecycle mutation; `agentic-dev doctor` reports CodeGraph readiness through `checkCodegraph()` without mutating dependencies, index state, daemon state, or MCP config.
+- Edge cases: local binary wins over global fallback; global fallback is reported with remediation; stale/missing index and MCP gaps remain explicit remediation states.
+- Regression risks: any future tool readiness command must keep `agentic-dev install --target` host-only and reuse the shared tooling detector rather than introducing a second CodeGraph readiness model.
+- Manual acceptance covered by tests/review: doctor read-only behavior, default ensure MCP non-mutation, local-first binary resolution, and downstream global-CodeGraph compatibility.
 
 ## Rollback Point
 
-- Commit / checkpoint:
-- Revert strategy:
+- Commit / checkpoint: current working tree before the CodeGraph readiness closeout commit.
+- Revert strategy: revert the closeout commit; dependency + detector slice from `ff139b2` can remain independently valid if CLI registration must be backed out.

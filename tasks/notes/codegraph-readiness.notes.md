@@ -1,6 +1,6 @@
 # Implementation Notes: codegraph-readiness
 
-> **Status**: Active
+> **Status**: Complete
 > **Plan**: plans/plan-20260528-1652-codegraph-readiness.md
 > **Contract**: tasks/contracts/codegraph-readiness.contract.md
 > **Review**: tasks/reviews/codegraph-readiness.review.md
@@ -38,10 +38,10 @@ The initial captured plan picked the right product shape, but it missed three ex
 - Keep failure output bounded. Tool stdout/stderr captured by the new CLI should cap inline text and point to log files for overflow.
 - Do not use `codegraph affected` as the verification selector for this repo; many tests execute scripts through subprocesses.
 
-## Open Follow-ups For Implementation
+## Follow-ups Resolved In CLI Registration
 
-- Decide whether shared `ToolFailure` / `ToolAction` types wait for a second tool or land now in `src/cli/tools/types.ts`.
-- Add a regression proving `agentic-dev doctor --json` does not mutate local dependency, index, daemon, or MCP state after the CLI scaffold exists.
+- Shared CodeGraph action types stayed local to `src/cli/tools/codegraph.ts`; a generic `src/cli/tools/types.ts` can wait for the second tool.
+- Added a regression proving `agentic-dev doctor --json` reports CodeGraph readiness without running `bun install`, `codegraph init`, `codegraph sync`, or `codegraph install`.
 
 ## 2026-05-28 Dependency + Detector Slice
 
@@ -54,4 +54,13 @@ The initial captured plan picked the right product shape, but it missed three ex
 
 ## Remaining Gap
 
-- The shared CLI scaffold is now available on `main` after merging hook-global-runtime Phase 1A-1C. The remaining gap is wiring `checkCodegraph()` and `ensureCodegraph()` into the merged command surface without regressing the host-adapter-only `install --target` boundary.
+- None for the CodeGraph readiness contract. The separate projection-gate / queued-plan state-model hardening remains an independent harness workflow slice and is intentionally out of this implementation.
+
+## 2026-05-28 CLI Registration Slice
+
+- Added `agentic-dev tools ensure codegraph` on the merged Commander surface. `--check` is read-only; default ensure can install missing local deps, and `--init` / `--sync` are explicit mutation flags.
+- Moved the mutating ensure logic into `src/cli/tools/codegraph.ts` so `scripts/ensure-codegraph.sh` can call the official CLI path instead of the temporary runner.
+- Removed the temporary `src/cli/tools/codegraph-runner.ts` after the official CLI path was wired, so there is no second executable entrypoint for CodeGraph ensure behavior.
+- Added `codegraph-readiness` to `agentic-dev doctor`; it calls the existing `check-agent-tooling.sh` detector through `checkCodegraph()` and maps `present` to ok, `warning` / `partial` to warn, and `missing` to fail.
+- Kept the host adapter boundary intact: `agentic-dev install --target codex|claude|both` remains host-only, and this slice still does not write MCP config by default.
+- Added CLI and integration coverage for the read-only path, shell adapter parity, and doctor non-mutation.
