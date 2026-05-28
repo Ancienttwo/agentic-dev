@@ -2,7 +2,7 @@
 
 > **Source Plan**: plans/plan-20260528-1436-hook-global-runtime.md
 > **Status**: Executing
-> **Phase Progress**: Phase 0 ✅ acceptance complete 2026-05-28 17:11 (5 advisory micro-tests + non-opt-in repo coverage deferred to Phase 1 1G); Phase 1 ⏳ pending (1A scaffold + types is next)
+> **Phase Progress**: Phase 0 ✅ 2026-05-28 17:11 (5 advisory micro-tests + non-opt-in repo coverage deferred to 1G); Phase 1 1A ✅ 2026-05-28 (in worktree `codex/hook-global-runtime`; scaffold/types/registry/tests, 367 pass / 0 fail / 36 files); Phase 1 1B ⏳ next (install + hook 核心; 引入 commander.js)
 > **Generated**: 2026-05-28 14:58 (expanded from plan phases 2026-05-28 15:0X)
 > **Source Plan Slug**: hook-global-runtime
 > **Review File**: tasks/reviews/hook-global-runtime.review.md
@@ -29,14 +29,14 @@
 
 ### Phase 1 — CLI 实施 (1-2 weeks)
 
-#### 1A — Scaffold + Types
-- [ ] `package.json` 加 bin 字段 + bin entry 路径
-- [ ] `src/cli/index.ts` — commander.js 入口, 注册 5 子命令 stubs
-- [ ] `src/cli/installer/types.ts` — `Target` / `Location = 'global'|'local'` / `WriteResult { files[], action: created|updated|unchanged|removed }` (参考 `_ref/codegraph/src/installer/targets/types.ts:15,51-62`)
-- [ ] `src/cli/installer/targets/registry.ts` — extensible registry (参考 `_ref/codegraph/src/installer/targets/registry.ts:20-29`)
-- [ ] `src/cli/installer/targets/codex.ts` — `supportsLocation = loc === 'global'` (参考 `_ref/codegraph/src/installer/targets/codex.ts:57-59`)
-- [ ] `src/cli/installer/targets/claude.ts` — `supportsLocation = both`
-- [ ] `tests/cli/registry.test.ts` — registry plug-in / lookup
+#### 1A — Scaffold + Types  ✅ 2026-05-28 (worktree `codex/hook-global-runtime`)
+- [x] `package.json` 加 bin 字段 + bin entry 路径 — bin 指 `src/cli/index.ts` + `#!/usr/bin/env bun` shebang; 1F build 时改 dist
+- [x] `src/cli/index.ts` — 5 子命令 stubs (`install`/`hook`/`status`/`doctor`/`migrate`). **偏离 plan**: 改用 `process.argv` switch + stub 路由, commander.js 推迟到 1B 实际写 install body 时一次引入 (避免空 deps 写 lockfile + 减少 1A commit hash diff)
+- [x] `src/cli/installer/types.ts` — `Location` / `TargetId = 'codex'|'claude'` / `DetectionResult` / `WriteResult { files[], action 6 种含 codegraph 同款 'not-found'/'kept' }` / `InstallOptions` (空占位, 形状预留) / `AgentTarget` interface
+- [x] `src/cli/installer/targets/registry.ts` — `ALL_TARGETS` (frozen) + `getTarget` + `listTargetIds`. **范围控制**: `resolveTargetFlag` / `detectAll` 不在 1A, 1B install 命令再引入
+- [x] `src/cli/installer/targets/codex.ts` — `supportsLocation('global')=true, 'local'=false`; `describePaths('global')` 返回 `~/.codex/hooks.json`; `install`/`uninstall`/`detect` throw not-implemented (Phase 1B 实现)
+- [x] `src/cli/installer/targets/claude.ts` — `supportsLocation` 两 location 都 true; `describePaths` 返回 user 或 project 各自 settings.json; `install`/`uninstall`/`detect` throw not-implemented
+- [x] `tests/cli/registry.test.ts` — 8 个 case 全 pass (ALL_TARGETS 顺序 + frozen + getTarget hit/miss + listTargetIds + 两 host `supportsLocation` + `describePaths`); 完整 `bun test` 367/0 fail / 6 skip / 36 files 112s, 无回归
 
 #### 1B — install / hook 核心
 - [ ] `src/cli/commands/install.ts` — `--target codex|claude|both --location global` 写 host 各自 global config; WriteResult 输出; 幂等

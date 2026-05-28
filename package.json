@@ -7,6 +7,9 @@
     "url": "https://github.com/Ancienttwo/agentic-dev.git"
   },
   "type": "module",
+  "bin": {
+    "agentic-dev": "src/cli/index.ts"
+  },
   "scripts": {
     "benchmark:skills": "bun scripts/run-skill-evals.ts",
     "test": "bun test",
