@@ -1,10 +1,10 @@
 ---
-name: agentic-dev-review
-description: Reviews an existing agentic-dev plan across product, engineering, design, and DevEx dimensions before implementation or release follow-through.
-when_to_use: "agentic-dev-review, review agentic-dev plan, engineering review harness plan, product review repo workflow plan, design review agentic workflow, devex review harness"
+name: repo-harness-review
+description: Reviews an existing repo-harness plan across product, engineering, design, and DevEx dimensions before implementation or release follow-through.
+when_to_use: "repo-harness-review, review repo-harness plan, engineering review harness plan, product review repo workflow plan, design review agentic workflow, devex review harness"
 ---
 
-# agentic-dev-review
+# repo-harness-review
 
 Use this command when a plan exists and the user wants a review before implementation.
 

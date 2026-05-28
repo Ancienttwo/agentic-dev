@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # scripts/canary-global-hook.sh
 #
-# Phase 0 canary for agentic-dev global hook runtime.
+# Phase 0 canary for repo-harness global hook runtime.
 # Writes a tagged noop hook to ~/.codex/hooks.json AND ~/.claude/settings.json
 # for SessionStart, PreToolUse, PostToolUse, UserPromptSubmit, Stop events.
-# Each fire appends a line to ~/.agentic-dev-canary.log with host + event + repo.
+# Each fire appends a line to ~/.repo-harness-canary.log with host + event + repo.
 #
 # Goal: verify both hosts load user-level hooks; observe trust UX (Codex) and
 # auto-reload (Claude); confirm trust hash registration in ~/.codex/config.toml
@@ -15,11 +15,11 @@
 
 set -euo pipefail
 
-CANARY_LOG="${HOME}/.agentic-dev-canary.log"
+CANARY_LOG="${HOME}/.repo-harness-canary.log"
 CODEX_HOOKS="${HOME}/.codex/hooks.json"
 CLAUDE_SETTINGS="${HOME}/.claude/settings.json"
 CODEX_CONFIG="${HOME}/.codex/config.toml"
-CANARY_TAG="agentic-dev-canary"
+CANARY_TAG="repo-harness-canary"
 
 EVENTS=(SessionStart PreToolUse PostToolUse UserPromptSubmit Stop)
 
@@ -120,7 +120,7 @@ uninstall_from_file() {
 }
 
 status() {
-  echo "=== agentic-dev canary status ==="
+  echo "=== repo-harness canary status ==="
   echo "Tag: ${CANARY_TAG}"
   echo "Log: ${CANARY_LOG}"
   if [[ -f "$CANARY_LOG" ]]; then

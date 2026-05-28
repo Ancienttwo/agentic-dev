@@ -4,7 +4,7 @@
 
 ## Default Brain
 
-- File vault: `icloud/brain/agentic-dev/references/changelog-versioning-reference.md`
+- File vault: `icloud/brain/repo-harness/references/changelog-versioning-reference.md`
 - gbrain slug: `references/changelog-versioning-reference`
 
 ## Repo Role

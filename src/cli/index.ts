@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * agentic-dev CLI entry — Phase 1B.
+ * repo-harness CLI entry — Phase 1B.
  *
  * Wires commander.js to install, hook, status, doctor, migrate, and tools
  * command bodies. Keeps the Phase 1A `SUBCOMMANDS` / `Subcommand` exports
@@ -34,11 +34,11 @@ export function buildProgram(): Command {
 
   program
     .command('init')
-    .description('Install or refresh the agentic-dev workflow in an existing repo')
+    .description('Install or refresh the repo-harness workflow in an existing repo')
     .option('--repo <path>', 'Target repository path (defaults to cwd)')
     .option('--dry-run', 'Plan repo harness changes without applying them')
     .option('--target <target>', `Host target for adapters and external skills: ${VALID_TARGETS.join('|')}`, 'both')
-    .option('--no-sync-skill', 'Skip refreshing agentic-dev skill aliases under host skill roots')
+    .option('--no-sync-skill', 'Skip refreshing repo-harness skill aliases under host skill roots')
     .option('--no-host-adapters', 'Skip writing global Codex/Claude hook adapters')
     .option('--no-external-skills', 'Skip Waza and diagram-design skill bootstrap')
     .option('--no-verify', 'Skip repo workflow verification after apply')

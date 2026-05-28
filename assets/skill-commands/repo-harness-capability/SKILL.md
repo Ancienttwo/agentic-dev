@@ -1,12 +1,12 @@
 ---
-name: agentic-dev-capability
-description: Adds or syncs explicit repo-local capability boundaries without running full agentic-dev init, migrate, or upgrade.
-when_to_use: "agentic-dev-capability, add capability, add capacity, configure capability, only add selected capabilities, add subfolder AGENTS.md, add subfolder CLAUDE.md"
+name: repo-harness-capability
+description: Adds or syncs explicit repo-local capability boundaries without running full repo-harness init, migrate, or upgrade.
+when_to_use: "repo-harness-capability, add capability, add capacity, configure capability, only add selected capabilities, add subfolder AGENTS.md, add subfolder CLAUDE.md"
 ---
 
-# agentic-dev-capability
+# repo-harness-capability
 
-Use this command when the repo already has the agentic-dev harness and the user
+Use this command when the repo already has the repo-harness harness and the user
 wants to add selected capability boundaries without refreshing the full harness.
 
 ## Protocol

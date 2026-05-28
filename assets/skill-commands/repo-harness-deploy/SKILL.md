@@ -1,10 +1,10 @@
 ---
-name: agentic-dev-deploy
-description: Checks deploy and private operations configuration for an agentic-dev harness without publishing or deploying.
-when_to_use: "agentic-dev-deploy, deploy readiness, ops config, deploy folder, _ops boundary, release deploy check, SQL order"
+name: repo-harness-deploy
+description: Checks deploy and private operations configuration for an repo-harness harness without publishing or deploying.
+when_to_use: "repo-harness-deploy, deploy readiness, ops config, deploy folder, _ops boundary, release deploy check, SQL order"
 ---
 
-# agentic-dev-deploy
+# repo-harness-deploy
 
 Use this command when the user wants a focused deployment and operations
 configuration check for the repo-local harness.
@@ -31,4 +31,4 @@ configuration check for the repo-local harness.
 - Does not publish or deploy.
 - Does not migrate `_ops/` assets into `deploy/` unless the user explicitly asks for a repair/migration.
 - Does not inspect or print secrets, tokens, or real environment values.
-- Does not replace `agentic-dev-check`; it only covers deploy and operations readiness.
+- Does not replace `repo-harness-check`; it only covers deploy and operations readiness.

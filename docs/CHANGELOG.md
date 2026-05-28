@@ -6,16 +6,16 @@ All notable changes to this skill are documented here.
 
 ### Added
 
-- Added `agentic-dev init` as a one-shot existing-repo bootstrap that defaults `--repo` to the current working directory, refreshes host adapters, applies the harness, installs Waza runtime skills, syncs `diagram-design`, and verifies the repo-local workflow.
+- Added `repo-harness init` as a one-shot existing-repo bootstrap that defaults `--repo` to the current working directory, refreshes host adapters, applies the harness, installs Waza runtime skills, syncs `diagram-design`, and verifies the repo-local workflow.
 
 ### Changed
 
 - Retired `project-initializer` as a Codex/Claude installed skill path and upstream resolver fallback; installed-copy sync now removes those directories instead of maintaining them.
-- Switched generated footer stamps to `agentic-dev@...` while keeping `.claude/.skill-version` semantic version fields stable.
-- Prepared npm publishing under the unscoped `repo-harness` package name, made `repo-harness` the primary installed command, and kept `agentic-dev` as a compatibility alias.
+- Switched generated footer stamps to `repo-harness@...` while keeping `.claude/.skill-version` semantic version fields stable.
+- Prepared npm publishing under the unscoped `repo-harness` package name, made `repo-harness` the primary installed command, and kept `repo-harness` as a compatibility alias.
 - Split the npm/CLI package release line (`0.1.x`) from the generated workflow compatibility line (`5.2.3`).
 - Updated GitHub repository metadata and source checkout docs for the `Ancienttwo/repo-harness` rename.
-- Forced copy-based installed-skill sync when `agentic-dev init` runs from an npm `_npx` cache source, avoiding symlinks to temporary npx cache directories.
+- Forced copy-based installed-skill sync when `repo-harness init` runs from an npm `_npx` cache source, avoiding symlinks to temporary npx cache directories.
 
 ### Fixed
 
@@ -44,7 +44,7 @@ All notable changes to this skill are documented here.
 
 ### Changed
 
-- Added passive plan capture so Codex Plan mode, Waza `/think`, and `agentic-dev-plan` outputs can become file-backed `plans/plan-*.md` artifacts through `scripts/capture-plan.sh`, with approved captures able to project directly through `plan-to-todo.sh`.
+- Added passive plan capture so Codex Plan mode, Waza `/think`, and `repo-harness-plan` outputs can become file-backed `plans/plan-*.md` artifacts through `scripts/capture-plan.sh`, with approved captures able to project directly through `plan-to-todo.sh`.
 - Added opt-in default-brain document mirroring through `scripts/sync-brain-docs.sh`, manifest `sync.direction=repo-to-brain` entries, and PostEdit hook integration for registered valuable docs.
 - Promoted CodeGraph from advisory setup guidance to required Codex agent readiness for code navigation, with read-only detector support, strict readiness checks, generated repo `.codegraph/` ignores, and non-vendored host install guidance.
 
@@ -59,7 +59,7 @@ All notable changes to this skill are documented here.
 
 ### Fixed
 
-- Refreshed stale `references/` docs for the current `agentic-dev` hook, migration, eval, plugin, and minimal-documentation contracts.
+- Refreshed stale `references/` docs for the current `repo-harness` hook, migration, eval, plugin, and minimal-documentation contracts.
 - Updated public-surface spec and architecture docs to reflect the full 13-command `agentic-dev-*` facade inventory.
 - Removed empty optional doc placeholders so generated/self-hosted docs match the `minimal-agentic` profile.
 
@@ -84,7 +84,7 @@ All notable changes to this skill are documented here.
 
 ### Added
 
-- Added the agentic-dev plugin architecture map, domain/module docs, and capability-indexed local context contracts for Claude and Codex.
+- Added the repo-harness plugin architecture map, domain/module docs, and capability-indexed local context contracts for Claude and Codex.
 
 ### Fixed
 
@@ -104,10 +104,10 @@ All notable changes to this skill are documented here.
 - Split deployable operations assets into tracked `deploy/` while keeping `_ops/` fully ignored for local private operations state and secrets.
 - Externalized long-form optional reference configs into the default brain file vault while keeping repo-local runtime contracts, hooks, scripts, and required minimal docs authoritative.
 - Added a repo-local brain manifest and workflow check for default brain pointers without making hooks depend on gbrain or iCloud.
-- Renamed the skill/package/repo display surface to `agentic-dev` while keeping `agentic-dev-skill` and `project-initializer` as legacy aliases, install paths, and generated stamp compatibility surfaces.
+- Renamed the skill/package/repo display surface to `repo-harness` while keeping `repo-harness-skill` and `project-initializer` as legacy aliases, install paths, and generated stamp compatibility surfaces.
 - Added action-style `agentic-dev-*` command skill facades for plan, review, autoplan, init, scaffold, migrate, upgrade, repair, and check while keeping hooks/docs initialization internal.
-- Added advisory prompt-hook route hints for reusable-workflow packaging, with `agentic-dev-autoplan` handling evidence-first plans only after user authorization.
-- Added a Codex installed-copy sync helper that keeps command facades only in the canonical `agentic-dev` copy while legacy directories remain runtime fallback bundles.
+- Added advisory prompt-hook route hints for reusable-workflow packaging, with `repo-harness-autoplan` handling evidence-first plans only after user authorization.
+- Added a Codex installed-copy sync helper that keeps command facades only in the canonical `repo-harness` copy while legacy directories remain runtime fallback bundles.
 
 ## [4.0.2] - 2026-05-20
 

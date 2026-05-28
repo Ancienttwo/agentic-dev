@@ -1,10 +1,10 @@
 ---
-name: agentic-dev-check
-description: Verification entrypoint for agentic-dev workflow readiness. Runs workflow gates, task sync, contract checks, inspector, and migration dry-run before merge or release.
-when_to_use: "agentic-dev-check, check agentic workflow, verify harness, pre-merge workflow check, release readiness, validate tasks-first contract"
+name: repo-harness-check
+description: Verification entrypoint for repo-harness workflow readiness. Runs workflow gates, task sync, contract checks, inspector, and migration dry-run before merge or release.
+when_to_use: "repo-harness-check, check agentic workflow, verify harness, pre-merge workflow check, release readiness, validate tasks-first contract"
 ---
 
-# agentic-dev-check
+# repo-harness-check
 
 Use this command when the user asks whether the harness, migration, or release surface is ready.
 

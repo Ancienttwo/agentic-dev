@@ -5,30 +5,30 @@ import { join } from "path";
 const ROOT = join(import.meta.dir, "..");
 const COMMAND_ROOT = join(ROOT, "assets", "skill-commands");
 const COMMANDS = [
-  "agentic-dev-plan",
-  "agentic-dev-review",
-  "agentic-dev-autoplan",
-  "agentic-dev-init",
-  "agentic-dev-scaffold",
-  "agentic-dev-migrate",
-  "agentic-dev-upgrade",
-  "agentic-dev-capability",
-  "agentic-dev-architecture",
-  "agentic-dev-handoff",
-  "agentic-dev-deploy",
-  "agentic-dev-repair",
-  "agentic-dev-check",
+  "repo-harness-plan",
+  "repo-harness-review",
+  "repo-harness-autoplan",
+  "repo-harness-init",
+  "repo-harness-scaffold",
+  "repo-harness-migrate",
+  "repo-harness-upgrade",
+  "repo-harness-capability",
+  "repo-harness-architecture",
+  "repo-harness-handoff",
+  "repo-harness-deploy",
+  "repo-harness-repair",
+  "repo-harness-check",
 ];
 
 function readCommand(name: string): string {
   return readFileSync(join(COMMAND_ROOT, name, "SKILL.md"), "utf-8");
 }
 
-describe("agentic-dev action command skills", () => {
+describe("repo-harness action command skills", () => {
   test("manifest exposes exactly the public action command surface", () => {
     const manifest = JSON.parse(readFileSync(join(COMMAND_ROOT, "manifest.json"), "utf-8"));
-    expect(manifest.surface).toBe("agentic-dev-action-style-skill-commands");
-    expect(manifest.router).toBe("agentic-dev");
+    expect(manifest.surface).toBe("repo-harness-action-style-skill-commands");
+    expect(manifest.router).toBe("repo-harness");
     expect(manifest.commands.map((entry: { name: string }) => entry.name)).toEqual(COMMANDS);
     expect(manifest.nonPublicInternalSteps).toEqual([
       "hooks-init",
@@ -52,14 +52,14 @@ describe("agentic-dev action command skills", () => {
   });
 
   test("plan, review, and autoplan are non-mutating by default", () => {
-    for (const command of ["agentic-dev-plan", "agentic-dev-review", "agentic-dev-autoplan"]) {
+    for (const command of ["repo-harness-plan", "repo-harness-review", "repo-harness-autoplan"]) {
       expect(readCommand(command)).toContain("Does not edit");
     }
-    expect(readCommand("agentic-dev-plan")).toContain("capture-plan.sh");
+    expect(readCommand("repo-harness-plan")).toContain("capture-plan.sh");
   });
 
   test("autoplan packages repeated workflows only through an evidence-first approval gate", () => {
-    const autoplan = readCommand("agentic-dev-autoplan");
+    const autoplan = readCommand("repo-harness-autoplan");
 
     expect(autoplan).toContain("Reusable Workflow Packaging Rubric");
     expect(autoplan).toContain("Memories and rollout summaries");
@@ -72,20 +72,20 @@ describe("agentic-dev action command skills", () => {
   });
 
   test("init and scaffold keep existing-repo adoption separate from app scaffolding", () => {
-    const init = readCommand("agentic-dev-init");
-    const scaffold = readCommand("agentic-dev-scaffold");
+    const init = readCommand("repo-harness-init");
+    const scaffold = readCommand("repo-harness-scaffold");
 
     expect(init).toContain("existing repository");
     expect(init).toContain("Does not create a new application stack");
     expect(init).toContain("migrate-project-template.sh --repo <repo> --apply");
     expect(scaffold).toContain("new project");
     expect(scaffold).toContain("plan catalog A-K");
-    expect(scaffold).toContain("If the user says \"initialize existing repo\", route to `agentic-dev-init`");
+    expect(scaffold).toContain("If the user says \"initialize existing repo\", route to `repo-harness-init`");
   });
 
   test("migration and upgrade commands preserve user-owned surfaces", () => {
-    const migrate = readCommand("agentic-dev-migrate");
-    const upgrade = readCommand("agentic-dev-upgrade");
+    const migrate = readCommand("repo-harness-migrate");
+    const upgrade = readCommand("repo-harness-upgrade");
 
     expect(migrate).toContain("Preserve or archive user-authored content");
     expect(migrate).toContain("ownership=known_generated");
@@ -94,7 +94,7 @@ describe("agentic-dev action command skills", () => {
   });
 
   test("capability command is a targeted registry update instead of full init", () => {
-    const capability = readCommand("agentic-dev-capability");
+    const capability = readCommand("repo-harness-capability");
 
     expect(capability).toContain("capability-config.ts add");
     expect(capability).toContain("Does not run `scripts/migrate-project-template.sh --apply`");
@@ -103,9 +103,9 @@ describe("agentic-dev action command skills", () => {
   });
 
   test("architecture, handoff, and deploy commands stay focused", () => {
-    const architecture = readCommand("agentic-dev-architecture");
-    const handoff = readCommand("agentic-dev-handoff");
-    const deploy = readCommand("agentic-dev-deploy");
+    const architecture = readCommand("repo-harness-architecture");
+    const handoff = readCommand("repo-harness-handoff");
+    const deploy = readCommand("repo-harness-deploy");
 
     expect(architecture).toContain("archive-architecture-request.sh");
     expect(architecture).toContain("diagram-design");

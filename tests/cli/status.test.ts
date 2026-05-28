@@ -7,7 +7,7 @@ import { runStatus, formatStatus } from '../../src/cli/commands/status';
 import { runInstall } from '../../src/cli/commands/install';
 
 function withTempHome(fn: (home: string) => void): void {
-  const tmp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'agentic-dev-status-')));
+  const tmp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'repo-harness-status-')));
   const prev = process.env.HOME;
   process.env.HOME = tmp;
   try {
@@ -60,7 +60,7 @@ describe('status command (Phase 1C)', () => {
   test('detects opt-in repo via .ai/harness/workflow-contract.json marker', () => {
     withTempHome(() => {
       const repo = fs.realpathSync(
-        fs.mkdtempSync(path.join(os.tmpdir(), 'agentic-dev-status-repo-')),
+        fs.mkdtempSync(path.join(os.tmpdir(), 'repo-harness-status-repo-')),
       );
       try {
         execSync('git init', { cwd: repo, stdio: 'ignore' });
@@ -92,7 +92,7 @@ describe('status command (Phase 1C)', () => {
   test('formatStatus produces human-readable text', () => {
     withTempHome(() => {
       const text = formatStatus(runStatus(), false);
-      expect(text).toContain('agentic-dev');
+      expect(text).toContain('repo-harness');
       expect(text).toContain('Hosts:');
       expect(text).toContain('Routes:');
       expect(text).toContain('Current repo:');

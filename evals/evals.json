@@ -1,5 +1,5 @@
 {
-  "skill_name": "agentic-dev",
+  "skill_name": "repo-harness",
   "evals": [
     {
       "id": 1,
@@ -196,8 +196,8 @@
     {
       "id": 7,
       "slug": "route-existing-repo-init",
-      "prompt": "Initialize this existing repo with the agentic-dev workflow. Do not create a new Vite or app scaffold; just add the repo-local harness, hooks, docs/spec.md, tasks, plans, .ai/context, and .ai/harness.",
-      "expected_output": "Routes the request to agentic-dev-init, inspects the existing repo first, uses migrate-project-template --apply for the safe init path, and explicitly avoids app scaffolding.",
+      "prompt": "Initialize this existing repo with the repo-harness workflow. Do not create a new Vite or app scaffold; just add the repo-local harness, hooks, docs/spec.md, tasks, plans, .ai/context, and .ai/harness.",
+      "expected_output": "Routes the request to repo-harness-init, inspects the existing repo first, uses migrate-project-template --apply for the safe init path, and explicitly avoids app scaffolding.",
       "files": [
         "evals/fixtures/new-project-empty"
       ],
@@ -206,7 +206,7 @@
           "final-response.md"
         ],
         "files_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-init" },
+          { "path": "final-response.md", "pattern": "repo-harness-init" },
           { "path": "final-response.md", "pattern": "inspect-project-state" },
           { "path": "final-response.md", "pattern": "migrate-project-template" }
         ]
@@ -219,15 +219,15 @@
       },
       "expectations": [
         "Treats init as existing-repo adoption, not product scaffold creation.",
-        "Names agentic-dev-init as the public command.",
+        "Names repo-harness-init as the public command.",
         "Keeps hook and docs initialization behind the migration engine."
       ]
     },
     {
       "id": 8,
       "slug": "route-new-project-scaffold",
-      "prompt": "Scaffold a new Vite + TanStack Router internal tool with the agentic-dev workflow attached from the beginning.",
-      "expected_output": "Routes the request to agentic-dev-scaffold, selects the Vite/TanStack plan catalog entry, creates the new project scaffold, and attaches the tasks-first harness.",
+      "prompt": "Scaffold a new Vite + TanStack Router internal tool with the repo-harness workflow attached from the beginning.",
+      "expected_output": "Routes the request to repo-harness-scaffold, selects the Vite/TanStack plan catalog entry, creates the new project scaffold, and attaches the tasks-first harness.",
       "files": [
         "evals/fixtures/new-project-empty"
       ],
@@ -236,14 +236,14 @@
           "final-response.md"
         ],
         "files_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-scaffold" },
+          { "path": "final-response.md", "pattern": "repo-harness-scaffold" },
           { "path": "final-response.md", "pattern": "Plan C|Vite" },
           { "path": "final-response.md", "pattern": "tasks-first" }
         ]
       },
       "anti_graders": {
         "files_not_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-init.*existing repo only" },
+          { "path": "final-response.md", "pattern": "repo-harness-init.*existing repo only" },
           { "path": "final-response.md", "pattern": "create-project-dirs.*public command" }
         ]
       },
@@ -256,8 +256,8 @@
     {
       "id": 9,
       "slug": "route-legacy-migrate",
-      "prompt": "This older Claude repo has docs/TODO.md, docs/PROGRESS.md, and old .claude hook shims. Migrate it to the current agentic-dev harness without deleting my notes.",
-      "expected_output": "Routes the request to agentic-dev-migrate, archives or preserves legacy docs, removes only known_generated stale shims, and verifies the tasks-first harness.",
+      "prompt": "This older Claude repo has docs/TODO.md, docs/PROGRESS.md, and old .claude hook shims. Migrate it to the current repo-harness harness without deleting my notes.",
+      "expected_output": "Routes the request to repo-harness-migrate, archives or preserves legacy docs, removes only known_generated stale shims, and verifies the tasks-first harness.",
       "files": [
         "evals/fixtures/migrate-legacy"
       ],
@@ -266,7 +266,7 @@
           "final-response.md"
         ],
         "files_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-migrate" },
+          { "path": "final-response.md", "pattern": "repo-harness-migrate" },
           { "path": "final-response.md", "pattern": "archive|preserve" },
           { "path": "final-response.md", "pattern": "known_generated" }
         ]
@@ -285,8 +285,8 @@
     {
       "id": 10,
       "slug": "route-current-upgrade",
-      "prompt": "This repo already has the tasks-first harness. Upgrade it to the latest agentic-dev contract and refresh managed helper files, but preserve _ref, _ops, custom hooks, and local env.",
-      "expected_output": "Routes the request to agentic-dev-upgrade, reads the inspector upgrade_plan, applies manifest-owned upgrade actions only, and preserves user-local/private surfaces.",
+      "prompt": "This repo already has the tasks-first harness. Upgrade it to the latest repo-harness contract and refresh managed helper files, but preserve _ref, _ops, custom hooks, and local env.",
+      "expected_output": "Routes the request to repo-harness-upgrade, reads the inspector upgrade_plan, applies manifest-owned upgrade actions only, and preserves user-local/private surfaces.",
       "files": [
         "evals/fixtures/audit-drift"
       ],
@@ -295,7 +295,7 @@
           "final-response.md"
         ],
         "files_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-upgrade" },
+          { "path": "final-response.md", "pattern": "repo-harness-upgrade" },
           { "path": "final-response.md", "pattern": "upgrade_plan" },
           { "path": "final-response.md", "pattern": "_ops|_ref" }
         ]
@@ -315,7 +315,7 @@
       "id": 11,
       "slug": "route-harness-repair",
       "prompt": "The agentic workflow is already installed, but task sync and hook routing are broken. Repair the current harness without migrating legacy docs or scaffolding a new app.",
-      "expected_output": "Routes the request to agentic-dev-repair, reproduces the failing path, fixes task sync or hook routing minimally, and reruns the relevant workflow gate.",
+      "expected_output": "Routes the request to repo-harness-repair, reproduces the failing path, fixes task sync or hook routing minimally, and reruns the relevant workflow gate.",
       "files": [
         "evals/fixtures/fix-agents"
       ],
@@ -324,14 +324,14 @@
           "final-response.md"
         ],
         "files_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-repair" },
+          { "path": "final-response.md", "pattern": "repo-harness-repair" },
           { "path": "final-response.md", "pattern": "task sync|hook routing" },
           { "path": "final-response.md", "pattern": "check-task-workflow" }
         ]
       },
       "anti_graders": {
         "files_not_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-scaffold" }
+          { "path": "final-response.md", "pattern": "repo-harness-scaffold" }
         ]
       },
       "expectations": [
@@ -343,8 +343,8 @@
     {
       "id": 12,
       "slug": "route-workflow-check",
-      "prompt": "Check whether this agentic-dev harness is ready to merge. Run the workflow gates, inspector, task sync, and migration dry-run and give me the release readiness verdict.",
-      "expected_output": "Routes the request to agentic-dev-check, runs or names the required workflow gates, reports pass/fail evidence, and does not mutate repo files by default.",
+      "prompt": "Check whether this repo-harness harness is ready to merge. Run the workflow gates, inspector, task sync, and migration dry-run and give me the release readiness verdict.",
+      "expected_output": "Routes the request to repo-harness-check, runs or names the required workflow gates, reports pass/fail evidence, and does not mutate repo files by default.",
       "files": [
         "evals/fixtures/audit-drift"
       ],
@@ -353,7 +353,7 @@
           "final-response.md"
         ],
         "files_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-check" },
+          { "path": "final-response.md", "pattern": "repo-harness-check" },
           { "path": "final-response.md", "pattern": "check-task-sync" },
           { "path": "final-response.md", "pattern": "migrate-project-template.*dry-run" }
         ]
@@ -366,9 +366,9 @@
     },
     {
       "id": 13,
-      "slug": "route-agentic-dev-plan",
-      "prompt": "Plan how we should change the agentic-dev workflow command surface, but do not edit files yet.",
-      "expected_output": "Routes the request to agentic-dev-plan, inspects repo state, produces a decision-complete plan, and names the next action command without mutating files.",
+      "slug": "route-repo-harness-plan",
+      "prompt": "Plan how we should change the repo-harness workflow command surface, but do not edit files yet.",
+      "expected_output": "Routes the request to repo-harness-plan, inspects repo state, produces a decision-complete plan, and names the next action command without mutating files.",
       "files": [
         "evals/fixtures/audit-drift"
       ],
@@ -377,7 +377,7 @@
           "final-response.md"
         ],
         "files_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-plan" },
+          { "path": "final-response.md", "pattern": "repo-harness-plan" },
           { "path": "final-response.md", "pattern": "inspect-project-state" },
           { "path": "final-response.md", "pattern": "next action command" }
         ]
@@ -395,9 +395,9 @@
     },
     {
       "id": 14,
-      "slug": "route-agentic-dev-review",
-      "prompt": "Review this existing agentic-dev plan for product, engineering, design, and DevEx issues before implementation.",
-      "expected_output": "Routes the request to agentic-dev-review, reads the plan, selects review dimensions, reports blocking issues first, and does not implement by default.",
+      "slug": "route-repo-harness-review",
+      "prompt": "Review this existing repo-harness plan for product, engineering, design, and DevEx issues before implementation.",
+      "expected_output": "Routes the request to repo-harness-review, reads the plan, selects review dimensions, reports blocking issues first, and does not implement by default.",
       "files": [
         "evals/fixtures/audit-drift"
       ],
@@ -406,7 +406,7 @@
           "final-response.md"
         ],
         "files_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-review" },
+          { "path": "final-response.md", "pattern": "repo-harness-review" },
           { "path": "final-response.md", "pattern": "product" },
           { "path": "final-response.md", "pattern": "DevEx" }
         ]
@@ -419,9 +419,9 @@
     },
     {
       "id": 15,
-      "slug": "route-agentic-dev-autoplan",
-      "prompt": "Autoplan the agentic-dev command change: read the repo, make the planning decisions for me, run the review pipeline automatically, and surface only final decision gates.",
-      "expected_output": "Routes the request to agentic-dev-autoplan, runs plan then review then decision summary, and reports unresolved taste decisions without mutating files by default.",
+      "slug": "route-repo-harness-autoplan",
+      "prompt": "Autoplan the repo-harness command change: read the repo, make the planning decisions for me, run the review pipeline automatically, and surface only final decision gates.",
+      "expected_output": "Routes the request to repo-harness-autoplan, runs plan then review then decision summary, and reports unresolved taste decisions without mutating files by default.",
       "files": [
         "evals/fixtures/audit-drift"
       ],
@@ -430,7 +430,7 @@
           "final-response.md"
         ],
         "files_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-autoplan" },
+          { "path": "final-response.md", "pattern": "repo-harness-autoplan" },
           { "path": "final-response.md", "pattern": "plan.*review.*decision" },
           { "path": "final-response.md", "pattern": "final decision" }
         ]
@@ -443,18 +443,18 @@
     },
     {
       "id": 16,
-      "slug": "route-agentic-dev-capability",
-      "prompt": "This repo already has agentic-dev. Add only a docs/payments capability boundary with local AGENTS.md and CLAUDE.md files; do not run full init.",
-      "expected_output": "Routes the request to agentic-dev-capability, uses capability-config add for explicit prefixes, validates with capability-resolver, and avoids full init, migrate, or upgrade.",
+      "slug": "route-repo-harness-capability",
+      "prompt": "This repo already has repo-harness. Add only a docs/payments capability boundary with local AGENTS.md and CLAUDE.md files; do not run full init.",
+      "expected_output": "Routes the request to repo-harness-capability, uses capability-config add for explicit prefixes, validates with capability-resolver, and avoids full init, migrate, or upgrade.",
       "files": [
-        "assets/skill-commands/agentic-dev-capability/SKILL.md"
+        "assets/skill-commands/repo-harness-capability/SKILL.md"
       ],
       "graders": {
         "files_exist": [
           "final-response.md"
         ],
         "files_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-capability" },
+          { "path": "final-response.md", "pattern": "repo-harness-capability" },
           { "path": "final-response.md", "pattern": "capability-config" },
           { "path": "final-response.md", "pattern": "capability-resolver" }
         ]
@@ -467,23 +467,23 @@
       "expectations": [
         "Uses explicit prefixes instead of inferring broad directory globs.",
         "Creates only requested local AGENTS.md and CLAUDE.md contract files.",
-        "Does not run the full agentic-dev-init path."
+        "Does not run the full repo-harness-init path."
       ]
     },
     {
       "id": 17,
-      "slug": "route-agentic-dev-architecture",
+      "slug": "route-repo-harness-architecture",
       "prompt": "Resolve the pending architecture drift request and update the architecture diagram if it helps, but do not refresh the whole harness.",
-      "expected_output": "Routes the request to agentic-dev-architecture, inspects docs/architecture/index.md and pending requests, uses capability matching when relevant, archives handled requests, and only generates a diagram through diagram-design when useful.",
+      "expected_output": "Routes the request to repo-harness-architecture, inspects docs/architecture/index.md and pending requests, uses capability matching when relevant, archives handled requests, and only generates a diagram through diagram-design when useful.",
       "files": [
-        "assets/skill-commands/agentic-dev-architecture/SKILL.md"
+        "assets/skill-commands/repo-harness-architecture/SKILL.md"
       ],
       "graders": {
         "files_exist": [
           "final-response.md"
         ],
         "files_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-architecture" },
+          { "path": "final-response.md", "pattern": "repo-harness-architecture" },
           { "path": "final-response.md", "pattern": "archive-architecture-request" },
           { "path": "final-response.md", "pattern": "diagram-design" }
         ]
@@ -501,18 +501,18 @@
     },
     {
       "id": 18,
-      "slug": "route-agentic-dev-handoff",
+      "slug": "route-repo-harness-handoff",
       "prompt": "Prepare a Codex handoff for this long task and print the resume prompt. Do not run the full workflow check.",
-      "expected_output": "Routes the request to agentic-dev-handoff, runs prepare-codex-handoff or codex-handoff-resume as appropriate, verifies current.md and resume.md, and reports the exact next step without running /check by default.",
+      "expected_output": "Routes the request to repo-harness-handoff, runs prepare-codex-handoff or codex-handoff-resume as appropriate, verifies current.md and resume.md, and reports the exact next step without running /check by default.",
       "files": [
-        "assets/skill-commands/agentic-dev-handoff/SKILL.md"
+        "assets/skill-commands/repo-harness-handoff/SKILL.md"
       ],
       "graders": {
         "files_exist": [
           "final-response.md"
         ],
         "files_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-handoff" },
+          { "path": "final-response.md", "pattern": "repo-harness-handoff" },
           { "path": "final-response.md", "pattern": "prepare-codex-handoff" },
           { "path": "final-response.md", "pattern": "resume.md" }
         ]
@@ -530,18 +530,18 @@
     },
     {
       "id": 19,
-      "slug": "route-agentic-dev-deploy",
+      "slug": "route-repo-harness-deploy",
       "prompt": "Check whether our deploy folder and private _ops setup are ready. Do not deploy anything.",
-      "expected_output": "Routes the request to agentic-dev-deploy, reads the operations policy, checks deploy/ and _ops/ boundaries, runs check-deploy-sql-order, and reports readiness gaps without publishing or deploying.",
+      "expected_output": "Routes the request to repo-harness-deploy, reads the operations policy, checks deploy/ and _ops/ boundaries, runs check-deploy-sql-order, and reports readiness gaps without publishing or deploying.",
       "files": [
-        "assets/skill-commands/agentic-dev-deploy/SKILL.md"
+        "assets/skill-commands/repo-harness-deploy/SKILL.md"
       ],
       "graders": {
         "files_exist": [
           "final-response.md"
         ],
         "files_contain": [
-          { "path": "final-response.md", "pattern": "agentic-dev-deploy" },
+          { "path": "final-response.md", "pattern": "repo-harness-deploy" },
           { "path": "final-response.md", "pattern": "check-deploy-sql-order" },
           { "path": "final-response.md", "pattern": "_ops" }
         ]

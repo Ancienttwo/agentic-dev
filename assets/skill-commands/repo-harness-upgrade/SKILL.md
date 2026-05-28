@@ -1,10 +1,10 @@
 ---
-name: agentic-dev-upgrade
-description: Refreshes an already-installed agentic-dev harness using manifest-owned upgrade actions from assets/workflow-contract.v1.json.
-when_to_use: "agentic-dev-upgrade, upgrade installed harness, refresh agentic-dev contract, reconfigure current tasks-first harness, upgrade workflow contract"
+name: repo-harness-upgrade
+description: Refreshes an already-installed repo-harness harness using manifest-owned upgrade actions from assets/workflow-contract.v1.json.
+when_to_use: "repo-harness-upgrade, upgrade installed harness, refresh repo-harness contract, reconfigure current tasks-first harness, upgrade workflow contract"
 ---
 
-# agentic-dev-upgrade
+# repo-harness-upgrade
 
 Use this command when a repo already has a current harness surface but needs the latest contract, helpers, templates, or policy.
 

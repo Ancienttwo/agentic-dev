@@ -1,10 +1,10 @@
 ---
-name: agentic-dev-architecture
-description: Resolves agentic-dev architecture drift requests and updates architecture docs or diagrams without running full init, migrate, or upgrade.
-when_to_use: "agentic-dev-architecture, architecture drift, architecture doc, architecture diagram, update architecture index, resolve architecture request"
+name: repo-harness-architecture
+description: Resolves repo-harness architecture drift requests and updates architecture docs or diagrams without running full init, migrate, or upgrade.
+when_to_use: "repo-harness-architecture, architecture drift, architecture doc, architecture diagram, update architecture index, resolve architecture request"
 ---
 
-# agentic-dev-architecture
+# repo-harness-architecture
 
 Use this command when the harness already exists and the user wants a focused
 architecture documentation, drift-request, or diagram pass.

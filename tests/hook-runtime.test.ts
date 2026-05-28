@@ -182,6 +182,62 @@ describe("Hook runtime behavior", () => {
     }
   });
 
+  test("prompt-guard: emits host-neutral Codegraph route hints for structural code navigation", () => {
+    const cwd = tmpWorkspace("codegraph-route-hint");
+    try {
+      installHooks(cwd);
+
+      const structuralRes = runHook("prompt-guard.sh", cwd, {
+        stdin: JSON.stringify({ prompt: "谁调用了 runHook？影响面是什么？" }),
+      });
+      expect(structuralRes.status).toBe(0);
+      expect(structuralRes.stdout).toContain("[CodegraphRoute] Structural code-navigation intent detected");
+      expect(structuralRes.stdout).toContain("Prefer CodeGraph context/search/callers/impact");
+      expect(structuralRes.stdout).not.toContain("mcp__codegraph__");
+      expect(structuralRes.stdout).not.toContain("ToolSearch");
+
+      const literalReadRes = runHook("prompt-guard.sh", cwd, {
+        stdin: JSON.stringify({ prompt: "读一下 README 第一段" }),
+      });
+      expect(literalReadRes.status).toBe(0);
+      expect(literalReadRes.stdout).not.toContain("[CodegraphRoute]");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
+  test("trace-event records host attribution metadata", () => {
+    const cwd = tmpWorkspace("trace-host-metadata");
+    try {
+      installHooks(cwd);
+
+      const res = runHook("trace-event.sh", cwd, {
+        stdin: JSON.stringify({
+          hook_event_name: "PostToolUse",
+          tool_name: "Read",
+          source: "claude-code",
+          session_id: "session-1",
+        }),
+        env: {
+          CLAUDE_AGENT_NAME: "main-claude",
+          CLAUDE_SESSION_ID: "session-1",
+          CLAUDE_SESSION_SOURCE: "claude-code",
+        },
+      });
+      expect(res.status).toBe(0);
+
+      const trace = readFileSync(join(cwd, ".claude", ".trace.jsonl"), "utf-8")
+        .trim()
+        .split("\n")
+        .map((line) => JSON.parse(line));
+      expect(trace[0].host).toBe("claude");
+      expect(trace[0].agent_name).toBe("main-claude");
+      expect(trace[0].session_source).toBe("claude-code");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
   test("run-hook dispatches from HOOK_REPO_ROOT even when caller cwd differs", () => {
     const cwd = tmpWorkspace("run-hook-root-cwd");
     try {
@@ -214,7 +270,7 @@ describe("Hook runtime behavior", () => {
     }
   });
 
-  test("prompt-guard: suggests agentic-dev-autoplan for reusable workflow packaging only after authorization", () => {
+  test("prompt-guard: suggests repo-harness-autoplan for reusable workflow packaging only after authorization", () => {
     const cwd = tmpWorkspace("agentic-packaging-route-hint");
     try {
       installHooks(cwd);
@@ -224,7 +280,7 @@ describe("Hook runtime behavior", () => {
       });
       expect(packagingRes.status).toBe(0);
       expect(packagingRes.stdout).toContain("[AgenticDevRoute] Reusable workflow packaging intent detected");
-      expect(packagingRes.stdout).toContain("agentic-dev-autoplan after user authorization");
+      expect(packagingRes.stdout).toContain("repo-harness-autoplan after user authorization");
       expect(packagingRes.stdout).toContain("hook will not plan or create assets");
       expect(packagingRes.stdout).not.toContain("[WazaRoute]");
 
@@ -233,7 +289,7 @@ describe("Hook runtime behavior", () => {
       });
       expect(hookTriggerRes.status).toBe(0);
       expect(hookTriggerRes.stdout).toContain("[AgenticDevRoute]");
-      expect(hookTriggerRes.stdout).toContain("agentic-dev-autoplan");
+      expect(hookTriggerRes.stdout).toContain("repo-harness-autoplan");
       expect(hookTriggerRes.stdout).not.toContain("[WazaRoute]");
     } finally {
       rmSync(cwd, { recursive: true, force: true });
@@ -1482,6 +1538,30 @@ describe("Hook runtime behavior", () => {
 
       const res = runHook("prompt-guard.sh", cwd, {
         stdin: JSON.stringify({ user_message: "refresh the completionToken cache" }),
+      });
+
+      expect(res.stdout).not.toContain("[ContractGuard]");
+      expect(res.status).not.toBe(2);
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+
+  test("prompt-guard: short Chinese future-completion wording does not trigger done", () => {
+    const cwd = tmpWorkspace("prompt-guard-done-chinese-future");
+    try {
+      initGitRepo(cwd);
+      installHooks(cwd);
+      mkdirSync(join(cwd, "plans"), { recursive: true });
+
+      writeFileSync(
+        join(cwd, "plans/plan-20260304-1402-demo.md"),
+        "# Plan: demo\n\n> **Status**: Approved\n"
+      );
+      writeActivePlan(cwd, "plans/plan-20260304-1402-demo.md");
+
+      const res = runHook("prompt-guard.sh", cwd, {
+        stdin: JSON.stringify({ user_message: "完成后验证这段 CLI 行为" }),
       });
 
       expect(res.stdout).not.toContain("[ContractGuard]");

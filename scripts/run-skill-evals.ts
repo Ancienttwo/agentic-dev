@@ -218,7 +218,7 @@ export function formatIterationName(date: Date = new Date(), label?: string): st
 
 export function loadEvalManifest(path: string = DEFAULT_EVALS_PATH): EvalManifest {
   const manifest = readJsonFile<EvalManifest>(path);
-  if (manifest.skill_name !== "agentic-dev") {
+  if (manifest.skill_name !== "repo-harness") {
     throw new Error(`Unexpected skill_name in eval manifest: ${manifest.skill_name}`);
   }
   return manifest;
@@ -227,7 +227,7 @@ export function loadEvalManifest(path: string = DEFAULT_EVALS_PATH): EvalManifes
 export function loadBenchmarkConfig(path: string = DEFAULT_BENCHMARK_CONFIG_PATH): BenchmarkConfig {
   const config = readJsonFile<Partial<BenchmarkConfig>>(path);
   return {
-    workspaceRoot: config.workspaceRoot ?? "../agentic-dev-workspace",
+    workspaceRoot: config.workspaceRoot ?? "../repo-harness-workspace",
     summaryPath: config.summaryPath ?? "evals/benchmark.md",
     agents: {
       claude: {
@@ -312,8 +312,8 @@ function buildCodexWrapper(existingAgents: string, skillMarkdown: string): strin
   const sections = [
     "# Benchmark Skill Wrapper",
     "",
-    "Treat the embedded `agentic-dev` skill as the primary routing contract for this benchmark run.",
-    "The benchmark mounts Claude's canonical skill path at `.claude/skills/agentic-dev`.",
+    "Treat the embedded `repo-harness` skill as the primary routing contract for this benchmark run.",
+    "The benchmark mounts Claude's canonical skill path at `.claude/skills/repo-harness`.",
     "When the embedded skill references `scripts/`, `references/`, `assets/`, or `evals/` files, resolve them relative to `.skill-src/`.",
     "Preserve any fixture-specific instructions listed below unless they conflict with the embedded skill.",
     "",
@@ -341,7 +341,7 @@ export function prepareWorkspaceForRun(
   }
 
   if (agent === "claude") {
-    const linkPath = join(workspacePath, ".claude", "skills", "agentic-dev");
+    const linkPath = join(workspacePath, ".claude", "skills", "repo-harness");
     ensureDir(dirname(linkPath));
     rmSync(linkPath, { recursive: true, force: true });
     symlinkSync(skillPath, linkPath, "dir");

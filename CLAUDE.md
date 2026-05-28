@@ -1,6 +1,6 @@
-# agentic-dev AGENTS.md
+# repo-harness AGENTS.md
 
-This repository self-hosts the `agentic-dev` contract, formerly `agentic-dev-skill` and `project-initializer`. Claude and Codex should follow the same repo-local workflow surface.
+This repository self-hosts the `repo-harness` contract, formerly `repo-harness-skill` and `project-initializer`. Claude and Codex should follow the same repo-local workflow surface.
 
 ## Canonical Workflow Files
 
@@ -32,7 +32,7 @@ This repository self-hosts the `agentic-dev` contract, formerly `agentic-dev-ski
 - Treat `deploy/` as the trackable deployment and operations surface for runbooks, submission materials, release checklists, helper scripts, ordered SQL files under `deploy/sql/`, and env examples.
 - Treat `_ops/` as ignored local operations state for secrets, real env files, provider state, artifacts, logs, and scratch files; do not commit or agent-edit `_ops/*`.
 - Treat contract-level task execution as worktree-first: `scripts/plan-to-todo.sh --plan <approved-plan>` starts `scripts/contract-worktree.sh start --plan <approved-plan>` when policy enables it, and completed blocks finish through Waza `/check` plus `scripts/contract-worktree.sh finish`.
-- After Codex Plan mode, Waza `/think`, or `agentic-dev-plan` produces a decision-complete plan, capture it with `scripts/capture-plan.sh --slug <slug> --title <title>` so `plans/` becomes the file-backed source of truth; if the user has already approved implementation, capture with `--status Approved --execute` or run `scripts/plan-to-todo.sh --plan <active-plan>`.
+- After Codex Plan mode, Waza `/think`, or `repo-harness-plan` produces a decision-complete plan, capture it with `scripts/capture-plan.sh --slug <slug> --title <title>` so `plans/` becomes the file-backed source of truth; if the user has already approved implementation, capture with `--status Approved --execute` or run `scripts/plan-to-todo.sh --plan <active-plan>`.
 - If current repo state conflicts with the task, open an isolated `codex/<task-slug>` worktree, finish there, run Waza `/check`-style validation, then merge back to `main` without absorbing unrelated dirty changes.
 - Route product discovery to gstack `office-hours`, complex engineering plans to gstack `plan-eng-review`, design plans to gstack `plan-design-review`, and daily small/medium planning, bug hunts, and checks to Waza `/think`, `/hunt`, and `/check`.
 - Codex automation profile is runtime-referenced, not vendored: required skills are `health`, `check`, and `diagram-design` from `~/.codex/skills`.

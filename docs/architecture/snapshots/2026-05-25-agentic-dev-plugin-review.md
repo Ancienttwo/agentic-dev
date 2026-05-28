@@ -1,4 +1,4 @@
-# Architecture Snapshot: agentic-dev Plugin Review
+# Architecture Snapshot: repo-harness Plugin Review
 
 > **Date**: 2026-05-25
 > **Scope**: Whole plugin architecture, architecture ledger backfill, and optimization backlog.
@@ -6,7 +6,7 @@
 
 ## P1 Map
 
-`agentic-dev` self-hosts a file-backed workflow harness. The repo has 356 files.
+`repo-harness` self-hosts a file-backed workflow harness. The repo has 356 files.
 The largest risk-bearing surfaces are `scripts/lib/project-init-lib.sh` at about
 1,879 lines and `scripts/migrate-project-template.sh` at about 901 lines. The
 engine is healthy, but the architecture ledger was stale: only `docs/architecture/index.md`

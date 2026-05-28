@@ -1,7 +1,7 @@
 /**
- * `agentic-dev init` — one-shot existing-repo harness bootstrap.
+ * `repo-harness init` — one-shot existing-repo harness bootstrap.
  *
- * This is the CLI equivalent of the `agentic-dev-init` skill facade: default
+ * This is the CLI equivalent of the `repo-harness-init` skill facade: default
  * the target repo to cwd, install/refresh the machine runtime pieces, apply the
  * repo-local workflow migration, then verify the installed harness.
  */
@@ -230,10 +230,10 @@ export function runInit(opts: InitCommandOptions = {}): InitCommandResult {
 
   if (syncSkill && apply) {
     const step = runProcess("bash", [join(sourceRoot, "scripts", "sync-codex-installed-copies.sh")], sourceRoot, commandEnv);
-    steps.push(withStepName(step, "sync agentic-dev skills", `target=${target}`));
+    steps.push(withStepName(step, "sync repo-harness skills", `target=${target}`));
   } else {
     steps.push({
-      step: "sync agentic-dev skills",
+      step: "sync repo-harness skills",
       status: "skipped",
       detail: syncSkill ? "dry-run" : "disabled",
     });

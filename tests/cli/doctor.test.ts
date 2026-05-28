@@ -11,7 +11,7 @@ import {
 } from '../../src/cli/commands/doctor';
 
 function withTempHome(fn: (home: string) => void): void {
-  const tmp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'agentic-dev-doctor-')));
+  const tmp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'repo-harness-doctor-')));
   const prev = process.env.HOME;
   process.env.HOME = tmp;
   try {
@@ -100,6 +100,9 @@ describe('doctor command (Phase 1C)', () => {
       expect(ids).toContain('claude-adapter');
       expect(ids).toContain('codex-trust-state');
       expect(ids).toContain('codegraph-readiness');
+      expect(ids).toContain('codex-codegraph-mcp');
+      expect(ids).toContain('claude-codegraph-mcp');
+      expect(ids).toContain('codegraph-index');
     });
   });
 
@@ -170,13 +173,18 @@ describe('doctor command (Phase 1C)', () => {
   });
 
   test('CLI doctor includes CodeGraph readiness without mutating CodeGraph state', () => {
-    const envRoot = setupFakeEnvironment('agentic-dev-doctor-codegraph');
+    const envRoot = setupFakeEnvironment('repo-harness-doctor-codegraph');
     const logFile = path.join(envRoot.root, 'tool.log');
     try {
       fs.mkdirSync(path.join(envRoot.home, '.codex'), { recursive: true });
+      fs.mkdirSync(envRoot.home, { recursive: true });
       fs.writeFileSync(
         path.join(envRoot.home, '.codex', 'config.toml'),
         '[mcp_servers.codegraph]\ncommand = "codegraph"\n',
+      );
+      fs.writeFileSync(
+        path.join(envRoot.home, '.claude.json'),
+        JSON.stringify({ mcpServers: { codegraph: { type: 'stdio', command: 'codegraph', args: ['serve', '--mcp'] } } }),
       );
       writeFakeCodeGraph(envRoot.fakeBin, logFile);
       writeFakeGbrain(envRoot.fakeBin);
@@ -201,6 +209,12 @@ describe('doctor command (Phase 1C)', () => {
       expect(codegraph.status).toBe('warn');
       expect(codegraph.detail).toContain('source=global');
       expect(codegraph.detail).toContain('remediation=bun install');
+      const codexMcp = report.checks.find((entry: { id: string }) => entry.id === 'codex-codegraph-mcp');
+      const claudeMcp = report.checks.find((entry: { id: string }) => entry.id === 'claude-codegraph-mcp');
+      const index = report.checks.find((entry: { id: string }) => entry.id === 'codegraph-index');
+      expect(codexMcp.status).toBe('ok');
+      expect(claudeMcp.status).toBe('ok');
+      expect(index.status).toBe('ok');
 
       const log = fs.readFileSync(logFile, 'utf-8');
       expect(log).toContain('codegraph --version');

@@ -1,19 +1,19 @@
 ---
-name: agentic-dev
+name: repo-harness
 description: installs, migrates, audits, and repairs repo-local agentic development harnesses
-when_to_use: "agentic-dev, agentic-dev-skill, initialize repo-local agentic development harness, migrate repo-local agentic development harness, audit repo-local agentic development harness, repair repo-local agentic development harness"
+when_to_use: "repo-harness, repo-harness-skill, initialize repo-local agentic development harness, migrate repo-local agentic development harness, audit repo-local agentic development harness, repair repo-local agentic development harness"
 ---
 
-# agentic-dev
+# repo-harness
 
-`agentic-dev` is the repo-local agentic development harness skill, formerly `agentic-dev-skill`.
+`repo-harness` is the repo-local agentic development harness skill, formerly `repo-harness-skill`.
 It is a thin router over a versioned workflow engine.
 
 Compatibility boundary:
 
 - internal engine: tasks-first harness
 - contract ID: tasks-first-harness-v1
-- compatibility alias: `agentic-dev-skill`
+- compatibility alias: `repo-harness-skill`
 - retired install aliases: `project-initializer` under `~/.codex/skills` and `~/.claude/skills`
 
 The skill should not carry the whole workflow contract in prose. It should:
@@ -101,19 +101,19 @@ The main engine entrypoints are:
 The public command skills live in `assets/skill-commands/` as thin facades over
 the same engine. Use action-style names for discoverability:
 
-- `agentic-dev-plan`: interactive planning; no repo mutation by default
-- `agentic-dev-review`: plan review across product, engineering, design, and DevEx
-- `agentic-dev-autoplan`: automatic plan -> review -> decision summary pipeline
-- `agentic-dev-init`: install or refresh the harness in an existing repo
-- `agentic-dev-scaffold`: create a new project or module scaffold, then attach the harness
-- `agentic-dev-migrate`: migrate legacy workflow docs and stale harness artifacts
-- `agentic-dev-upgrade`: refresh an installed harness through manifest-owned upgrade actions
-- `agentic-dev-capability`: add selected capability boundaries without running full init/migrate/upgrade
-- `agentic-dev-architecture`: resolve architecture drift requests and update docs or diagrams without harness refresh
-- `agentic-dev-handoff`: prepare or resume Codex handoff packets for long-task rollover
-- `agentic-dev-deploy`: check deploy and private operations configuration without publishing or deploying
-- `agentic-dev-repair`: repair broken task sync, hook routing, handoff, context, policy, or helpers
-- `agentic-dev-check`: run verification gates and report release or pre-merge readiness
+- `repo-harness-plan`: interactive planning; no repo mutation by default
+- `repo-harness-review`: plan review across product, engineering, design, and DevEx
+- `repo-harness-autoplan`: automatic plan -> review -> decision summary pipeline
+- `repo-harness-init`: install or refresh the harness in an existing repo
+- `repo-harness-scaffold`: create a new project or module scaffold, then attach the harness
+- `repo-harness-migrate`: migrate legacy workflow docs and stale harness artifacts
+- `repo-harness-upgrade`: refresh an installed harness through manifest-owned upgrade actions
+- `repo-harness-capability`: add selected capability boundaries without running full init/migrate/upgrade
+- `repo-harness-architecture`: resolve architecture drift requests and update docs or diagrams without harness refresh
+- `repo-harness-handoff`: prepare or resume Codex handoff packets for long-task rollover
+- `repo-harness-deploy`: check deploy and private operations configuration without publishing or deploying
+- `repo-harness-repair`: repair broken task sync, hook routing, handoff, context, policy, or helpers
+- `repo-harness-check`: run verification gates and report release or pre-merge readiness
 
 Internal steps such as `hooks-init`, `docs-init`, and `create-project-dirs` are
 not public commands. They stay behind `init`, `scaffold`, `migrate`, and
@@ -168,7 +168,7 @@ Migration defaults:
 - distill repeated corrections into `tasks/lessons.md`
 - merge missing `external_tooling` defaults into `.ai/harness/policy.json` without overwriting explicit user values
 - keep gstack/gbrain/CodeGraph detection advisory-only; do not auto-install, auto-upgrade, auto-sync, or auto-enable MCP
-- let `agentic-dev init` bootstrap required Codex/Claude runtime skills in one pass: Waza (`check`, `design`, `health`, `hunt`, `learn`, `read`, `think`, `write`) plus `diagram-design` when a source copy exists
+- let `repo-harness init` bootstrap required Codex/Claude runtime skills in one pass: Waza (`check`, `design`, `health`, `hunt`, `learn`, `read`, `think`, `write`) plus `diagram-design` when a source copy exists
 - treat Waza as Codex-first: `~/.codex/skills` is the Codex runtime source, `~/.agents/skills` is only skills CLI staging/cache, and updates require stage -> copy to Codex -> `cmp` verification
 
 ## Repo-Local Contract

@@ -20,8 +20,7 @@
     "README.md"
   ],
   "bin": {
-    "repo-harness": "src/cli/index.ts",
-    "agentic-dev": "src/cli/index.ts"
+    "repo-harness": "src/cli/index.ts"
   },
   "engines": {
     "bun": ">=1.0.0"

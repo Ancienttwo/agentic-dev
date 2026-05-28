@@ -117,7 +117,7 @@
     },
     "external_knowledge": {
       "default_brain_path": "icloud/brain/<project>/*",
-      "project_path": "icloud/brain/agentic-dev/*",
+      "project_path": "icloud/brain/repo-harness/*",
       "manifest_file": ".ai/harness/brain-manifest.json",
       "drift_check": "scripts/check-brain-manifest.sh",
       "sync_script": "scripts/sync-brain-docs.sh",
@@ -125,7 +125,7 @@
       "rule": "external knowledge stores long-lived explanations, runbooks, and patterns only; repo-local contracts, hooks, scripts, checks, and evidence remain authoritative",
       "sync_rule": "only explicitly opted-in repo-to-brain manifest entries may be written to the default brain vault; pointer-only externalized stubs remain check-only",
       "legacy_paths": [
-        "icloud/brain/agentic-dev-skill/*",
+        "icloud/brain/repo-harness-skill/*",
         "icloud/brain/project-initializer/*"
       ]
     }
@@ -162,7 +162,7 @@
     "sources": [
       "codex-plan-mode",
       "waza-think",
-      "agentic-dev-plan"
+      "repo-harness-plan"
     ],
     "rule": "Codex Plan mode and Waza think planning should capture decision-complete plans into plans/plan-*.md; implementation approval then projects the active approved plan through scripts/plan-to-todo.sh"
   },

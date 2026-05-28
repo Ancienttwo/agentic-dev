@@ -1,5 +1,5 @@
 /**
- * `agentic-dev status` — read-only summary of CLI install state + route coverage.
+ * `repo-harness status` — read-only summary of CLI install state + route coverage.
  *
  * Reports per-host install detection (target.detect), managed-entry count vs
  * expected, route registry summary, and current repo opt-in marker presence.
@@ -107,13 +107,13 @@ export function runStatus(cwd: string = process.cwd()): StatusReport {
 export function formatStatus(report: StatusReport, asJson = false): string {
   if (asJson) return JSON.stringify(report, null, 2);
   const lines: string[] = [];
-  lines.push(`agentic-dev ${report.cli.version}`);
+  lines.push(`repo-harness ${report.cli.version}`);
   lines.push('');
   lines.push('Hosts:');
   for (const t of report.targets) {
     let status: string;
     if (!t.installed) status = 'host not detected';
-    else if (!t.alreadyConfigured) status = 'host present, agentic-dev not installed';
+    else if (!t.alreadyConfigured) status = 'host present, repo-harness not installed';
     else status = `${t.managedEntryCount}/${t.expectedEntryCount} managed entries`;
     lines.push(`  ${t.id} (${t.location}): ${status}`);
     if (t.configPath) lines.push(`    ${t.configPath}`);

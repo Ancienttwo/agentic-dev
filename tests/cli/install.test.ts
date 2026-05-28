@@ -5,7 +5,7 @@ import * as os from 'os';
 import { runInstall } from '../../src/cli/commands/install';
 
 function withTempHome(fn: (home: string) => void): void {
-  const tmp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'agentic-dev-install-')));
+  const tmp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'repo-harness-install-')));
   const prev = process.env.HOME;
   process.env.HOME = tmp;
   try {
@@ -62,8 +62,8 @@ describe('install command (Phase 1B)', () => {
       for (const entries of Object.values(data.hooks) as { hooks: { command: string }[] }[][]) {
         for (const entry of entries) {
           const cmd = entry.hooks[0].command;
-          expect(cmd).toContain('command -v agentic-dev');
-          expect(cmd).toContain('exec agentic-dev hook ');
+          expect(cmd).toContain('command -v repo-harness');
+          expect(cmd).toContain('exec repo-harness hook ');
         }
       }
     });
@@ -110,7 +110,7 @@ describe('install command (Phase 1B)', () => {
       // 1 sibling + 1 managed
       expect(pre.length).toBe(2);
       expect(pre[0].hooks[0].command).toBe('rtk hook claude');
-      expect(pre[1].hooks[0].command).toContain('agentic-dev hook PreToolUse');
+      expect(pre[1].hooks[0].command).toContain('repo-harness hook PreToolUse');
     });
   });
 

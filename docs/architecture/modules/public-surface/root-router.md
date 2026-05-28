@@ -20,9 +20,9 @@ Strong dependencies:
 
 Weak dependencies:
 
-- Compatibility name `agentic-dev-skill`.
+- Compatibility name `repo-harness-skill`.
 - Retired `project-initializer` install paths, which are cleanup targets only.
-- `agentic-dev init` owns the one-shot Codex/Claude runtime bootstrap for Waza and `diagram-design`.
+- `repo-harness init` owns the one-shot Codex/Claude runtime bootstrap for Waza and `diagram-design`.
 - gstack/gbrain policy references remain advisory; this self-host repo vendors CodeGraph as a dev dependency while downstream generated repos keep global MCP setup explicit unless policy opts in.
 
 Out of scope:
@@ -34,7 +34,7 @@ Out of scope:
 ## P2 Trace
 
 Concrete route: user asks for an existing repo install -> root `SKILL.md`
-selects `agentic-dev-init` semantics -> `agentic-dev init` defaults the target
+selects `repo-harness-init` semantics -> `repo-harness init` defaults the target
 repo to cwd unless `--repo` is supplied -> the command runs
 `inspect-project-state.ts --repo <repo> --format text` -> if no legacy state is
 found, `migrate-project-template.sh --repo <repo> --apply` installs or refreshes

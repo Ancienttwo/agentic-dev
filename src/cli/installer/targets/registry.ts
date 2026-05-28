@@ -1,5 +1,5 @@
 /**
- * Registry of all known agentic-dev install targets.
+ * Registry of all known repo-harness install targets.
  *
  * Adding a new target = create targets/<id>.ts exporting an AgentTarget,
  * then add it to ALL_TARGETS below. Order here is the order targets

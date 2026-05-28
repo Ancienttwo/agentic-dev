@@ -1,95 +1,95 @@
 {
   "version": 1,
-  "surface": "agentic-dev-action-style-skill-commands",
+  "surface": "repo-harness-action-style-skill-commands",
   "source": "assets/skill-commands",
-  "router": "agentic-dev",
+  "router": "repo-harness",
   "commands": [
     {
-      "name": "agentic-dev-plan",
+      "name": "repo-harness-plan",
       "class": "planning",
       "mutatesRepoByDefault": false,
       "engine": "inspect-project-state plus repo-local plan artifacts",
       "summary": "Interactive planning entrypoint for repo-local agentic development work."
     },
     {
-      "name": "agentic-dev-review",
+      "name": "repo-harness-review",
       "class": "planning-review",
       "mutatesRepoByDefault": false,
       "engine": "inspect-project-state plus plan and review artifacts",
       "summary": "Reviews an existing plan across product, engineering, design, and DevEx dimensions."
     },
     {
-      "name": "agentic-dev-autoplan",
+      "name": "repo-harness-autoplan",
       "class": "automated-planning",
       "mutatesRepoByDefault": false,
       "engine": "plan then review then decision summary",
       "summary": "Runs the full planning and review pipeline automatically, surfacing only final decision gates."
     },
     {
-      "name": "agentic-dev-init",
+      "name": "repo-harness-init",
       "class": "repo-initialization",
       "mutatesRepoByDefault": true,
       "engine": "inspect-project-state then migrate-project-template --apply",
       "summary": "Installs or refreshes the agentic workflow in an existing repository without creating an app stack."
     },
     {
-      "name": "agentic-dev-scaffold",
+      "name": "repo-harness-scaffold",
       "class": "project-scaffolding",
       "mutatesRepoByDefault": true,
       "engine": "init-project.sh plus workflow install",
       "summary": "Creates a new project or module scaffold from plan catalog A-K and attaches the harness."
     },
     {
-      "name": "agentic-dev-migrate",
+      "name": "repo-harness-migrate",
       "class": "legacy-migration",
       "mutatesRepoByDefault": true,
       "engine": "inspect-project-state, migrate-workflow-docs, migrate-project-template",
       "summary": "Migrates legacy Claude/Codex workflow surfaces while preserving or archiving user-authored content."
     },
     {
-      "name": "agentic-dev-upgrade",
+      "name": "repo-harness-upgrade",
       "class": "harness-upgrade",
       "mutatesRepoByDefault": true,
       "engine": "workflow-contract.v1.json migrations.upgrade.actions",
       "summary": "Refreshes an already-installed harness using manifest-owned upgrade actions."
     },
     {
-      "name": "agentic-dev-capability",
+      "name": "repo-harness-capability",
       "class": "capability-configuration",
       "mutatesRepoByDefault": true,
       "engine": "capability-config add plus capability-resolver validate",
       "summary": "Adds selected capability boundaries without running full init, migrate, or upgrade."
     },
     {
-      "name": "agentic-dev-architecture",
+      "name": "repo-harness-architecture",
       "class": "architecture-maintenance",
       "mutatesRepoByDefault": true,
       "engine": "architecture index, drift requests, capability resolver, archive helper, diagram-design",
       "summary": "Resolves architecture drift requests and updates architecture docs or diagrams without refreshing the harness."
     },
     {
-      "name": "agentic-dev-handoff",
+      "name": "repo-harness-handoff",
       "class": "handoff-rollover",
       "mutatesRepoByDefault": true,
       "engine": "prepare-codex-handoff and codex-handoff-resume",
       "summary": "Prepares or resumes Codex handoff packets for long-task rollover."
     },
     {
-      "name": "agentic-dev-deploy",
+      "name": "repo-harness-deploy",
       "class": "deploy-ops-readiness",
       "mutatesRepoByDefault": false,
       "engine": "operations policy plus check-deploy-sql-order",
       "summary": "Checks deploy and private operations configuration without publishing or deploying."
     },
     {
-      "name": "agentic-dev-repair",
+      "name": "repo-harness-repair",
       "class": "harness-repair",
       "mutatesRepoByDefault": true,
       "engine": "inspect-project-state plus targeted workflow helpers",
       "summary": "Repairs broken task sync, hook routing, handoff, context-map, policy, or helper drift."
     },
     {
-      "name": "agentic-dev-check",
+      "name": "repo-harness-check",
       "class": "verification",
       "mutatesRepoByDefault": false,
       "engine": "workflow gates, task sync, inspector, migration dry-run",

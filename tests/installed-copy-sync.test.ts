@@ -7,23 +7,23 @@ import { spawnSync } from "child_process";
 const ROOT = join(import.meta.dir, "..");
 
 describe("Codex installed copy sync", () => {
-  test("keeps command facades only in the canonical agentic-dev copy", () => {
-    const tmp = join(tmpdir(), `agentic-dev-installed-sync-${Date.now()}`);
+  test("keeps command facades only in the canonical repo-harness copy", () => {
+    const tmp = join(tmpdir(), `repo-harness-installed-sync-${Date.now()}`);
     const source = join(tmp, "source");
     const codexSkills = join(tmp, "codex-skills");
     const claudeSkills = join(tmp, "claude-skills");
     const legacyAliasTarget = join(tmp, "legacy-project-initializer-target");
 
     try {
-      mkdirSync(join(source, "assets", "skill-commands", "agentic-dev-plan"), { recursive: true });
+      mkdirSync(join(source, "assets", "skill-commands", "repo-harness-plan"), { recursive: true });
       mkdirSync(join(source, "evals"), { recursive: true });
       mkdirSync(codexSkills, { recursive: true });
       mkdirSync(claudeSkills, { recursive: true });
       mkdirSync(legacyAliasTarget, { recursive: true });
       symlinkSync(legacyAliasTarget, join(codexSkills, "project-initializer"), "dir");
 
-      writeFileSync(join(source, "SKILL.md"), "---\nname: agentic-dev\n---\n");
-      writeFileSync(join(source, "assets", "skill-commands", "agentic-dev-plan", "SKILL.md"), "---\nname: agentic-dev-plan\n---\n");
+      writeFileSync(join(source, "SKILL.md"), "---\nname: repo-harness\n---\n");
+      writeFileSync(join(source, "assets", "skill-commands", "repo-harness-plan", "SKILL.md"), "---\nname: repo-harness-plan\n---\n");
       writeFileSync(join(source, "assets", "skill-version.json"), "{\"version\":\"test\"}\n");
       writeFileSync(join(source, "evals", "benchmark.md"), "local benchmark output\n");
       mkdirSync(join(source, ".ai", "harness", "checks"), { recursive: true });
@@ -45,14 +45,14 @@ describe("Codex installed copy sync", () => {
       });
 
       expect(result.status).toBe(0);
-      expect(existsSync(join(codexSkills, "agentic-dev", "SKILL.md"))).toBe(true);
-      expect(existsSync(join(codexSkills, "agentic-dev", "assets", "skill-commands", "agentic-dev-plan", "SKILL.md"))).toBe(true);
-      expect(existsSync(join(codexSkills, "agentic-dev", "evals", "benchmark.md"))).toBe(false);
-      expect(existsSync(join(codexSkills, "agentic-dev", ".ai", "harness", "checks", "latest.json"))).toBe(false);
-      expect(existsSync(join(codexSkills, "agentic-dev", ".claude", ".trace.jsonl"))).toBe(false);
-      expect(existsSync(join(codexSkills, "agentic-dev", ".codex", "hooks.json"))).toBe(false);
+      expect(existsSync(join(codexSkills, "repo-harness", "SKILL.md"))).toBe(true);
+      expect(existsSync(join(codexSkills, "repo-harness", "assets", "skill-commands", "repo-harness-plan", "SKILL.md"))).toBe(true);
+      expect(existsSync(join(codexSkills, "repo-harness", "evals", "benchmark.md"))).toBe(false);
+      expect(existsSync(join(codexSkills, "repo-harness", ".ai", "harness", "checks", "latest.json"))).toBe(false);
+      expect(existsSync(join(codexSkills, "repo-harness", ".claude", ".trace.jsonl"))).toBe(false);
+      expect(existsSync(join(codexSkills, "repo-harness", ".codex", "hooks.json"))).toBe(false);
 
-      for (const legacyName of ["agentic-dev-skill"]) {
+      for (const legacyName of ["repo-harness-skill"]) {
         expect(existsSync(join(codexSkills, legacyName, "assets", "skill-version.json"))).toBe(true);
         expect(existsSync(join(codexSkills, legacyName, "SKILL.md"))).toBe(false);
         expect(existsSync(join(codexSkills, legacyName, "assets", "skill-commands"))).toBe(false);
@@ -60,15 +60,15 @@ describe("Codex installed copy sync", () => {
         expect(existsSync(join(codexSkills, legacyName, ".claude", ".trace.jsonl"))).toBe(false);
         expect(existsSync(join(codexSkills, legacyName, ".codex", "hooks.json"))).toBe(false);
         expect(existsSync(join(claudeSkills, legacyName, "SKILL.md"))).toBe(true);
-        expect(existsSync(join(claudeSkills, legacyName, "assets", "skill-commands", "agentic-dev-plan", "SKILL.md"))).toBe(true);
+        expect(existsSync(join(claudeSkills, legacyName, "assets", "skill-commands", "repo-harness-plan", "SKILL.md"))).toBe(true);
       }
 
       expect(existsSync(join(codexSkills, "project-initializer"))).toBe(false);
       expect(existsSync(join(claudeSkills, "project-initializer"))).toBe(false);
-      expect(existsSync(join(claudeSkills, "agentic-dev", "SKILL.md"))).toBe(true);
-      expect(existsSync(join(claudeSkills, "agentic-dev", ".ai", "harness", "checks", "latest.json"))).toBe(false);
-      expect(existsSync(join(claudeSkills, "agentic-dev", ".claude", ".trace.jsonl"))).toBe(false);
-      expect(existsSync(join(claudeSkills, "agentic-dev", ".codex", "hooks.json"))).toBe(false);
+      expect(existsSync(join(claudeSkills, "repo-harness", "SKILL.md"))).toBe(true);
+      expect(existsSync(join(claudeSkills, "repo-harness", ".ai", "harness", "checks", "latest.json"))).toBe(false);
+      expect(existsSync(join(claudeSkills, "repo-harness", ".claude", ".trace.jsonl"))).toBe(false);
+      expect(existsSync(join(claudeSkills, "repo-harness", ".codex", "hooks.json"))).toBe(false);
       expect(existsSync(join(legacyAliasTarget, "SKILL.md"))).toBe(false);
       expect(existsSync(join(legacyAliasTarget, "assets", "skill-commands"))).toBe(false);
     } finally {
@@ -77,18 +77,18 @@ describe("Codex installed copy sync", () => {
   });
 
   test("can maintain local skill roots as source-backed aliases", () => {
-    const tmp = join(tmpdir(), `agentic-dev-installed-link-${Date.now()}`);
+    const tmp = join(tmpdir(), `repo-harness-installed-link-${Date.now()}`);
     const source = join(tmp, "source");
     const codexSkills = join(tmp, "codex-skills");
     const claudeSkills = join(tmp, "claude-skills");
 
     try {
-      mkdirSync(join(source, "assets", "skill-commands", "agentic-dev-plan"), { recursive: true });
+      mkdirSync(join(source, "assets", "skill-commands", "repo-harness-plan"), { recursive: true });
       mkdirSync(codexSkills, { recursive: true });
       mkdirSync(claudeSkills, { recursive: true });
 
-      writeFileSync(join(source, "SKILL.md"), "---\nname: agentic-dev\n---\n");
-      writeFileSync(join(source, "assets", "skill-commands", "agentic-dev-plan", "SKILL.md"), "---\nname: agentic-dev-plan\n---\n");
+      writeFileSync(join(source, "SKILL.md"), "---\nname: repo-harness\n---\n");
+      writeFileSync(join(source, "assets", "skill-commands", "repo-harness-plan", "SKILL.md"), "---\nname: repo-harness-plan\n---\n");
       writeFileSync(join(source, "assets", "skill-version.json"), "{\"version\":\"test\"}\n");
       writeFileSync(join(source, "README.md"), "source-backed runtime alias\n");
 
@@ -105,10 +105,10 @@ describe("Codex installed copy sync", () => {
       });
 
       expect(result.status).toBe(0);
-      expect(lstatSync(join(codexSkills, "agentic-dev")).isSymbolicLink()).toBe(true);
-      expect(lstatSync(join(claudeSkills, "agentic-dev")).isSymbolicLink()).toBe(true);
+      expect(lstatSync(join(codexSkills, "repo-harness")).isSymbolicLink()).toBe(true);
+      expect(lstatSync(join(claudeSkills, "repo-harness")).isSymbolicLink()).toBe(true);
 
-      for (const legacyName of ["agentic-dev-skill"]) {
+      for (const legacyName of ["repo-harness-skill"]) {
         expect(existsSync(join(codexSkills, legacyName, "README.md"))).toBe(true);
         expect(existsSync(join(codexSkills, legacyName, "assets", "skill-version.json"))).toBe(true);
         expect(existsSync(join(codexSkills, legacyName, "SKILL.md"))).toBe(false);

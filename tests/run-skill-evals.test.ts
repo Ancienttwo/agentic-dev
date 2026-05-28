@@ -46,7 +46,7 @@ for arg in "$@"; do
   fi
   prompt="$arg"
 done
-if [[ "$disable" -eq 0 && -L ".claude/skills/agentic-dev" ]]; then
+if [[ "$disable" -eq 0 && -L ".claude/skills/repo-harness" ]]; then
   printf "\\n- claude with skill\\n" >> AGENTS.md
   echo "claude with skill: $prompt"
 else
@@ -98,7 +98,7 @@ function writeEvalManifest(path: string, pattern = "skill"): void {
     path,
     JSON.stringify(
       {
-        skill_name: "agentic-dev",
+        skill_name: "repo-harness",
         evals: [
           {
             id: 1,
@@ -207,7 +207,7 @@ describe("run-skill-evals execution", () => {
       expect(claudeWithSkill?.graderStatus).toBe("passed");
       expect(claudeWithSkill?.graderSummary.total).toBeGreaterThan(0);
       expect(claudeWithSkill?.graderReportPath).not.toBeNull();
-      expect(existsSync(join(claudeWithSkill!.workspacePath, ".claude/skills/agentic-dev"))).toBe(
+      expect(existsSync(join(claudeWithSkill!.workspacePath, ".claude/skills/repo-harness"))).toBe(
         true
       );
 

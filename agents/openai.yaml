@@ -1,4 +1,4 @@
 interface:
-  display_name: "agentic-dev"
+  display_name: "repo-harness"
   short_description: "Install, migrate, audit, and repair repo-local agentic development harnesses"
   default_prompt: "Set up or modernize this repository for agentic development with CLAUDE.md, AGENTS.md, tasks-first workflow files, and shared repo contracts."

@@ -4,12 +4,12 @@
 
 ## Current Snapshot
 
-- Latest snapshot: [agentic-dev plugin review](snapshots/2026-05-25-agentic-dev-plugin-review.md) (2026-05-25)
-- Latest diagram: [agentic-dev plugin architecture](diagrams/agentic-dev-plugin-architecture.html) (2026-05-25)
+- Latest snapshot: [repo-harness plugin review](snapshots/2026-05-25-repo-harness-plugin-review.md) (2026-05-25)
+- Latest diagram: [repo-harness plugin architecture](diagrams/repo-harness-plugin-architecture.html) (2026-05-25)
 
 ## System Boundary
 
-`agentic-dev` is a repo-local workflow harness skill. It is not a product
+`repo-harness` is a repo-local workflow harness skill. It is not a product
 runtime, agent gateway, database service, or MCP server. Its job is to inspect a
 target repository, install or refresh a file-backed workflow contract, route
 public command skills, and verify that the generated repo-local surfaces remain
@@ -103,3 +103,4 @@ Project
 - [ ] 2026-05-28T23:34:57+0800 [high] `assets/hooks/prompt-guard.sh` -> [20260528-233457-assets-hooks-assets-hooks-prompt-guard-sh](requests/20260528-233457-assets-hooks-assets-hooks-prompt-guard-sh.md)
 - [ ] 2026-05-28T23:36:37+0800 [high] `.ai/hooks/prompt-guard.sh` -> [20260528-233637-ai-hooks-ai-hooks-prompt-guard-sh](requests/20260528-233637-ai-hooks-ai-hooks-prompt-guard-sh.md)
 - [ ] 2026-05-28T23:36:38+0800 [high] `assets/hooks/prompt-guard.sh` -> [20260528-233638-assets-hooks-assets-hooks-prompt-guard-sh](requests/20260528-233638-assets-hooks-assets-hooks-prompt-guard-sh.md)
+- [ ] 2026-05-29T00:03:22+0800 [medium] `package.json` -> [20260529-000322-root-package-json](requests/20260529-000322-root-package-json.md)

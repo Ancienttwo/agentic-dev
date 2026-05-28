@@ -22,7 +22,7 @@ Authoritative checks:
 
 ## P2 Trace
 
-Concrete route: pre-merge `agentic-dev-check` -> reports dirty worktree
+Concrete route: pre-merge `repo-harness-check` -> reports dirty worktree
 boundaries -> runs unit/regression tests -> checks task sync -> checks workflow
 strict readiness -> inspects repo state -> dry-runs self-migration -> reports
 whether release or merge readiness is blocked.
@@ -35,7 +35,7 @@ Error paths:
 
 - `check-task-sync.sh` fails when substantive repo changes lack `tasks/` synchronization.
 - `check-task-workflow.sh --strict` fails for missing contract files, legacy docs, missing JSON runtime, broken deploy SQL order, or brain manifest drift.
-- External tooling update checks may be skipped or timed out; CodeGraph host/index readiness is required for Codex agent code navigation, while version freshness and other external tooling remain advisory unless the user explicitly asks for tooling maintenance.
+- External tooling update checks may be skipped or timed out; CodeGraph host/index readiness is required for agent code navigation, while version freshness and other external tooling remain advisory unless the user explicitly asks for tooling maintenance.
 
 ## P3 Decision
 

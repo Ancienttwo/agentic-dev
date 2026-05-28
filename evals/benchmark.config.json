@@ -1,5 +1,5 @@
 {
-  "workspaceRoot": "../agentic-dev-workspace",
+  "workspaceRoot": "../repo-harness-workspace",
   "summaryPath": "evals/benchmark.md",
   "agents": {
     "claude": {

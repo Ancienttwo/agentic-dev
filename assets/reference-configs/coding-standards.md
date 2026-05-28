@@ -4,7 +4,7 @@
 
 ## Default Brain
 
-- File vault: `icloud/brain/agentic-dev/references/coding-standards-reference.md`
+- File vault: `icloud/brain/repo-harness/references/coding-standards-reference.md`
 - gbrain slug: `references/coding-standards-reference`
 
 ## Repo Role

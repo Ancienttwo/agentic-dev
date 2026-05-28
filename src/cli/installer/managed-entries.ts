@@ -5,19 +5,19 @@
  *   { matcher?: string, hooks: [{ type: 'command', command: string }] }
  *
  * The `MANAGED_TAG` substring inside each command string identifies entries
- * the agentic-dev installer wrote, so install can be idempotent and uninstall
+ * the repo-harness installer wrote, so install can be idempotent and uninstall
  * can remove only its own entries (leaving sibling user hooks intact —
  * verified for Claude in Phase 0: `~/.claude/settings.json` already had a
- * non-agentic-dev `rtk hook claude` entry that must survive install).
+ * non-repo-harness `rtk hook claude` entry that must survive install).
  *
- * Command shape includes the `command -v agentic-dev || exit 0` shim
+ * Command shape includes the `command -v repo-harness || exit 0` shim
  * (Codex consult constraint #5: CLI-missing fallback — adapter must not
  * fail when CLI is uninstalled or not on PATH).
  */
 
 import { ROUTES, type Route } from '../hook/route-registry';
 
-export const MANAGED_TAG = 'agentic-dev hook';
+export const MANAGED_TAG = 'repo-harness hook';
 
 export interface HookCommand {
   type: 'command';
@@ -32,7 +32,7 @@ export interface HookEntry {
 export type HooksByEvent = Record<string, HookEntry[]>;
 
 export function buildHookCommand(route: Route): string {
-  return `command -v agentic-dev >/dev/null 2>&1 || exit 0; exec agentic-dev hook ${route.event} --route ${route.routeId}`;
+  return `command -v repo-harness >/dev/null 2>&1 || exit 0; exec repo-harness hook ${route.event} --route ${route.routeId}`;
 }
 
 export function buildHookEntry(route: Route): HookEntry {

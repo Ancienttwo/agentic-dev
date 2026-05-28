@@ -1,10 +1,10 @@
 {
   "version": "5.2.3",
   "templateVersion": "5.2.3",
-  "skillName": "agentic-dev",
+  "skillName": "repo-harness",
   "contractId": "tasks-first-harness-v1",
   "legacyAliases": [
-    "agentic-dev-skill"
+    "repo-harness-skill"
   ],
   "compatibility": {
     "minClaudeCodeVersion": "1.0.0",
@@ -69,7 +69,7 @@
     },
     {
       "version": "5.0.0",
-      "description": "Renamed the public skill surface to agentic-dev, added action-style command facades, externalized optional long docs to the default brain, and kept reusable-workflow packaging behind advisory hooks plus user-approved autoplan"
+      "description": "Renamed the public skill surface to repo-harness, added action-style command facades, externalized optional long docs to the default brain, and kept reusable-workflow packaging behind advisory hooks plus user-approved autoplan"
     },
     {
       "version": "5.0.1",
@@ -85,7 +85,7 @@
     },
     {
       "version": "5.1.1",
-      "description": "Refreshes stale reference and architecture docs for the current agentic-dev command, hook, migration, eval, plugin, and minimal-documentation contracts"
+      "description": "Refreshes stale reference and architecture docs for the current repo-harness command, hook, migration, eval, plugin, and minimal-documentation contracts"
     },
     {
       "version": "5.1.2",
@@ -109,10 +109,10 @@
     }
   ],
   "generatedProjectStamp": {
-    "format": "agentic-dev@{version}+template@{templateVersion}",
-    "displayName": "agentic-dev",
+    "format": "repo-harness@{version}+template@{templateVersion}",
+    "displayName": "repo-harness",
     "legacyAliases": [
-      "agentic-dev-skill"
+      "repo-harness-skill"
     ],
     "location": ".claude/.skill-version"
   }

@@ -657,7 +657,7 @@ ARCHITECTURE_INDEX_EOF
   },
   "plan_capture": {
     "script": "scripts/capture-plan.sh",
-    "sources": ["codex-plan-mode", "waza-think", "agentic-dev-plan"],
+    "sources": ["codex-plan-mode", "waza-think", "repo-harness-plan"],
     "rule": "Codex Plan mode and Waza think planning should capture decision-complete plans into plans/plan-*.md; implementation approval then projects the active approved plan through scripts/plan-to-todo.sh"
   },
   "sidecar_research": {
@@ -778,13 +778,14 @@ ARCHITECTURE_INDEX_EOF
     },
     "codegraph": {
       "package": "@colbymchenry/codegraph",
-      "primary_host": "codex",
-      "install_mode": "global-codex-mcp",
+      "primary_host": "both",
+      "install_mode": "target-aware-mcp",
       "codex_config_path": "~/.codex/config.toml",
+      "claude_config_path": "~/.claude.json",
       "index_dir": ".codegraph",
-      "readiness": "required-for-codex-agent-code-navigation",
+      "readiness": "required-for-agent-code-navigation",
       "hook_policy": "do-not-block-hooks",
-      "install_command": "npm install -g @colbymchenry/codegraph && mkdir -p ~/.local/bin && ln -sfn \"$(npm config get prefix)/bin/codegraph\" ~/.local/bin/codegraph && PATH=\"$HOME/.local/bin:$PATH\" codegraph install --target codex --location global --yes",
+      "install_command": "npm install -g @colbymchenry/codegraph && mkdir -p ~/.local/bin && ln -sfn \"$(npm config get prefix)/bin/codegraph\" ~/.local/bin/codegraph && PATH=\"$HOME/.local/bin:$PATH\" repo-harness tools configure codegraph --target both --location global",
       "project_init_command": "codegraph init -i .",
       "sync_command": "codegraph sync .",
       "vendoring_policy": "do-not-add-package-dependency"

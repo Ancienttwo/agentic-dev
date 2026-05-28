@@ -1,4 +1,4 @@
-# Product Spec: agentic-dev
+# Product Spec: repo-harness
 
 > **Status**: Active
 > **Last Updated**: 2026-04-19 01:04
@@ -7,7 +7,7 @@
 ## Product Outcome
 
 Generate and migrate repo-local agentic workflow contracts for Claude and Codex.
-The skill, formerly `agentic-dev-skill`, keeps root context stable, exposes
+The skill, formerly `repo-harness-skill`, keeps root context stable, exposes
 deeper context progressively, externalizes workflow state into repo-local
 artifacts, and lets this repository self-host the same critical contract it
 generates for downstream repos.
@@ -18,7 +18,7 @@ generates for downstream repos.
   scaffold or migrate a repo so `plans/`, `tasks/`, `.ai/context/`, `.ai/harness/`,
   shared hooks, and verification helpers are present and internally consistent.
 - Command surface:
-  expose action-style `agentic-dev-*` command skill facades for planning,
+  expose action-style `repo-harness-*` command skill facades for planning,
   review, autoplan, init, scaffold, migrate, upgrade, capability configuration,
   architecture maintenance, handoff rollover, deploy readiness, repair, and
   check without duplicating the workflow engine.
@@ -66,9 +66,9 @@ generates for downstream repos.
   When
   the action command surface routes the request,
   Then
-  `agentic-dev init` and `agentic-dev-init` handle existing repo adoption from
+  `repo-harness init` and `repo-harness-init` handle existing repo adoption from
   the target repo root without requiring `--repo .`, and
-  `agentic-dev-scaffold` handles new project or module creation, while hook and
+  `repo-harness-scaffold` handles new project or module creation, while hook and
   docs initialization remain internal implementation steps.
 
 ## Open Questions

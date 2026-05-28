@@ -28,7 +28,7 @@ describe("Bootstrap Script Contracts", () => {
   test("Codex agent metadata should exist for user-level installation", () => {
     const metadata = read("agents/openai.yaml");
     expect(metadata).toContain("interface:");
-    expect(metadata).toContain('display_name: "agentic-dev"');
+    expect(metadata).toContain('display_name: "repo-harness"');
     expect(metadata).toContain("short_description:");
     expect(metadata).toContain("default_prompt:");
   });
@@ -58,7 +58,7 @@ describe("Bootstrap Script Contracts", () => {
     expect(pkg.version).toBe("0.1.1");
     expect(pkg.private).toBeUndefined();
     expect(pkg.bin["repo-harness"]).toBe("src/cli/index.ts");
-    expect(pkg.bin["agentic-dev"]).toBe("src/cli/index.ts");
+    expect(pkg.bin["repo-harness"]).toBe("src/cli/index.ts");
     expect(pkg.scripts["check:brain-manifest"]).toBe("bash scripts/check-brain-manifest.sh");
     expect(pkg.scripts["check:task-sync"]).toBe("bash scripts/check-task-sync.sh");
     expect(pkg.scripts["check:deploy-sql"]).toBe("bash scripts/check-deploy-sql-order.sh");

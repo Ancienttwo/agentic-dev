@@ -7,7 +7,7 @@
 
 The public surface turns user intent into one of the supported harness actions
 without duplicating engine policy in prose. It includes the root skill router,
-README, root agent docs, and the public `agentic-dev-*` command skill facades.
+README, root agent docs, and the public `repo-harness-*` command skill facades.
 
 ## Capabilities
 
@@ -19,7 +19,7 @@ README, root agent docs, and the public `agentic-dev-*` command skill facades.
 - Root `SKILL.md` stays short and router-oriented.
 - Root `AGENTS.md` and `CLAUDE.md` stay concise; detailed operating rules live in `docs/reference-configs/`.
 - Public commands are action-style facades. Internal steps such as `hooks-init`, `docs-init`, and `create-project-dirs` stay behind `init`, `scaffold`, `migrate`, and `upgrade`.
-- `agentic-dev-skill` remains a compatibility trigger, not the canonical name.
+- `repo-harness-skill` remains a compatibility trigger, not the canonical name.
 - Retired `project-initializer` install paths are removed by installed-copy sync and are not runtime lookup targets.
 
 ## Verification Surface

@@ -27,7 +27,7 @@ describe("Skill eval assets", () => {
   };
 
   test("eval asset uses the correct skill name", () => {
-    expect(evals.skill_name).toBe("agentic-dev");
+    expect(evals.skill_name).toBe("repo-harness");
   });
 
   test("eval asset covers the core workflows", () => {
@@ -39,24 +39,24 @@ describe("Skill eval assets", () => {
     expect(prompts).toContain("Audit this AI-assisted coding setup");
   });
 
-  test("eval asset covers the public agentic-dev action commands", () => {
+  test("eval asset covers the public repo-harness action commands", () => {
     const combined = evals.evals
       .flatMap((entry) => [entry.prompt, entry.expected_output, ...entry.expectations])
       .join("\n");
     for (const command of [
-      "agentic-dev-plan",
-      "agentic-dev-review",
-      "agentic-dev-autoplan",
-      "agentic-dev-init",
-      "agentic-dev-scaffold",
-      "agentic-dev-migrate",
-      "agentic-dev-upgrade",
-      "agentic-dev-capability",
-      "agentic-dev-architecture",
-      "agentic-dev-handoff",
-      "agentic-dev-deploy",
-      "agentic-dev-repair",
-      "agentic-dev-check",
+      "repo-harness-plan",
+      "repo-harness-review",
+      "repo-harness-autoplan",
+      "repo-harness-init",
+      "repo-harness-scaffold",
+      "repo-harness-migrate",
+      "repo-harness-upgrade",
+      "repo-harness-capability",
+      "repo-harness-architecture",
+      "repo-harness-handoff",
+      "repo-harness-deploy",
+      "repo-harness-repair",
+      "repo-harness-check",
     ]) {
       expect(combined).toContain(command);
     }

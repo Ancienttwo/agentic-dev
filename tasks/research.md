@@ -633,3 +633,23 @@
 ### Verification
 - Manual repro: `printf '%s' '{"tool_input":{"file_path":"/Users/ancienttwo/.claude/plans/repro-hook-block.md"}}' | bash .ai/hooks/pre-edit-guard.sh` now exits 0.
 - Regression guard: `bun test tests/hook-protocol.test.ts` covers repo-internal contract blocking, repo-internal absolute normalization, repo-external boundary bypass, and allowed absolute paths.
+
+## 2026-05-28 Prompt Done-Intent Noise Filter Correction
+
+### Symptom
+- A copied continuation prompt containing an approved plan body was blocked by `ContractGuard` for the unrelated active contract `tasks/contracts/init-cli-external-skills.contract.md`.
+- The prompt was a normal implementation request; literal words like `Completed` and Chinese phrases around future completion appeared inside plan/test text, not as a declaration that the current sprint should be marked done.
+
+### Root Cause
+- `prompt-guard.sh:is_done_intent` scanned the whole `PROMPT_INTENT_TEXT` for broad tokens (`done`, `complete`, `completed`, `finished`, `完成`, `结束`, `收工`).
+- Claude/Codex UserPromptSubmit payloads can include copied AGENTS/plan/context text before the user's actual task, so whole-payload substring matching turns documentation and plan content into done intent.
+- A first-pass fix tightened long prompts and ASCII token boundaries, but the short-prompt CJK branch still matched any `完成` substring, so instructions like `完成后验证这段 CLI 行为` could still close the active contract.
+
+### Fix
+- Long or plan-shaped prompts must declare done on the first non-blank line with an explicit completion command.
+- Short prompts now require ASCII token boundaries and explicit Chinese completion phrases (`完成了`, `任务完成`, `结束吧`, `收工`, etc.); future-work phrasing such as `完成后验证` no longer triggers `ContractGuard`.
+- `prompt-guard.sh` invokes `verify-contract.sh --read-only` from the done gate so transient hook-driven verification failures do not rewrite the contract status and dirty the worktree.
+
+### Verification
+- Regression tests cover a long plan-style prompt with literal `Completed`, a short `completionToken` substring, and a short Chinese `完成后验证...` task instruction.
+- `verify-contract --read-only` tests cover both strict pass and strict fail without rewriting the contract `Status` header.

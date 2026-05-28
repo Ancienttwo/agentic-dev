@@ -1,5 +1,5 @@
 /**
- * `agentic-dev hook <event> --route <route-id>` dispatcher.
+ * `repo-harness hook <event> --route <route-id>` dispatcher.
  *
  * Replaces the per-script scripts/hook-shim.sh by routing through a single
  * registry-defined contract (event, route-id, matcher) → ordered scripts.
@@ -80,7 +80,7 @@ export function runHook(opts: RunHookOptions): RunHookResult {
   const route = getRoute(opts.event, opts.routeId);
   if (!route) {
     process.stderr.write(
-      `agentic-dev hook: unknown route ${opts.event}.${opts.routeId}\n`,
+      `repo-harness hook: unknown route ${opts.event}.${opts.routeId}\n`,
     );
     return { exitCode: 2, reason: 'unknown-route', repoRoot, scriptsRun };
   }
@@ -92,7 +92,7 @@ export function runHook(opts: RunHookOptions): RunHookResult {
     const scriptPath = path.join(hooksDir, script);
     if (!fs.existsSync(scriptPath)) {
       process.stderr.write(
-        `agentic-dev hook: script not found at ${scriptPath} (route ${opts.event}.${opts.routeId})\n`,
+        `repo-harness hook: script not found at ${scriptPath} (route ${opts.event}.${opts.routeId})\n`,
       );
       return {
         exitCode: 3,

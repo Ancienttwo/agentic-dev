@@ -1,14 +1,14 @@
 # repo-harness
 
 Repo-local agentic development harness CLI and skill runtime for Claude/Codex
-workflows. Formerly `agentic-dev-skill` and `project-initializer`;
-`agentic-dev-skill` remains a compatibility alias, while `project-initializer`
+workflows. Formerly `repo-harness-skill` and `project-initializer`;
+`repo-harness-skill` remains a compatibility alias, while `project-initializer`
 install paths are retired and removed by installed-copy sync.
 Repository: `https://github.com/Ancienttwo/repo-harness`
 
 This repository now dogfoods its own tasks-first contract. It is both:
 
-- the source repo for the `repo-harness` CLI and `agentic-dev` skill runtime
+- the source repo for the `repo-harness` CLI and `repo-harness` skill runtime
 - a self-hosted example of the repo-local workflow it generates for other projects
 
 ## First 5 Minutes
@@ -23,7 +23,7 @@ npx -y repo-harness init
 ```
 
 The npm package name and primary installed command are `repo-harness`.
-`agentic-dev` remains a compatibility command alias. When working from a source
+`repo-harness` remains a compatibility command alias. When working from a source
 checkout instead of npm, run:
 
 ```bash
@@ -35,13 +35,13 @@ bun src/cli/index.ts init
 Local path model:
 
 - Source repo: `~/Projects/repo-harness`
-- Claude skill aliases: `~/.claude/skills/agentic-dev`, `~/.claude/skills/agentic-dev-skill`
-- Codex discoverable skill alias: `~/.codex/skills/agentic-dev`
-- Codex compatibility fallback alias: `~/.codex/skills/agentic-dev-skill`
+- Claude skill aliases: `~/.claude/skills/repo-harness`, `~/.claude/skills/repo-harness-skill`
+- Codex discoverable skill alias: `~/.codex/skills/repo-harness`
+- Codex compatibility fallback alias: `~/.codex/skills/repo-harness-skill`
 
 The `~/Projects/repo-harness` repo is the only editable source of truth. Local
 Claude/Codex paths are symlink-backed runtime entrypoints. Only
-`~/.codex/skills/agentic-dev` should expose `SKILL.md` and
+`~/.codex/skills/repo-harness` should expose `SKILL.md` and
 `assets/skill-commands/`; compatibility directories exist only so renamed
 repos can still resolve upstream assets without duplicate command discovery.
 The retired `project-initializer` directories under `~/.codex/skills` and
@@ -68,8 +68,8 @@ Apply only after the dry-run report looks correct:
 npx -y repo-harness init
 ```
 
-For a new project or module, use the `agentic-dev-scaffold` command skill. For
-an existing repo, use `agentic-dev-init`; it installs or refreshes the harness
+For a new project or module, use the `repo-harness-scaffold` command skill. For
+an existing repo, use `repo-harness-init`; it installs or refreshes the harness
 without creating an application stack.
 
 ### Success looks like this
@@ -156,9 +156,9 @@ Most common guards:
   - `complex -> gstack`
   - `simple -> Waza` with Codex-first runtime copies in `~/.codex/skills`
   - `knowledge -> gbrain`
-- `agentic-dev init` bootstraps the Codex/Claude runtime pieces needed for the
+- `repo-harness init` bootstraps the Codex/Claude runtime pieces needed for the
   default workflow:
-  - refreshes `agentic-dev` skill aliases
+  - refreshes `repo-harness` skill aliases
   - installs global Codex/Claude hook adapters
   - installs Waza skills (`check`, `design`, `health`, `hunt`, `learn`, `read`, `think`, `write`) through the skills CLI
   - syncs `diagram-design` into Codex/Claude skill roots when a source copy exists
@@ -179,27 +179,27 @@ Source-owned command skill facades live in `assets/skill-commands/`. They keep
 the public surface action-style while sharing the same router, contract, scripts,
 and tests:
 
-- Planning and review: `agentic-dev-plan`, `agentic-dev-review`, `agentic-dev-autoplan`
-- Repo workflow actions: `agentic-dev-init`, `agentic-dev-migrate`, `agentic-dev-upgrade`, `agentic-dev-capability`, `agentic-dev-architecture`, `agentic-dev-handoff`, `agentic-dev-deploy`, `agentic-dev-repair`, `agentic-dev-check`
-- Project creation: `agentic-dev-scaffold`
+- Planning and review: `repo-harness-plan`, `repo-harness-review`, `repo-harness-autoplan`
+- Repo workflow actions: `repo-harness-init`, `repo-harness-migrate`, `repo-harness-upgrade`, `repo-harness-capability`, `repo-harness-architecture`, `repo-harness-handoff`, `repo-harness-deploy`, `repo-harness-repair`, `repo-harness-check`
+- Project creation: `repo-harness-scaffold`
 
-`agentic-dev-init` is for an existing repo; `agentic-dev-scaffold` creates a new
+`repo-harness-init` is for an existing repo; `repo-harness-scaffold` creates a new
 project or module scaffold. `hooks-init`, `docs-init`, and `create-project-dirs`
 are internal steps, not public commands.
 
-Use `agentic-dev-capability` when the harness already exists and only selected
+Use `repo-harness-capability` when the harness already exists and only selected
 capability boundaries should be added. It updates `.ai/context/capabilities.json`,
 syncs the requested local `AGENTS.md` / `CLAUDE.md` contract files, and validates
 the registry without running a full init, migrate, or upgrade pass.
 
-Use `agentic-dev-architecture`, `agentic-dev-handoff`, and `agentic-dev-deploy`
+Use `repo-harness-architecture`, `repo-harness-handoff`, and `repo-harness-deploy`
 for focused architecture documentation, rollover, and deploy/ops readiness
 passes. These commands call existing repo-local helpers and keep their scope
 narrow instead of refreshing the full harness.
 
-Codex installed-copy rule: only `~/.codex/skills/agentic-dev` exposes the root
-skill and `agentic-dev-*` command facades. The compatibility directory
-`~/.codex/skills/agentic-dev-skill` is a runtime fallback bundle only; it must
+Codex installed-copy rule: only `~/.codex/skills/repo-harness` exposes the root
+skill and `repo-harness-*` command facades. The compatibility directory
+`~/.codex/skills/repo-harness-skill` is a runtime fallback bundle only; it must
 not contain `SKILL.md` files or `assets/skill-commands/`. The retired
 `~/.codex/skills/project-initializer` and `~/.claude/skills/project-initializer`
 directories are removed during sync.

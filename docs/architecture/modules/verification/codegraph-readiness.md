@@ -17,7 +17,7 @@ changing host adapter installation semantics.
   update status.
 - `scripts/ensure-codegraph.sh` is the mutating entrypoint for local dependency
   installation and index init/sync.
-- `agentic-dev install --target codex|claude|both` remains host adapter
+- `repo-harness install --target codex|claude|both` remains host adapter
   installation only.
 - MCP config writes stay explicit and out of the default ensure/check path.
 

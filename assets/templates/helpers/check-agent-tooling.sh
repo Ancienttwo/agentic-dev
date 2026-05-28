@@ -77,7 +77,8 @@ const WAZA_MANAGED_SKILLS = ["check", "design", "health", "hunt", "learn", "read
 const WAZA_SHARED_RULES = ["anti-patterns.md", "chinese.md", "durable-context.md", "english.md"];
 const CODEX_AUTOMATION_SKILLS = ["health", "check", "diagram-design"];
 const CODEGRAPH_PACKAGE = "@colbymchenry/codegraph";
-const CODEGRAPH_GLOBAL_INSTALL_COMMAND = `npm install -g ${CODEGRAPH_PACKAGE} && mkdir -p ~/.local/bin && ln -sfn "$(npm config get prefix)/bin/codegraph" ~/.local/bin/codegraph && PATH="$HOME/.local/bin:$PATH" codegraph install --target codex --location global --yes`;
+const CODEGRAPH_GLOBAL_INSTALL_COMMAND = `npm install -g ${CODEGRAPH_PACKAGE} && mkdir -p ~/.local/bin && ln -sfn "$(npm config get prefix)/bin/codegraph" ~/.local/bin/codegraph && PATH="$HOME/.local/bin:$PATH" repo-harness tools configure codegraph --target codex --location global`;
+const CODEGRAPH_MCP_CONFIGURE_COMMAND = "repo-harness tools configure codegraph --target <codex|claude|both> --location global";
 const CODEGRAPH_LOCAL_INSTALL_COMMAND = "bun install";
 const CODEGRAPH_ENSURE_COMMAND = "bash scripts/ensure-codegraph.sh";
 const WAZA_STAGING_ROOT = path.join(HOME, ".agents");
@@ -950,8 +951,19 @@ function detectCodeGraphMcp(host) {
   const meta = HOSTS[host];
   const content = readText(meta.configPath);
   if (!content) {
+    if (host === "claude") {
+      const claudeRootConfig = path.join(HOME, ".claude.json");
+      const rootContent = readText(claudeRootConfig);
+      if (/codegraph/i.test(rootContent)) {
+        return {
+          status: "configured",
+          reason: `Claude root config contains a codegraph MCP server entry at ${claudeRootConfig}.`,
+        };
+      }
+    }
+
     return {
-      status: host === "codex" ? "missing" : "not-required",
+      status: "missing",
       reason: `No ${meta.label} config found at ${meta.configPath}.`,
     };
   }
@@ -970,16 +982,27 @@ function detectCodeGraphMcp(host) {
     };
   }
 
-  if (/codegraph/i.test(content)) {
+  const settingsJson = readJson(meta.configPath);
+  if (settingsJson?.mcpServers?.codegraph || /"mcpServers"\s*:\s*{[\s\S]*"codegraph"/i.test(content)) {
     return {
       status: "configured",
-      reason: "Claude settings contain a codegraph reference.",
+      reason: "Claude settings contain a codegraph MCP server entry.",
+    };
+  }
+
+  const claudeRootConfig = path.join(HOME, ".claude.json");
+  const rootJson = readJson(claudeRootConfig);
+  const rootContent = readText(claudeRootConfig);
+  if (rootJson?.mcpServers?.codegraph || /"mcpServers"\s*:\s*{[\s\S]*"codegraph"/i.test(rootContent)) {
+    return {
+      status: "configured",
+      reason: `Claude root config contains a codegraph MCP server entry at ${claudeRootConfig}.`,
     };
   }
 
   return {
-    status: "not-required",
-    reason: "Claude Code MCP setup is not required by the Codex-first CodeGraph readiness contract.",
+    status: "missing",
+    reason: "Claude config does not contain a codegraph MCP server entry.",
   };
 }
 
@@ -1093,8 +1116,7 @@ function detectCodeGraph() {
     };
   }
 
-  const codexSelected = SELECTED_HOSTS.includes("codex");
-  const codexConfigured = !codexSelected || mcpHosts.codex?.status === "configured";
+  const selectedMcpConfigured = SELECTED_HOSTS.every((host) => mcpHosts[host]?.status === "configured");
   const statusResult = cliPresent ? run(resolution.bin_path, ["status", "."], { timeoutMs: 1500 }) : null;
   const statusOutput = `${statusResult?.stdout || ""}\n${statusResult?.stderr || ""}`;
   const projectIndexStatus = cliPresent ? parseCodeGraphProjectStatus(statusOutput) : "unavailable";
@@ -1112,7 +1134,7 @@ function detectCodeGraph() {
   const localDependencyMissing = packageDeclared && resolution.source === "global";
   const status = !cliPresent
     ? "missing"
-    : localDependencyMissing || !codexConfigured || projectIndexStatus === "not-initialized" || projectIndexStatus === "unavailable"
+    : localDependencyMissing || !selectedMcpConfigured || projectIndexStatus === "not-initialized" || projectIndexStatus === "unavailable"
       ? "partial"
       : projectIndexStatus === "stale" || projectIndexStatus === "unknown"
         ? "warning"
@@ -1125,8 +1147,8 @@ function detectCodeGraph() {
       ? "CodeGraph CLI is not installed."
       : localDependencyMissing
         ? "CodeGraph global fallback is present, but this repo declares a local dev dependency that is not installed."
-      : !codexConfigured
-        ? "CodeGraph CLI is present, but Codex MCP is not configured."
+      : !selectedMcpConfigured
+        ? "CodeGraph CLI is present, but one or more selected host MCP configs are missing."
         : projectIndexStatus === "not-initialized"
           ? "CodeGraph CLI and MCP are present, but this repo has not been indexed."
           : projectIndexStatus === "unavailable"
@@ -1135,7 +1157,7 @@ function detectCodeGraph() {
             ? "CodeGraph is configured, but this repo index has pending changes."
             : projectIndexStatus === "unknown"
               ? "CodeGraph is configured, but this repo index status is unknown."
-            : "CodeGraph CLI, Codex MCP, and project index are ready.",
+            : "CodeGraph CLI, selected host MCP config, and project index are ready.",
     package: CODEGRAPH_PACKAGE,
     primary_host: "codex",
     cli_present: cliPresent,
@@ -1169,7 +1191,7 @@ function detectCodeGraph() {
     },
     install_command: packageDeclared ? CODEGRAPH_LOCAL_INSTALL_COMMAND : CODEGRAPH_GLOBAL_INSTALL_COMMAND,
     ensure_command: packageDeclared ? CODEGRAPH_ENSURE_COMMAND : null,
-    mcp_install_command: CODEGRAPH_GLOBAL_INSTALL_COMMAND,
+    mcp_install_command: CODEGRAPH_MCP_CONFIGURE_COMMAND,
     init_command: packageDeclared ? "bash scripts/ensure-codegraph.sh --init" : "codegraph init -i .",
     sync_command: packageDeclared ? "bash scripts/ensure-codegraph.sh --sync" : "codegraph sync .",
     upgrade_command: packageDeclared ? "bun update @colbymchenry/codegraph && bash scripts/ensure-codegraph.sh --sync" : `npm install -g ${CODEGRAPH_PACKAGE}@latest && mkdir -p ~/.local/bin && ln -sfn "$(npm config get prefix)/bin/codegraph" ~/.local/bin/codegraph && PATH="$HOME/.local/bin:$PATH" codegraph sync .`,

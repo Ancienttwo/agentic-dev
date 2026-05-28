@@ -15,26 +15,26 @@ root prompt concise; this file owns the detailed routing.
 | Implemented diff, pre-merge, release follow-through | Waza `/check` | Review findings, safe fixes, verification, and shipment state |
 | Architecture diagram or system-flow diagram | `diagram-design` | Mermaid or structured diagram artifact grounded in repo context |
 
-## agentic-dev Command Surface
+## repo-harness Command Surface
 
 Use these action-style command skills when the work is about installing,
 migrating, repairing, or verifying this repo-local harness:
 
 | Work type | Command | Boundary |
 |-----------|---------|----------|
-| Decision-complete harness plan | `agentic-dev-plan` | Plans only; no repo mutation by default |
-| Review an existing harness plan | `agentic-dev-review` | Product, engineering, design, and DevEx review dimensions |
-| Automatic planning pipeline | `agentic-dev-autoplan` | Plan -> review -> decision summary with final gates only |
-| Add harness to an existing repo | `agentic-dev-init` | Uses inspector and migration engine; does not create an app stack |
-| Create a new app or module scaffold | `agentic-dev-scaffold` | Uses plan catalog A-K, then attaches the harness |
-| Convert legacy workflow surfaces | `agentic-dev-migrate` | Archives or preserves user-authored legacy docs |
-| Refresh an installed harness | `agentic-dev-upgrade` | Runs manifest-owned upgrade actions only |
-| Add selected capability boundaries | `agentic-dev-capability` | Updates capability registry and local contracts without full init/migrate/upgrade |
-| Resolve architecture docs or diagrams | `agentic-dev-architecture` | Handles architecture drift requests without full harness refresh |
-| Prepare or resume handoff | `agentic-dev-handoff` | Refreshes Codex handoff packets without running full checks |
-| Check deploy and ops config | `agentic-dev-deploy` | Read-only deploy/_ops readiness check without publishing |
-| Fix broken current harness behavior | `agentic-dev-repair` | Task sync, hook routing, handoff, context, policy, or helper drift |
-| Verify readiness | `agentic-dev-check` | Workflow gates, task sync, inspector, and migration dry-run |
+| Decision-complete harness plan | `repo-harness-plan` | Plans only; no repo mutation by default |
+| Review an existing harness plan | `repo-harness-review` | Product, engineering, design, and DevEx review dimensions |
+| Automatic planning pipeline | `repo-harness-autoplan` | Plan -> review -> decision summary with final gates only |
+| Add harness to an existing repo | `repo-harness-init` | Uses inspector and migration engine; does not create an app stack |
+| Create a new app or module scaffold | `repo-harness-scaffold` | Uses plan catalog A-K, then attaches the harness |
+| Convert legacy workflow surfaces | `repo-harness-migrate` | Archives or preserves user-authored legacy docs |
+| Refresh an installed harness | `repo-harness-upgrade` | Runs manifest-owned upgrade actions only |
+| Add selected capability boundaries | `repo-harness-capability` | Updates capability registry and local contracts without full init/migrate/upgrade |
+| Resolve architecture docs or diagrams | `repo-harness-architecture` | Handles architecture drift requests without full harness refresh |
+| Prepare or resume handoff | `repo-harness-handoff` | Refreshes Codex handoff packets without running full checks |
+| Check deploy and ops config | `repo-harness-deploy` | Read-only deploy/_ops readiness check without publishing |
+| Fix broken current harness behavior | `repo-harness-repair` | Task sync, hook routing, handoff, context, policy, or helper drift |
+| Verify readiness | `repo-harness-check` | Workflow gates, task sync, inspector, and migration dry-run |
 
 `hooks-init`, `docs-init`, and `create-project-dirs` are not public commands.
 They are implementation steps behind `init`, `scaffold`, `migrate`, and
@@ -57,7 +57,7 @@ work, or shared contracts, report the P1/P2/P3 evidence explicitly.
 1. Route the request by intent before reading broadly.
 2. Read the repo-local contract first: `AGENTS.md` or `CLAUDE.md`, `tasks/todo.md`, `tasks/lessons.md`, and `.ai/harness/policy.json`.
 3. Use the selected skill or mode to produce either an approved plan, a root cause, or a review verdict.
-4. When Codex Plan mode, Waza `/think`, or `agentic-dev-plan` produces a decision-complete plan, capture it into `plans/` with `scripts/capture-plan.sh --slug <slug> --title <title>` and the plan text on stdin.
+4. When Codex Plan mode, Waza `/think`, or `repo-harness-plan` produces a decision-complete plan, capture it into `plans/` with `scripts/capture-plan.sh --slug <slug> --title <title>` and the plan text on stdin.
 5. Approved plans must include `## Evidence Contract` with state/progress path, verification evidence, evaluator rubric, stop condition, and rollback surface before execution. `capture-plan.sh` supplies this contract for captured planning output.
 6. Convert approved plans to execution scaffolding with `scripts/plan-to-todo.sh --plan <plan>`; if approval is already explicit, use `scripts/capture-plan.sh --status Approved --execute ...`. The plan's own `## Task Breakdown` remains the execution checklist; `tasks/todo.md` remains a deferred-goal ledger. Contract-level plans are projected into a linked `codex/<slug>` worktree when the policy enables it.
 7. After substantive changes, run project checks and record evidence in `tasks/`. For contract worktrees, run Waza `/check`, fill the review artifact from that verdict, then run `scripts/contract-worktree.sh finish`.

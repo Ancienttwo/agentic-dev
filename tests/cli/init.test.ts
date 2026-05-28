@@ -61,7 +61,7 @@ function setupFakeSource(root: string): void {
 
 describe("init command", () => {
   test("defaults --repo to cwd and applies the existing-repo harness", () => {
-    const tmp = join(tmpdir(), `agentic-dev-init-${Date.now()}`);
+    const tmp = join(tmpdir(), `repo-harness-init-${Date.now()}`);
     const source = join(tmp, "source");
     const repo = join(tmp, "repo");
     const previousCwd = process.cwd();
@@ -89,7 +89,7 @@ describe("init command", () => {
   });
 
   test("bootstraps Waza and diagram-design for Claude and Codex during init", () => {
-    const tmp = join(tmpdir(), `agentic-dev-init-skills-${Date.now()}`);
+    const tmp = join(tmpdir(), `repo-harness-init-skills-${Date.now()}`);
     const source = join(tmp, "source");
     const repo = join(tmp, "repo");
     const home = join(tmp, "home");
@@ -132,7 +132,7 @@ describe("init command", () => {
   });
 
   test("dry-run does not mutate host runtime or apply the target harness", () => {
-    const tmp = join(tmpdir(), `agentic-dev-init-dry-run-${Date.now()}`);
+    const tmp = join(tmpdir(), `repo-harness-init-dry-run-${Date.now()}`);
     const source = join(tmp, "source");
     const repo = join(tmp, "repo");
     const home = join(tmp, "home");
@@ -153,7 +153,7 @@ describe("init command", () => {
       });
 
       expect(result.exitCode).toBe(0);
-      expect(result.steps.find((step) => step.step === "sync agentic-dev skills")?.detail).toBe("dry-run");
+      expect(result.steps.find((step) => step.step === "sync repo-harness skills")?.detail).toBe("dry-run");
       expect(result.steps.find((step) => step.step === "install host adapters")?.detail).toBe("dry-run");
       expect(existsSync(join(home, ".codex", "hooks.json"))).toBe(false);
       expect(existsSync(join(repo, ".ai", "harness", "workflow-contract.json"))).toBe(false);
@@ -163,7 +163,7 @@ describe("init command", () => {
   });
 
   test("npx cache sources force copy-based installed skill sync", () => {
-    const tmp = join(tmpdir(), `agentic-dev-init-npx-${Date.now()}`);
+    const tmp = join(tmpdir(), `repo-harness-init-npx-${Date.now()}`);
     const source = join(tmp, "_npx", "abc123", "node_modules", "repo-harness");
     const repo = join(tmp, "repo");
     try {
@@ -180,7 +180,7 @@ describe("init command", () => {
       });
 
       expect(result.exitCode).toBe(0);
-      expect(result.steps.find((step) => step.step === "sync agentic-dev skills")?.stdout).toContain(
+      expect(result.steps.find((step) => step.step === "sync repo-harness skills")?.stdout).toContain(
         "sync link=0",
       );
     } finally {

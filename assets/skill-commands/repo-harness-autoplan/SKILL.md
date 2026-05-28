@@ -1,18 +1,18 @@
 ---
-name: agentic-dev-autoplan
-description: Fully automated planning pipeline for agentic-dev workflow work. Reads repo state and existing docs, drafts a plan, reviews it, and surfaces only final decision gates.
-when_to_use: "agentic-dev-autoplan, auto plan agentic-dev work, automatic review harness plan, run all agentic-dev reviews, make the workflow planning decisions"
+name: repo-harness-autoplan
+description: Fully automated planning pipeline for repo-harness workflow work. Reads repo state and existing docs, drafts a plan, reviews it, and surfaces only final decision gates.
+when_to_use: "repo-harness-autoplan, auto plan repo-harness work, automatic review harness plan, run all repo-harness reviews, make the workflow planning decisions"
 ---
 
-# agentic-dev-autoplan
+# repo-harness-autoplan
 
 Use this command when the user wants the planning and review pipeline handled automatically.
 
 ## Protocol
 
 1. Confirm the working repo and inspect state with `bun scripts/inspect-project-state.ts --repo <repo> --format text` when available.
-2. Draft the action plan with `agentic-dev-plan` rules.
-3. Review the draft with `agentic-dev-review` rules.
+2. Draft the action plan with `repo-harness-plan` rules.
+3. Review the draft with `repo-harness-review` rules.
 4. Return the final plan, unresolved taste decisions, and the next action command.
 
 ## Reusable Workflow Packaging Rubric

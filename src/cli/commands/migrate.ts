@@ -1,5 +1,5 @@
 /**
- * `agentic-dev migrate` — convert legacy project-level hook adapters to the
+ * `repo-harness migrate` — convert legacy project-level hook adapters to the
  * global CLI pattern (dry-run default; --apply commits).
  *
  * Targets two legacy file shapes:
@@ -13,7 +13,7 @@
  *
  * Safety:
  *   - --dry-run is default; --apply explicitly mutates.
- *   - Per-file backup before --apply: <file>.agentic-dev-migrate-backup.
+ *   - Per-file backup before --apply: <file>.repo-harness-migrate-backup.
  *   - If the file's hooks segment becomes empty after removal, the field is
  *     dropped entirely (cleaner for Claude settings.json which has non-hook config).
  */
@@ -93,7 +93,7 @@ function planForFile(filePath: string): MigratePlanFile | null {
 }
 
 function applyForFile(filePath: string): void {
-  const backupPath = `${filePath}.agentic-dev-migrate-backup`;
+  const backupPath = `${filePath}.repo-harness-migrate-backup`;
   if (!fs.existsSync(backupPath)) {
     fs.copyFileSync(filePath, backupPath);
   }
@@ -146,7 +146,7 @@ export function formatMigratePlan(plan: MigratePlan, asJson = false): string {
   }
   lines.push('');
   if (plan.apply) {
-    lines.push('Backups created: <file>.agentic-dev-migrate-backup');
+    lines.push('Backups created: <file>.repo-harness-migrate-backup');
   } else {
     lines.push('Re-run with --apply to commit.');
   }

@@ -4,8 +4,8 @@
 
 ## Default Brain
 
-- File vault: `icloud/brain/agentic-dev/runbooks/runbook-agentic-dev-hook-troubleshooting.md`
-- gbrain slug: `runbooks/runbook-agentic-dev-hook-troubleshooting`
+- File vault: `icloud/brain/repo-harness/runbooks/runbook-repo-harness-hook-troubleshooting.md`
+- gbrain slug: `runbooks/runbook-repo-harness-hook-troubleshooting`
 
 ## Hook Authority Map
 

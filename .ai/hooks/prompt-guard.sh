@@ -42,13 +42,12 @@ is_done_intent() {
     return $?
   fi
 
-  # Short prompts: ASCII tokens require an ASCII word boundary (so substrings
-  # like `completionToken` no longer match). CJK tokens stay as substring match
-  # because POSIX [[:space:][:punct:]] does not span multi-byte boundaries.
+  # Short prompts: require token boundaries / explicit completion phrases so
+  # task instructions such as `完成后验证` do not close the active contract.
   if echo "$PROMPT_INTENT_TEXT" | grep -qEi "(^|[[:space:][:punct:]])(done|complete|completed|finished|mark[[:space:]]+done)([[:space:][:punct:]]|$)"; then
     return 0
   fi
-  echo "$PROMPT_INTENT_TEXT" | grep -qE "(完成|结束|收工)"
+  echo "$PROMPT_INTENT_TEXT" | grep -qE "(^|[[:space:][:punct:]，。！？!])(任务完成了?|完成(了|啦|吧)?|已完成|本轮完成|这刀完成|收尾完成|结束吧|结束任务|可以收工|收工(了|吧)?|宣布完成|工作完成)([[:space:][:punct:]，。！？!]|$)"
 }
 
 is_spa_day_intent() {
@@ -284,7 +283,18 @@ is_agentic_packaging_intent() {
 emit_agentic_packaging_hint() {
   if is_agentic_packaging_intent; then
     echo "[AgenticDevRoute] Reusable workflow packaging intent detected."
-    echo "[AgenticDevRoute] Suggested route: agentic-dev-autoplan after user authorization; hook will not plan or create assets."
+    echo "[AgenticDevRoute] Suggested route: repo-harness-autoplan after user authorization; hook will not plan or create assets."
+  fi
+}
+
+is_codegraph_route_intent() {
+  is_trigger_question_prompt && return 1
+  echo "$PROMPT_INTENT_TEXT" | grep -qEi "(who calls|what calls|callers|callees|impact|impact radius|trace[[:space:]]+(flow|path|call)|where[[:space:]].*(defined|definition)|definition of|symbol named|调用关系|谁调用|调用了谁|哪里定义|定义在哪|影响面|调用链|追踪(路径|调用|链)|从.*到.*怎么走)"
+}
+
+emit_codegraph_route_hint() {
+  if is_codegraph_route_intent; then
+    echo "[CodegraphRoute] Structural code-navigation intent detected. Prefer CodeGraph context/search/callers/impact before grep/read when available."
   fi
 }
 
@@ -333,6 +343,7 @@ PROMPT_INTENT_TEXT="$(prompt_intent_text)"
 
 emit_agentic_packaging_hint
 emit_waza_route_hint
+emit_codegraph_route_hint
 
 implement_intent=0
 if is_implement_intent; then

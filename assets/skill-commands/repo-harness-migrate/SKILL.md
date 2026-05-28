@@ -1,10 +1,10 @@
 ---
-name: agentic-dev-migrate
+name: repo-harness-migrate
 description: Migrates older Claude/Codex workflow repos to the current tasks-first harness while preserving or archiving user-authored docs and hooks.
-when_to_use: "agentic-dev-migrate, migrate legacy Claude repo, migrate docs/TODO.md, migrate docs/PROGRESS.md, upgrade old project-initializer repo, legacy workflow docs"
+when_to_use: "repo-harness-migrate, migrate legacy Claude repo, migrate docs/TODO.md, migrate docs/PROGRESS.md, upgrade old project-initializer repo, legacy workflow docs"
 ---
 
-# agentic-dev-migrate
+# repo-harness-migrate
 
 Use this command when inspection finds legacy workflow docs or stale harness artifacts.
 

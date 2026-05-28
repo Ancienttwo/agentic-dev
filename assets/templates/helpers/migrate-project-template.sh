@@ -1,5 +1,5 @@
 #!/bin/bash
-# Delegate workflow migrations to the canonical upstream agentic-dev.
+# Delegate workflow migrations to the canonical upstream repo-harness.
 #
 # Generated projects keep installed workflow runtime state under .ai/. The
 # template source lives in AGENTIC_DEV_ROOT, AGENTIC_DEV_SKILL_ROOT, or
@@ -21,13 +21,13 @@ resolve_agentic_dev_root() {
 
   if [[ -n "${HOME:-}" ]]; then
     local roots=(
-      "$HOME/Projects/agentic-dev"
-      "$HOME/.codex/skills/agentic-dev"
-      "$HOME/.codex/skills/agentic-dev-skill"
-      "$HOME/.claude/skills/agentic-dev"
-      "$HOME/.claude/skills/agentic-dev-skill"
-      "$HOME/.agents/skills/agentic-dev"
-      "$HOME/.agents/skills/agentic-dev-skill"
+      "$HOME/Projects/repo-harness"
+      "$HOME/.codex/skills/repo-harness"
+      "$HOME/.codex/skills/repo-harness-skill"
+      "$HOME/.claude/skills/repo-harness"
+      "$HOME/.claude/skills/repo-harness-skill"
+      "$HOME/.agents/skills/repo-harness"
+      "$HOME/.agents/skills/repo-harness-skill"
     )
 
     local root
@@ -42,14 +42,14 @@ resolve_agentic_dev_root() {
     return 0
   fi
 
-  printf '%s\n' "/Users/ancienttwo/.agents/skills/agentic-dev"
+  printf '%s\n' "/Users/ancienttwo/.agents/skills/repo-harness"
 }
 
 UPSTREAM_ROOT="$(resolve_agentic_dev_root)"
 UPSTREAM_SCRIPT="$UPSTREAM_ROOT/scripts/migrate-project-template.sh"
 
 if [[ ! -f "$UPSTREAM_SCRIPT" ]]; then
-  echo "[migrate] Upstream agentic-dev migration script not found: $UPSTREAM_SCRIPT" >&2
+  echo "[migrate] Upstream repo-harness migration script not found: $UPSTREAM_SCRIPT" >&2
   echo "[migrate] Set AGENTIC_DEV_ROOT or AGENTIC_DEV_SKILL_ROOT to the skill root." >&2
   exit 1
 fi

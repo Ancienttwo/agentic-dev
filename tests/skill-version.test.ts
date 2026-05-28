@@ -27,8 +27,8 @@ describe("Skill Version Consistency", () => {
   test("SKILL.md keeps the current compatibility trigger and retires project-initializer", () => {
     const skill = readFileSync(join(REPO_ROOT, "SKILL.md"), "utf-8");
     const frontmatterMatch = skill.match(/^---\n([\s\S]*?)\n---/);
-    expect(frontmatterMatch?.[1]).toContain("name: agentic-dev");
-    expect(frontmatterMatch?.[1]).toContain("agentic-dev-skill");
+    expect(frontmatterMatch?.[1]).toContain("name: repo-harness");
+    expect(frontmatterMatch?.[1]).toContain("repo-harness-skill");
     expect(frontmatterMatch?.[1]).not.toContain("project-initializer");
   });
 
@@ -102,7 +102,7 @@ describe("Assembled Output Contains Version Info", () => {
 
   test("output contains SKILL_VERSION value", () => {
     const sv = loadSkillVersion();
-    expect(output).toContain(`agentic-dev@${sv.version}`);
+    expect(output).toContain(`repo-harness@${sv.version}`);
   });
 
   test("output contains TEMPLATE_VERSION value", () => {

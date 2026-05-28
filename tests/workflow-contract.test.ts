@@ -131,7 +131,7 @@ describe("workflow contract manifest", () => {
     expect(contract.migrations.upgrade?.actions.some((action) => action.action === "remove" && action.ownership === "known_generated")).toBe(true);
   });
 
-  test("upstream skill root resolver prefers the canonical env var while preserving the agentic-dev-skill alias", () => {
+  test("upstream skill root resolver prefers the canonical env var while preserving the repo-harness-skill alias", () => {
     const code = [
       'import { resolveAgenticDevRoot, resolveAgenticDevSkillRoot, resolveProjectInitializerRoot } from "./scripts/workflow-contract.ts";',
       'console.log(resolveAgenticDevRoot());',
@@ -143,15 +143,15 @@ describe("workflow contract manifest", () => {
       encoding: "utf-8",
       env: {
         ...process.env,
-        AGENTIC_DEV_ROOT: "/tmp/agentic-dev-root",
-        AGENTIC_DEV_SKILL_ROOT: "/tmp/agentic-dev-skill-root",
+        AGENTIC_DEV_ROOT: "/tmp/repo-harness-root",
+        AGENTIC_DEV_SKILL_ROOT: "/tmp/repo-harness-skill-root",
       },
     });
     expect(preferred.status).toBe(0);
     expect(preferred.stdout.trim().split("\n")).toEqual([
-      "/tmp/agentic-dev-root",
-      "/tmp/agentic-dev-root",
-      "/tmp/agentic-dev-root",
+      "/tmp/repo-harness-root",
+      "/tmp/repo-harness-root",
+      "/tmp/repo-harness-root",
     ]);
 
     const renamedLegacy = spawnSync("bun", ["-e", code], {
@@ -160,14 +160,14 @@ describe("workflow contract manifest", () => {
       env: {
         ...process.env,
         AGENTIC_DEV_ROOT: "",
-        AGENTIC_DEV_SKILL_ROOT: "/tmp/agentic-dev-skill-root",
+        AGENTIC_DEV_SKILL_ROOT: "/tmp/repo-harness-skill-root",
       },
     });
     expect(renamedLegacy.status).toBe(0);
     expect(renamedLegacy.stdout.trim().split("\n")).toEqual([
-      "/tmp/agentic-dev-skill-root",
-      "/tmp/agentic-dev-skill-root",
-      "/tmp/agentic-dev-skill-root",
+      "/tmp/repo-harness-skill-root",
+      "/tmp/repo-harness-skill-root",
+      "/tmp/repo-harness-skill-root",
     ]);
 
     const retiredLegacy = spawnSync("bun", ["-e", code], {

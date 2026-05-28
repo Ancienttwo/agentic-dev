@@ -10,7 +10,7 @@ function withTempRepo(
   fn: (repoRoot: string) => void,
 ): void {
   const tmp = fs.realpathSync(
-    fs.mkdtempSync(path.join(os.tmpdir(), 'agentic-dev-hook-')),
+    fs.mkdtempSync(path.join(os.tmpdir(), 'repo-harness-hook-')),
   );
   try {
     execSync('git init', { cwd: tmp, stdio: 'ignore' });

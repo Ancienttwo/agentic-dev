@@ -4,7 +4,7 @@
 
 ## Default Brain
 
-- File vault: `icloud/brain/agentic-dev/runbooks/runbook-agentic-release-deploy.md`
+- File vault: `icloud/brain/repo-harness/runbooks/runbook-agentic-release-deploy.md`
 - gbrain slug: `runbooks/runbook-agentic-release-deploy`
 
 ## Repo Role

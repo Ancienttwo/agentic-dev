@@ -1,10 +1,10 @@
 ---
-name: agentic-dev-handoff
+name: repo-harness-handoff
 description: Prepares or resumes Codex handoff packets for long-task rollover without running the full workflow check surface.
-when_to_use: "agentic-dev-handoff, prepare handoff, resume handoff, Codex rollover, context rollover, current.md, resume.md"
+when_to_use: "repo-harness-handoff, prepare handoff, resume handoff, Codex rollover, context rollover, current.md, resume.md"
 ---
 
-# agentic-dev-handoff
+# repo-harness-handoff
 
 Use this command when the user wants to save, refresh, or resume the repo-local
 handoff surface without running a full check or repair pass.

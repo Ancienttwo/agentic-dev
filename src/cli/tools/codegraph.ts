@@ -5,11 +5,14 @@ import { fileURLToPath } from "url";
 
 export type CodegraphSource = "local" | "global" | "missing";
 export type CodegraphStatus = "present" | "warning" | "partial" | "missing";
-export type CodegraphActionStatus = "changed" | "unchanged" | "failed";
+export type CodegraphActionStatus = "changed" | "unchanged" | "failed" | "skipped";
+export type CodegraphHostTarget = "codex" | "claude" | "both";
+export type CodegraphConfigureLocation = "global" | "local";
 
 export interface CodegraphResolveOptions {
   repoRoot: string;
   env?: NodeJS.ProcessEnv;
+  host?: CodegraphHostTarget;
 }
 
 export interface CodegraphEnsureOptions extends CodegraphResolveOptions {
@@ -17,6 +20,11 @@ export interface CodegraphEnsureOptions extends CodegraphResolveOptions {
   init?: boolean;
   sync?: boolean;
   installDeps?: boolean;
+}
+
+export interface CodegraphConfigureOptions extends CodegraphResolveOptions {
+  target: CodegraphHostTarget;
+  location: CodegraphConfigureLocation;
 }
 
 export interface CodegraphResolution {
@@ -39,6 +47,14 @@ export interface CodegraphCheckResult {
 export interface CodegraphEnsureResult extends CodegraphCheckResult {
   changed: boolean;
   readOnly: boolean;
+  actions: CodegraphAction[];
+}
+
+export interface CodegraphConfigureResult extends CodegraphCheckResult {
+  target: CodegraphHostTarget;
+  location: CodegraphConfigureLocation;
+  changed: boolean;
+  readOnly: false;
   actions: CodegraphAction[];
 }
 
@@ -96,9 +112,9 @@ function readJson(path: string) {
   }
 }
 
-function readToolingReport(repoRoot: string, env?: NodeJS.ProcessEnv) {
+function readToolingReport(repoRoot: string, env?: NodeJS.ProcessEnv, host: CodegraphHostTarget = "codex") {
   const checker = join(REPO_ROOT, "scripts", "check-agent-tooling.sh");
-  const report = runJson("bash", [checker, "--json", "--host", "codex"], repoRoot, env);
+  const report = runJson("bash", [checker, "--json", "--host", host], repoRoot, env);
   return report.tools.codegraph;
 }
 
@@ -145,7 +161,7 @@ function normalize(raw: Record<string, any>): CodegraphCheckResult {
 }
 
 export function checkCodegraph(opts: CodegraphResolveOptions): CodegraphCheckResult {
-  return normalize(readToolingReport(opts.repoRoot, opts.env));
+  return normalize(readToolingReport(opts.repoRoot, opts.env, opts.host));
 }
 
 export function resolveCodegraph(opts: CodegraphResolveOptions): CodegraphResolution {
@@ -164,27 +180,96 @@ export function ensureCodegraph(opts: CodegraphEnsureOptions): CodegraphEnsureRe
     };
   }
 
-  let codegraph = readToolingReport(opts.repoRoot, opts.env);
+  let codegraph = readToolingReport(opts.repoRoot, opts.env, opts.host);
   if (opts.installDeps !== false && hasCodegraphDependency(opts.repoRoot) && !codegraph.local_bin_path) {
     appendAction(actions, "install-deps", ["bun", "install"], run("bun", ["install"], opts.repoRoot, opts.env));
-    codegraph = readToolingReport(opts.repoRoot, opts.env);
+    codegraph = readToolingReport(opts.repoRoot, opts.env, opts.host);
   }
 
   const binPath = codegraph.bin_path;
   if (binPath && opts.init && codegraph.project_index?.status === "not-initialized") {
     appendAction(actions, "init-index", [binPath, "init", "-i", "."], run(binPath, ["init", "-i", "."], opts.repoRoot, opts.env));
-    codegraph = readToolingReport(opts.repoRoot, opts.env);
+    codegraph = readToolingReport(opts.repoRoot, opts.env, opts.host);
   }
 
   if (binPath && opts.sync) {
     mkdirSync(join(opts.repoRoot, ".codegraph"), { recursive: true });
     appendAction(actions, "sync-index", [binPath, "sync", "."], run(binPath, ["sync", "."], opts.repoRoot, opts.env));
-    codegraph = readToolingReport(opts.repoRoot, opts.env);
+    codegraph = readToolingReport(opts.repoRoot, opts.env, opts.host);
   }
 
   const normalized = normalize(codegraph);
   return {
     ...normalized,
+    changed: actions.some((entry) => entry.status === "changed"),
+    readOnly: false,
+    actions,
+  };
+}
+
+function configureTargets(target: CodegraphHostTarget): Array<"codex" | "claude"> {
+  return target === "both" ? ["codex", "claude"] : [target];
+}
+
+function appendSkippedAction(actions: CodegraphAction[], action: string, command: string[], reason: string): void {
+  actions.push({
+    action,
+    status: "skipped",
+    command,
+    stderr: reason,
+  });
+}
+
+export function configureCodegraph(opts: CodegraphConfigureOptions): CodegraphConfigureResult {
+  const actions: CodegraphAction[] = [];
+  const initial = checkCodegraph({ repoRoot: opts.repoRoot, env: opts.env, host: opts.target });
+  const binPath = initial.resolution.binPath;
+
+  for (const target of configureTargets(opts.target)) {
+    const command = [binPath ?? "codegraph", "install", "--target", target, "--location", opts.location, "--yes"];
+    const actionName = `configure-${target}`;
+
+    if (target === "codex" && opts.location === "local") {
+      const reason = "Codex has no project-local MCP configuration; use --location global.";
+      if (opts.target === "codex") {
+        actions.push({
+          action: actionName,
+          status: "failed",
+          command,
+          stderr: reason,
+        });
+      } else {
+        appendSkippedAction(actions, actionName, command, reason);
+      }
+      continue;
+    }
+
+    if (!binPath) {
+      actions.push({
+        action: actionName,
+        status: "failed",
+        command,
+        stderr: "CodeGraph CLI is missing; run repo-harness tools ensure codegraph first.",
+      });
+      continue;
+    }
+
+    appendAction(actions, actionName, command, run(binPath, command.slice(1), opts.repoRoot, opts.env));
+  }
+
+  let refreshed = initial;
+  if (actions.some((entry) => entry.status === "changed")) {
+    try {
+      refreshed = checkCodegraph({ repoRoot: opts.repoRoot, env: opts.env, host: opts.target });
+    } catch (_error) {
+      refreshed = initial;
+    }
+  }
+
+  return {
+    ...refreshed,
+    target: opts.target,
+    location: opts.location,
     changed: actions.some((entry) => entry.status === "changed"),
     readOnly: false,
     actions,

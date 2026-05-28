@@ -5,7 +5,7 @@ import * as os from 'os';
 import { formatMigratePlan, runMigrate } from '../../src/cli/commands/migrate';
 
 function withTempRepo(fn: (repo: string) => void): void {
-  const tmp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'agentic-dev-migrate-')));
+  const tmp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'repo-harness-migrate-')));
   try {
     fn(tmp);
   } finally {
@@ -77,7 +77,7 @@ describe('migrate command (Phase 1C)', () => {
       fs.mkdirSync(path.dirname(codexPath), { recursive: true });
       fs.writeFileSync(codexPath, LEGACY_CODEX);
       runMigrate({ cwd: repo, apply: true });
-      const backupPath = `${codexPath}.agentic-dev-migrate-backup`;
+      const backupPath = `${codexPath}.repo-harness-migrate-backup`;
       expect(fs.existsSync(backupPath)).toBe(true);
       expect(fs.readFileSync(backupPath, 'utf-8')).toBe(LEGACY_CODEX);
       const data = JSON.parse(fs.readFileSync(codexPath, 'utf-8'));

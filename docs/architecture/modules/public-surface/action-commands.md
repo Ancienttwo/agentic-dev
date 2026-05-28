@@ -9,26 +9,26 @@
 Action commands are thin skill facades stored under `assets/skill-commands/`.
 They expose user-facing verbs without duplicating the engine:
 
-- `agentic-dev-plan`
-- `agentic-dev-review`
-- `agentic-dev-autoplan`
-- `agentic-dev-init`
-- `agentic-dev-scaffold`
-- `agentic-dev-migrate`
-- `agentic-dev-upgrade`
-- `agentic-dev-capability`
-- `agentic-dev-architecture`
-- `agentic-dev-handoff`
-- `agentic-dev-deploy`
-- `agentic-dev-repair`
-- `agentic-dev-check`
+- `repo-harness-plan`
+- `repo-harness-review`
+- `repo-harness-autoplan`
+- `repo-harness-init`
+- `repo-harness-scaffold`
+- `repo-harness-migrate`
+- `repo-harness-upgrade`
+- `repo-harness-capability`
+- `repo-harness-architecture`
+- `repo-harness-handoff`
+- `repo-harness-deploy`
+- `repo-harness-repair`
+- `repo-harness-check`
 
 The manifest at `assets/skill-commands/manifest.json` is the public command
 catalog. The root `SKILL.md` remains the router over the same engine.
 
 ## P2 Trace
 
-Concrete route: user selects `agentic-dev-check` -> command facade confirms repo
+Concrete route: user selects `repo-harness-check` -> command facade confirms repo
 path and dirty boundaries -> runs `bun test`, task sync, workflow strict check,
 inspector, and migration dry-run where available -> returns pass/fail readiness
 instead of mutating the repo.

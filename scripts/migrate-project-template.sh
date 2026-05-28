@@ -1,5 +1,5 @@
 #!/bin/bash
-# Migrate an existing project to the agentic-dev tasks-first harness model.
+# Migrate an existing project to the repo-harness tasks-first harness model.
 # - Shared hook source of truth: .ai/hooks/
 # - Claude adapter: .claude/settings.json
 # - Codex adapter: .codex/hooks.json

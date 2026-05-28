@@ -71,7 +71,7 @@ function writeFakeNpx(fakeBin: string) {
 
 describe("tools ensure codegraph", () => {
   test("--check is read-only and exposes the shared readiness report", () => {
-    const envRoot = setupFakeEnvironment("agentic-dev-tools-codegraph");
+    const envRoot = setupFakeEnvironment("repo-harness-tools-codegraph");
     const logFile = join(envRoot.root, "tool.log");
     try {
       mkdirSync(join(envRoot.home, ".codex"), { recursive: true });

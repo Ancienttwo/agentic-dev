@@ -6,11 +6,11 @@
 > **Notes**: `tasks/notes/hook-global-runtime.notes.md`
 > **Canary**: `scripts/canary-global-hook.sh`
 > **Generated**: 2026-05-28, operator: ancienttwo (canary log 711 lines, time window 15:23–17:04 +08:00; includes post-Codex-restart trust observations at 17:03)
-> **Repo set used for canary**: `/Users/ancienttwo/Projects/agentic-dev` (opt-in, this repo), `/Users/ancienttwo/Astrozi` (opt-in). **Gap**: no non-opt-in repo yet — pending manual run to confirm dual-fire vs single-fire branching.
+> **Repo set used for canary**: `/Users/ancienttwo/Projects/repo-harness` (opt-in, this repo), `/Users/ancienttwo/Astrozi` (opt-in). **Gap**: no non-opt-in repo yet — pending manual run to confirm dual-fire vs single-fire branching.
 
 ## Purpose
 
-Document the operational behavior of `agentic-dev` global hook runtime when
+Document the operational behavior of `repo-harness` global hook runtime when
 installed at the host level (Codex `~/.codex/hooks.json` + Claude
 `~/.claude/settings.json`). Phase 0 fills the Host Operational Matrix and the
 Trust UX sections from real host smoke; Phase 1 fills Migration Guide and
@@ -24,12 +24,12 @@ observed runtime behavior of the two hosts under user-level hook installation.
 
 - Canary script: `scripts/canary-global-hook.sh`
 - Events instrumented: `SessionStart`, `PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `Stop`
-- Per-fire side effect: append one line to `~/.agentic-dev-canary.log`
-  - Format: `[agentic-dev-canary] host=<codex|claude> event=<name> repo=<path> ts=<iso>`
+- Per-fire side effect: append one line to `~/.repo-harness-canary.log`
+  - Format: `[repo-harness-canary] host=<codex|claude> event=<name> repo=<path> ts=<iso>`
 - Host slots written:
   - `~/.codex/hooks.json` (Codex global)
   - `~/.claude/settings.json` (Claude user-level)
-- Backups (first install only): `<file>.agentic-dev-canary-backup`
+- Backups (first install only): `<file>.repo-harness-canary-backup`
 - Trust registration surface to grep: `~/.codex/config.toml [hooks.state]` (user-level path keys only)
 
 Procedure:
@@ -47,7 +47,7 @@ Procedure:
 
 | # | Observation | Codex (`~/.codex/hooks.json`) | Claude (`~/.claude/settings.json`) |
 |---|-------------|-------------------------------|------------------------------------|
-| 1 | **加载** — global hook 是否被 host 调度层 fire（在任意 repo 触发对应 event 时 canary log 是否出现 `host=<X>` 行） | ✅ **522 + 2 fires** across both repos. Pre-restart per event: SessionStart=6, UserPromptSubmit=6, PreToolUse=254, PostToolUse=252, Stop=4. **Post-restart (17:03:44 Astrozi)**: SessionStart=1, UserPromptSubmit=1 confirming reload + new-entry trust. First fire: `2026-05-28T15:35:05` (agentic-dev). Last fire: `2026-05-28T17:03:44` (Astrozi). Source: `~/.agentic-dev-canary.log` lines tagged `host=codex`. | ✅ **169+ fires** across both repos (continuing live). Per event (pre-17:04 sample): SessionStart=3, UserPromptSubmit=10, PreToolUse=74, PostToolUse=72, Stop=10. First fire: `2026-05-28T15:23:01`. Most recent: `2026-05-28T17:04:12` (this session). Source: same log, `host=claude`. |
+| 1 | **加载** — global hook 是否被 host 调度层 fire（在任意 repo 触发对应 event 时 canary log 是否出现 `host=<X>` 行） | ✅ **522 + 2 fires** across both repos. Pre-restart per event: SessionStart=6, UserPromptSubmit=6, PreToolUse=254, PostToolUse=252, Stop=4. **Post-restart (17:03:44 Astrozi)**: SessionStart=1, UserPromptSubmit=1 confirming reload + new-entry trust. First fire: `2026-05-28T15:35:05` (repo-harness). Last fire: `2026-05-28T17:03:44` (Astrozi). Source: `~/.repo-harness-canary.log` lines tagged `host=codex`. | ✅ **169+ fires** across both repos (continuing live). Per event (pre-17:04 sample): SessionStart=3, UserPromptSubmit=10, PreToolUse=74, PostToolUse=72, Stop=10. First fire: `2026-05-28T15:23:01`. Most recent: `2026-05-28T17:04:12` (this session). Source: same log, `host=claude`. |
 | 2 | **Trust prompt UX** — 首次安装后启动 host 是否弹 trust prompt？形态如何（CLI 提示 / Settings UI / 静默接受）？拒绝路径是什么？ | ✅ **Per-new-entry prompt confirmed** (2026-05-28T17:03 manual restart). User reports: "已重启授权 5 个新 HOOK" — Codex 对 5 个新 canary entries 分别弹了 5 个独立 trust prompt; 已存在的 11 条 shim hash 静默通过未 re-prompt. Hash count 立即 11 → 16. **Still manual-only**: prompt 文案 / UI surface (CLI 提示 vs Settings UI) / 拒绝路径行为. To capture: edit one canary `echo` command string in `~/.codex/hooks.json`, restart Codex, screenshot the prompt; decline branch separately. | N/A — Claude 文档明确无 trust re-prompt 机制 (`code.claude.com/docs/en/settings.md`); 169 silent fires confirm. |
 | 3 | **Hash 注册** — 接受 trust 后是否在 `~/.codex/config.toml [hooks.state]` 下出现 user-level path key (`/Users/<user>/.codex/hooks.json:<event>:<i>:<j>`)？hash 命中时是否跳过重复 prompt？ | ✅ **16 entries observed** (post-canary-restart, lines 498–543 in `config.toml`). Key format confirmed: `<absolute-path>:<event-snake-case>:<i>:<j>` where `i` = index into `hooks[<event>]` array, `j` = index into `hooks[<event>][i].hooks[]` nested array. **Pre-canary** entries (11, from Phase 0.5 shim): `pre_tool_use:0:0`, `pre_tool_use:0:1`, `post_tool_use:0:0`/`0:1`/`1:0`/`2:0`/`3:0`, `session_start:0:0`, `user_prompt_submit:0:0`/`0:1`, `stop:0:0`. **New canary** entries (5, appended at i=N+1): `pre_tool_use:1:0`, `post_tool_use:4:0`, `session_start:1:0`, `user_prompt_submit:1:0`, `stop:1:0`. ✅ **Hash-skip confirmed**: 重启 Codex 后 11 条 shim hash 全部静默通过, only the 5 new canary entries triggered fresh trust prompts. Key takeaway: Codex hashes `(canonical command string, event-key-with-indices)` and only prompts on new combinations. | N/A |
 | 4 | **Auto-reload** — 修改 hook config 文件后是否需要重启 host，还是 host 自动 pickup？Claude 是否触发 `ConfigChange` event？ | ✅ **Restart-time reload confirmed** (17:03:44 Astrozi: post-canary-install Codex restart → SessionStart + UserPromptSubmit canary fires immediately). 🔶 **Mid-session reload untested**. To test: edit one canary `echo` text in `~/.codex/hooks.json` while Codex session is live, trigger PreToolUse without restart, check log for updated text. | ✅ **Auto-reload confirmed at install time**: 16:51:47 PreToolUse canary fire happened seconds after I wrote `~/.claude/settings.json` (no Claude restart between write and fire). ConfigChange auto-pickup verified. 🔶 **Time-from-write delta** (秒级 vs reload-on-next-event) still needs explicit measurement via mtime delta. |
@@ -68,7 +68,7 @@ canary is installed globally **and** the user triggers an event inside an
 opt-in repo, both fire:
 
 - Project-level hook → real guard (writes `.ai/harness/*`, etc.)
-- Global canary → echo into `~/.agentic-dev-canary.log`
+- Global canary → echo into `~/.repo-harness-canary.log`
 
 This is the expected Phase 0 state, not a regression. Claude documents this
 as "merging, not overriding" across scopes
@@ -77,7 +77,7 @@ trigger events in a **non-opt-in repo** (any repo without
 `.ai/harness/workflow-contract.json`).
 
 Phase 1 reframes this: project-level adapters become deprecated fallback
-shims, and the `agentic-dev hook` dispatcher (called from the global slot)
+shims, and the `repo-harness hook` dispatcher (called from the global slot)
 becomes the single canonical entrypoint.
 
 ## Trust UX — Codex
@@ -120,20 +120,20 @@ Claude Code user-level hooks 不使用 trust 机制：
 
 Phase 0 观察结果：
 
-- ✅ **Merging precedence verified at user level**: 169 user-level canary fires happened alongside project-level real-guard fires in opt-in repos (agentic-dev + Astrozi). Same event triggers both. This confirms `user > project` merging works as documented (not override).
+- ✅ **Merging precedence verified at user level**: 169 user-level canary fires happened alongside project-level real-guard fires in opt-in repos (repo-harness + Astrozi). Same event triggers both. This confirms `user > project` merging works as documented (not override).
 - 🔶 **ConfigChange 秒级触发**: still **manual-only**. Implied by 169 fires over 1h36m with no obvious restart, but not measured.
   - **Micro-test**: write a no-op change to `~/.claude/settings.json` (e.g. reorder a JSON key without changing semantics), then immediately trigger a `PreToolUse` event, measure delta between file mtime and next canary log line.
 
 ## Migration Guide
 
-(Phase 1 填入: `agentic-dev install` / `agentic-dev migrate <repo>` 行为说明)
+(Phase 1 填入: `repo-harness install` / `repo-harness migrate <repo>` 行为说明)
 
 预期覆盖:
 
 - 新 repo init: 不再写项目级 `.codex/hooks.json` 或 `.claude/settings.json` hooks 段
-- 老 repo 升级: `agentic-dev migrate <repo>` 把旧 hook 段降级为 fallback shim 或删除
+- 老 repo 升级: `repo-harness migrate <repo>` 把旧 hook 段降级为 fallback shim 或删除
 - Contract bump: `hookRuntime: { mode: 'global-cli' | 'project-adapter', minCliVersion }` 字段语义
-- 自迁移 agentic-dev 自身的步骤与验证
+- 自迁移 repo-harness 自身的步骤与验证
 
 ## Failure Mode
 
@@ -144,7 +144,7 @@ Phase 0 观察结果：
 - CLI 未安装时全局 adapter 行为
 - 用户拒绝 trust 后的降级路径
 - repo 缺 opt-in marker 时的 silent exit 0 验证
-- `agentic-dev doctor` 输出格式与检测维度
+- `repo-harness doctor` 输出格式与检测维度
 - PATH 问题（CLI 不在 PATH 上）与 host 报错形态
 - 两 host 仅装其一时的 install/status 一致性
 

@@ -1,10 +1,10 @@
 ---
-name: agentic-dev-repair
+name: repo-harness-repair
 description: Repairs a broken current harness, including task sync, hook routing, handoff, context-map, policy, helper, and generated/runtime drift.
-when_to_use: "agentic-dev-repair, repair broken agentic workflow, fix task sync, fix hook routing, fix handoff, repair .ai harness, repair context-map"
+when_to_use: "repo-harness-repair, repair broken agentic workflow, fix task sync, fix hook routing, fix handoff, repair .ai harness, repair context-map"
 ---
 
-# agentic-dev-repair
+# repo-harness-repair
 
 Use this command when the repo has a harness but a specific workflow surface is broken.
 
@@ -18,6 +18,6 @@ Use this command when the repo has a harness but a specific workflow surface is 
 
 ## Boundaries
 
-- Do not use repair to migrate a legacy repo; route legacy contract drift to `agentic-dev-migrate`.
+- Do not use repair to migrate a legacy repo; route legacy contract drift to `repo-harness-migrate`.
 - Do not use repair to scaffold product code.
 - Preserve unrelated dirty worktree changes.

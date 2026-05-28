@@ -4,7 +4,7 @@
 
 ## Default Brain
 
-- File vault: `icloud/brain/agentic-dev/references/evaluator-rubric-reference.md`
+- File vault: `icloud/brain/repo-harness/references/evaluator-rubric-reference.md`
 - gbrain slug: `references/evaluator-rubric-reference`
 
 ## Repo Role

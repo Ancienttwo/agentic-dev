@@ -8,7 +8,7 @@ usage() {
   cat <<'USAGE_EOF'
 Usage:
   scripts/capture-plan.sh --slug <slug> [--title <title>] [--status Draft|Approved]
-                          [--source <codex-plan|waza-think|agentic-dev-plan>]
+                          [--source <codex-plan|waza-think|repo-harness-plan>]
                           [--route <route>] [--body-file <file>] [--execute]
 
 Reads a finished planning note from stdin or --body-file and stores it as a

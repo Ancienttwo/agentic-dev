@@ -2,7 +2,7 @@
 
 Latest iteration: `iteration-20260525-030242`
 
-Workspace root: `/Users/chris/.claude/skills/agentic-dev-skill-workspace`
+Workspace root: `/Users/chris/.claude/skills/repo-harness-skill-workspace`
 
 Generated: 2026-05-24T19:02:47.223Z
 
@@ -12,33 +12,33 @@ Generated: 2026-05-24T19:02:47.223Z
 | --- | --- | --- |
 | claude | with_skill | `claude -p --output-format text --no-session-persistence --permission-mode bypassPermissions --add-dir /Users/chris/.claude/skills/project-initializer 'Initialize a new B2B internal tool with Vite, TanStack Router, docs/spec.md, harness workflow files, and concise CLAUDE.md/AGENTS.md for both Claude and Codex.'` |
 | claude | without_skill | `claude -p --output-format text --no-session-persistence --permission-mode bypassPermissions --disable-slash-commands 'Initialize a new B2B internal tool with Vite, TanStack Router, docs/spec.md, harness workflow files, and concise CLAUDE.md/AGENTS.md for both Claude and Codex.'` |
-| codex | with_skill | `codex exec -C /Users/chris/.claude/skills/agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-new-project --dangerously-bypass-approvals-and-sandbox -o /Users/chris/.claude/skills/agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-new-project/final-response.md --add-dir /Users/chris/.claude/skills/project-initializer 'Initialize a new B2B internal tool with Vite, TanStack Router, docs/spec.md, harness workflow files, and concise CLAUDE.md/AGENTS.md for both Claude and Codex.'` |
-| codex | without_skill | `codex exec -C /Users/chris/.claude/skills/agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-new-project --dangerously-bypass-approvals-and-sandbox -o /Users/chris/.claude/skills/agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-new-project/final-response.md 'Initialize a new B2B internal tool with Vite, TanStack Router, docs/spec.md, harness workflow files, and concise CLAUDE.md/AGENTS.md for both Claude and Codex.'` |
+| codex | with_skill | `codex exec -C /Users/chris/.claude/skills/repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-new-project --dangerously-bypass-approvals-and-sandbox -o /Users/chris/.claude/skills/repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-new-project/final-response.md --add-dir /Users/chris/.claude/skills/project-initializer 'Initialize a new B2B internal tool with Vite, TanStack Router, docs/spec.md, harness workflow files, and concise CLAUDE.md/AGENTS.md for both Claude and Codex.'` |
+| codex | without_skill | `codex exec -C /Users/chris/.claude/skills/repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-new-project --dangerously-bypass-approvals-and-sandbox -o /Users/chris/.claude/skills/repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-new-project/final-response.md 'Initialize a new B2B internal tool with Vite, TanStack Router, docs/spec.md, harness workflow files, and concise CLAUDE.md/AGENTS.md for both Claude and Codex.'` |
 
 ## claude / with_skill
 
 | Eval | Status | Exit / Graders | Duration | Changed Files | Raw Artifacts |
 | --- | --- | --- | ---: | ---: | --- |
-| initialize-new-project | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/initialize-new-project) |
-| repair-agents-task-sync | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/repair-agents-task-sync) |
-| migrate-legacy-repo | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/migrate-legacy-repo) |
-| audit-workflow-drift | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/audit-workflow-drift) |
-| codex-skill-factory-lifecycle | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/codex-skill-factory-lifecycle) |
-| initialize-plan-g-project | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/initialize-plan-g-project) |
-| route-existing-repo-init | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-existing-repo-init) |
-| route-new-project-scaffold | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-new-project-scaffold) |
-| route-legacy-migrate | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-legacy-migrate) |
-| route-current-upgrade | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-current-upgrade) |
-| route-harness-repair | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-harness-repair) |
-| route-workflow-check | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-workflow-check) |
-| route-agentic-dev-plan | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-agentic-dev-plan) |
-| route-agentic-dev-review | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-agentic-dev-review) |
-| route-agentic-dev-autoplan | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-agentic-dev-autoplan) |
+| initialize-new-project | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/initialize-new-project) |
+| repair-agents-task-sync | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/repair-agents-task-sync) |
+| migrate-legacy-repo | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/migrate-legacy-repo) |
+| audit-workflow-drift | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/audit-workflow-drift) |
+| codex-skill-factory-lifecycle | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/codex-skill-factory-lifecycle) |
+| initialize-plan-g-project | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/initialize-plan-g-project) |
+| route-existing-repo-init | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-existing-repo-init) |
+| route-new-project-scaffold | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-new-project-scaffold) |
+| route-legacy-migrate | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-legacy-migrate) |
+| route-current-upgrade | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-current-upgrade) |
+| route-harness-repair | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-harness-repair) |
+| route-workflow-check | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-workflow-check) |
+| route-repo-harness-plan | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-repo-harness-plan) |
+| route-repo-harness-review | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-repo-harness-review) |
+| route-repo-harness-autoplan | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-repo-harness-autoplan) |
 
 ### initialize-new-project
 
 - Eval: `1`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/initialize-new-project](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/initialize-new-project)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/initialize-new-project](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/initialize-new-project)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -52,7 +52,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### repair-agents-task-sync
 
 - Eval: `2`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/repair-agents-task-sync](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/repair-agents-task-sync)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/repair-agents-task-sync](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/repair-agents-task-sync)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -67,7 +67,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### migrate-legacy-repo
 
 - Eval: `3`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/migrate-legacy-repo](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/migrate-legacy-repo)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/migrate-legacy-repo](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/migrate-legacy-repo)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -84,7 +84,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### audit-workflow-drift
 
 - Eval: `4`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/audit-workflow-drift](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/audit-workflow-drift)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/audit-workflow-drift](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/audit-workflow-drift)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -101,7 +101,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### codex-skill-factory-lifecycle
 
 - Eval: `5`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/codex-skill-factory-lifecycle](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/codex-skill-factory-lifecycle)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/codex-skill-factory-lifecycle](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/codex-skill-factory-lifecycle)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -120,7 +120,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### initialize-plan-g-project
 
 - Eval: `6`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/initialize-plan-g-project](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/initialize-plan-g-project)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/initialize-plan-g-project](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/initialize-plan-g-project)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -135,7 +135,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-existing-repo-init
 
 - Eval: `7`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-existing-repo-init](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-existing-repo-init)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-existing-repo-init](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-existing-repo-init)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -143,13 +143,13 @@ Generated: 2026-05-24T19:02:47.223Z
 - Final response excerpt: dry-run: no final response captured
 - Expectations:
   - Treats init as existing-repo adoption, not product scaffold creation.
-  - Names agentic-dev-init as the public command.
+  - Names repo-harness-init as the public command.
   - Keeps hook and docs initialization behind the migration engine.
 
 ### route-new-project-scaffold
 
 - Eval: `8`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-new-project-scaffold](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-new-project-scaffold)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-new-project-scaffold](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-new-project-scaffold)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -163,7 +163,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-legacy-migrate
 
 - Eval: `9`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-legacy-migrate](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-legacy-migrate)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-legacy-migrate](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-legacy-migrate)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -177,7 +177,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-current-upgrade
 
 - Eval: `10`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-current-upgrade](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-current-upgrade)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-current-upgrade](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-current-upgrade)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -191,7 +191,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-harness-repair
 
 - Eval: `11`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-harness-repair](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-harness-repair)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-harness-repair](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-harness-repair)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -205,7 +205,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-workflow-check
 
 - Eval: `12`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-workflow-check](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-workflow-check)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-workflow-check](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-workflow-check)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -216,10 +216,10 @@ Generated: 2026-05-24T19:02:47.223Z
   - Includes inspector and migration dry-run in the evidence set.
   - Gives a readiness verdict grounded in command output.
 
-### route-agentic-dev-plan
+### route-repo-harness-plan
 
 - Eval: `13`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-agentic-dev-plan](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-agentic-dev-plan)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-repo-harness-plan](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-repo-harness-plan)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -230,10 +230,10 @@ Generated: 2026-05-24T19:02:47.223Z
   - Produces one recommended action path.
   - Separates plan output from implementation.
 
-### route-agentic-dev-review
+### route-repo-harness-review
 
 - Eval: `14`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-agentic-dev-review](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-agentic-dev-review)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-repo-harness-review](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-repo-harness-review)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -244,10 +244,10 @@ Generated: 2026-05-24T19:02:47.223Z
   - Covers product, engineering, design, and DevEx when relevant.
   - Keeps implementation separate from review.
 
-### route-agentic-dev-autoplan
+### route-repo-harness-autoplan
 
 - Eval: `15`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-agentic-dev-autoplan](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/with_skill/route-agentic-dev-autoplan)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-repo-harness-autoplan](../repo-harness-skill-workspace/iteration-20260525-030242/claude/with_skill/route-repo-harness-autoplan)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -262,26 +262,26 @@ Generated: 2026-05-24T19:02:47.223Z
 
 | Eval | Status | Exit / Graders | Duration | Changed Files | Raw Artifacts |
 | --- | --- | --- | ---: | ---: | --- |
-| initialize-new-project | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/initialize-new-project) |
-| repair-agents-task-sync | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/repair-agents-task-sync) |
-| migrate-legacy-repo | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/migrate-legacy-repo) |
-| audit-workflow-drift | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/audit-workflow-drift) |
-| codex-skill-factory-lifecycle | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/codex-skill-factory-lifecycle) |
-| initialize-plan-g-project | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/initialize-plan-g-project) |
-| route-existing-repo-init | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-existing-repo-init) |
-| route-new-project-scaffold | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-new-project-scaffold) |
-| route-legacy-migrate | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-legacy-migrate) |
-| route-current-upgrade | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-current-upgrade) |
-| route-harness-repair | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-harness-repair) |
-| route-workflow-check | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-workflow-check) |
-| route-agentic-dev-plan | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-agentic-dev-plan) |
-| route-agentic-dev-review | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-agentic-dev-review) |
-| route-agentic-dev-autoplan | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-agentic-dev-autoplan) |
+| initialize-new-project | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/initialize-new-project) |
+| repair-agents-task-sync | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/repair-agents-task-sync) |
+| migrate-legacy-repo | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/migrate-legacy-repo) |
+| audit-workflow-drift | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/audit-workflow-drift) |
+| codex-skill-factory-lifecycle | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/codex-skill-factory-lifecycle) |
+| initialize-plan-g-project | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/initialize-plan-g-project) |
+| route-existing-repo-init | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-existing-repo-init) |
+| route-new-project-scaffold | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-new-project-scaffold) |
+| route-legacy-migrate | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-legacy-migrate) |
+| route-current-upgrade | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-current-upgrade) |
+| route-harness-repair | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-harness-repair) |
+| route-workflow-check | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-workflow-check) |
+| route-repo-harness-plan | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-repo-harness-plan) |
+| route-repo-harness-review | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-repo-harness-review) |
+| route-repo-harness-autoplan | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-repo-harness-autoplan) |
 
 ### initialize-new-project
 
 - Eval: `1`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/initialize-new-project](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/initialize-new-project)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/initialize-new-project](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/initialize-new-project)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -295,7 +295,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### repair-agents-task-sync
 
 - Eval: `2`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/repair-agents-task-sync](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/repair-agents-task-sync)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/repair-agents-task-sync](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/repair-agents-task-sync)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -310,7 +310,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### migrate-legacy-repo
 
 - Eval: `3`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/migrate-legacy-repo](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/migrate-legacy-repo)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/migrate-legacy-repo](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/migrate-legacy-repo)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -327,7 +327,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### audit-workflow-drift
 
 - Eval: `4`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/audit-workflow-drift](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/audit-workflow-drift)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/audit-workflow-drift](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/audit-workflow-drift)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -344,7 +344,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### codex-skill-factory-lifecycle
 
 - Eval: `5`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/codex-skill-factory-lifecycle](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/codex-skill-factory-lifecycle)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/codex-skill-factory-lifecycle](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/codex-skill-factory-lifecycle)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -363,7 +363,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### initialize-plan-g-project
 
 - Eval: `6`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/initialize-plan-g-project](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/initialize-plan-g-project)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/initialize-plan-g-project](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/initialize-plan-g-project)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -378,7 +378,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-existing-repo-init
 
 - Eval: `7`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-existing-repo-init](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-existing-repo-init)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-existing-repo-init](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-existing-repo-init)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -386,13 +386,13 @@ Generated: 2026-05-24T19:02:47.223Z
 - Final response excerpt: dry-run: no final response captured
 - Expectations:
   - Treats init as existing-repo adoption, not product scaffold creation.
-  - Names agentic-dev-init as the public command.
+  - Names repo-harness-init as the public command.
   - Keeps hook and docs initialization behind the migration engine.
 
 ### route-new-project-scaffold
 
 - Eval: `8`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-new-project-scaffold](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-new-project-scaffold)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-new-project-scaffold](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-new-project-scaffold)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -406,7 +406,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-legacy-migrate
 
 - Eval: `9`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-legacy-migrate](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-legacy-migrate)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-legacy-migrate](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-legacy-migrate)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -420,7 +420,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-current-upgrade
 
 - Eval: `10`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-current-upgrade](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-current-upgrade)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-current-upgrade](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-current-upgrade)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -434,7 +434,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-harness-repair
 
 - Eval: `11`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-harness-repair](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-harness-repair)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-harness-repair](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-harness-repair)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -448,7 +448,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-workflow-check
 
 - Eval: `12`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-workflow-check](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-workflow-check)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-workflow-check](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-workflow-check)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -459,10 +459,10 @@ Generated: 2026-05-24T19:02:47.223Z
   - Includes inspector and migration dry-run in the evidence set.
   - Gives a readiness verdict grounded in command output.
 
-### route-agentic-dev-plan
+### route-repo-harness-plan
 
 - Eval: `13`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-agentic-dev-plan](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-agentic-dev-plan)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-repo-harness-plan](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-repo-harness-plan)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -473,10 +473,10 @@ Generated: 2026-05-24T19:02:47.223Z
   - Produces one recommended action path.
   - Separates plan output from implementation.
 
-### route-agentic-dev-review
+### route-repo-harness-review
 
 - Eval: `14`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-agentic-dev-review](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-agentic-dev-review)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-repo-harness-review](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-repo-harness-review)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -487,10 +487,10 @@ Generated: 2026-05-24T19:02:47.223Z
   - Covers product, engineering, design, and DevEx when relevant.
   - Keeps implementation separate from review.
 
-### route-agentic-dev-autoplan
+### route-repo-harness-autoplan
 
 - Eval: `15`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-agentic-dev-autoplan](../agentic-dev-skill-workspace/iteration-20260525-030242/claude/without_skill/route-agentic-dev-autoplan)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-repo-harness-autoplan](../repo-harness-skill-workspace/iteration-20260525-030242/claude/without_skill/route-repo-harness-autoplan)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -505,26 +505,26 @@ Generated: 2026-05-24T19:02:47.223Z
 
 | Eval | Status | Exit / Graders | Duration | Changed Files | Raw Artifacts |
 | --- | --- | --- | ---: | ---: | --- |
-| initialize-new-project | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-new-project) |
-| repair-agents-task-sync | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/repair-agents-task-sync) |
-| migrate-legacy-repo | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/migrate-legacy-repo) |
-| audit-workflow-drift | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/audit-workflow-drift) |
-| codex-skill-factory-lifecycle | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/codex-skill-factory-lifecycle) |
-| initialize-plan-g-project | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-plan-g-project) |
-| route-existing-repo-init | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-existing-repo-init) |
-| route-new-project-scaffold | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-new-project-scaffold) |
-| route-legacy-migrate | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-legacy-migrate) |
-| route-current-upgrade | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-current-upgrade) |
-| route-harness-repair | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-harness-repair) |
-| route-workflow-check | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-workflow-check) |
-| route-agentic-dev-plan | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-agentic-dev-plan) |
-| route-agentic-dev-review | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-agentic-dev-review) |
-| route-agentic-dev-autoplan | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-agentic-dev-autoplan) |
+| initialize-new-project | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-new-project) |
+| repair-agents-task-sync | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/repair-agents-task-sync) |
+| migrate-legacy-repo | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/migrate-legacy-repo) |
+| audit-workflow-drift | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/audit-workflow-drift) |
+| codex-skill-factory-lifecycle | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/codex-skill-factory-lifecycle) |
+| initialize-plan-g-project | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-plan-g-project) |
+| route-existing-repo-init | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-existing-repo-init) |
+| route-new-project-scaffold | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-new-project-scaffold) |
+| route-legacy-migrate | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-legacy-migrate) |
+| route-current-upgrade | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-current-upgrade) |
+| route-harness-repair | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-harness-repair) |
+| route-workflow-check | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-workflow-check) |
+| route-repo-harness-plan | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-repo-harness-plan) |
+| route-repo-harness-review | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-repo-harness-review) |
+| route-repo-harness-autoplan | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-repo-harness-autoplan) |
 
 ### initialize-new-project
 
 - Eval: `1`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-new-project](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-new-project)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-new-project](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-new-project)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -538,7 +538,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### repair-agents-task-sync
 
 - Eval: `2`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/repair-agents-task-sync](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/repair-agents-task-sync)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/repair-agents-task-sync](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/repair-agents-task-sync)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -553,7 +553,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### migrate-legacy-repo
 
 - Eval: `3`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/migrate-legacy-repo](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/migrate-legacy-repo)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/migrate-legacy-repo](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/migrate-legacy-repo)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -570,7 +570,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### audit-workflow-drift
 
 - Eval: `4`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/audit-workflow-drift](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/audit-workflow-drift)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/audit-workflow-drift](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/audit-workflow-drift)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -587,7 +587,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### codex-skill-factory-lifecycle
 
 - Eval: `5`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/codex-skill-factory-lifecycle](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/codex-skill-factory-lifecycle)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/codex-skill-factory-lifecycle](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/codex-skill-factory-lifecycle)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -606,7 +606,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### initialize-plan-g-project
 
 - Eval: `6`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-plan-g-project](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-plan-g-project)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-plan-g-project](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/initialize-plan-g-project)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -621,7 +621,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-existing-repo-init
 
 - Eval: `7`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-existing-repo-init](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-existing-repo-init)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-existing-repo-init](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-existing-repo-init)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -629,13 +629,13 @@ Generated: 2026-05-24T19:02:47.223Z
 - Final response excerpt: dry-run: no final response captured
 - Expectations:
   - Treats init as existing-repo adoption, not product scaffold creation.
-  - Names agentic-dev-init as the public command.
+  - Names repo-harness-init as the public command.
   - Keeps hook and docs initialization behind the migration engine.
 
 ### route-new-project-scaffold
 
 - Eval: `8`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-new-project-scaffold](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-new-project-scaffold)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-new-project-scaffold](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-new-project-scaffold)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -649,7 +649,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-legacy-migrate
 
 - Eval: `9`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-legacy-migrate](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-legacy-migrate)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-legacy-migrate](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-legacy-migrate)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -663,7 +663,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-current-upgrade
 
 - Eval: `10`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-current-upgrade](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-current-upgrade)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-current-upgrade](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-current-upgrade)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -677,7 +677,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-harness-repair
 
 - Eval: `11`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-harness-repair](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-harness-repair)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-harness-repair](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-harness-repair)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -691,7 +691,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-workflow-check
 
 - Eval: `12`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-workflow-check](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-workflow-check)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-workflow-check](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-workflow-check)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -702,10 +702,10 @@ Generated: 2026-05-24T19:02:47.223Z
   - Includes inspector and migration dry-run in the evidence set.
   - Gives a readiness verdict grounded in command output.
 
-### route-agentic-dev-plan
+### route-repo-harness-plan
 
 - Eval: `13`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-agentic-dev-plan](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-agentic-dev-plan)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-repo-harness-plan](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-repo-harness-plan)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -716,10 +716,10 @@ Generated: 2026-05-24T19:02:47.223Z
   - Produces one recommended action path.
   - Separates plan output from implementation.
 
-### route-agentic-dev-review
+### route-repo-harness-review
 
 - Eval: `14`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-agentic-dev-review](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-agentic-dev-review)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-repo-harness-review](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-repo-harness-review)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -730,10 +730,10 @@ Generated: 2026-05-24T19:02:47.223Z
   - Covers product, engineering, design, and DevEx when relevant.
   - Keeps implementation separate from review.
 
-### route-agentic-dev-autoplan
+### route-repo-harness-autoplan
 
 - Eval: `15`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-agentic-dev-autoplan](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/with_skill/route-agentic-dev-autoplan)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-repo-harness-autoplan](../repo-harness-skill-workspace/iteration-20260525-030242/codex/with_skill/route-repo-harness-autoplan)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -748,26 +748,26 @@ Generated: 2026-05-24T19:02:47.223Z
 
 | Eval | Status | Exit / Graders | Duration | Changed Files | Raw Artifacts |
 | --- | --- | --- | ---: | ---: | --- |
-| initialize-new-project | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-new-project) |
-| repair-agents-task-sync | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/repair-agents-task-sync) |
-| migrate-legacy-repo | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/migrate-legacy-repo) |
-| audit-workflow-drift | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/audit-workflow-drift) |
-| codex-skill-factory-lifecycle | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/codex-skill-factory-lifecycle) |
-| initialize-plan-g-project | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-plan-g-project) |
-| route-existing-repo-init | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-existing-repo-init) |
-| route-new-project-scaffold | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-new-project-scaffold) |
-| route-legacy-migrate | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-legacy-migrate) |
-| route-current-upgrade | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-current-upgrade) |
-| route-harness-repair | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-harness-repair) |
-| route-workflow-check | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-workflow-check) |
-| route-agentic-dev-plan | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-agentic-dev-plan) |
-| route-agentic-dev-review | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-agentic-dev-review) |
-| route-agentic-dev-autoplan | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-agentic-dev-autoplan) |
+| initialize-new-project | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-new-project) |
+| repair-agents-task-sync | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/repair-agents-task-sync) |
+| migrate-legacy-repo | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/migrate-legacy-repo) |
+| audit-workflow-drift | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/audit-workflow-drift) |
+| codex-skill-factory-lifecycle | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/codex-skill-factory-lifecycle) |
+| initialize-plan-g-project | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-plan-g-project) |
+| route-existing-repo-init | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-existing-repo-init) |
+| route-new-project-scaffold | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-new-project-scaffold) |
+| route-legacy-migrate | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-legacy-migrate) |
+| route-current-upgrade | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-current-upgrade) |
+| route-harness-repair | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-harness-repair) |
+| route-workflow-check | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-workflow-check) |
+| route-repo-harness-plan | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-repo-harness-plan) |
+| route-repo-harness-review | dry_run | 0 / graders skipped | 0ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-repo-harness-review) |
+| route-repo-harness-autoplan | dry_run | 0 / graders skipped | 1ms | 0 | [workspace](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-repo-harness-autoplan) |
 
 ### initialize-new-project
 
 - Eval: `1`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-new-project](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-new-project)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-new-project](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-new-project)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -781,7 +781,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### repair-agents-task-sync
 
 - Eval: `2`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/repair-agents-task-sync](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/repair-agents-task-sync)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/repair-agents-task-sync](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/repair-agents-task-sync)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -796,7 +796,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### migrate-legacy-repo
 
 - Eval: `3`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/migrate-legacy-repo](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/migrate-legacy-repo)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/migrate-legacy-repo](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/migrate-legacy-repo)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -813,7 +813,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### audit-workflow-drift
 
 - Eval: `4`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/audit-workflow-drift](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/audit-workflow-drift)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/audit-workflow-drift](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/audit-workflow-drift)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -830,7 +830,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### codex-skill-factory-lifecycle
 
 - Eval: `5`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/codex-skill-factory-lifecycle](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/codex-skill-factory-lifecycle)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/codex-skill-factory-lifecycle](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/codex-skill-factory-lifecycle)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -849,7 +849,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### initialize-plan-g-project
 
 - Eval: `6`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-plan-g-project](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-plan-g-project)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-plan-g-project](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/initialize-plan-g-project)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -864,7 +864,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-existing-repo-init
 
 - Eval: `7`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-existing-repo-init](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-existing-repo-init)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-existing-repo-init](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-existing-repo-init)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -872,13 +872,13 @@ Generated: 2026-05-24T19:02:47.223Z
 - Final response excerpt: dry-run: no final response captured
 - Expectations:
   - Treats init as existing-repo adoption, not product scaffold creation.
-  - Names agentic-dev-init as the public command.
+  - Names repo-harness-init as the public command.
   - Keeps hook and docs initialization behind the migration engine.
 
 ### route-new-project-scaffold
 
 - Eval: `8`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-new-project-scaffold](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-new-project-scaffold)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-new-project-scaffold](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-new-project-scaffold)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -892,7 +892,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-legacy-migrate
 
 - Eval: `9`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-legacy-migrate](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-legacy-migrate)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-legacy-migrate](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-legacy-migrate)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -906,7 +906,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-current-upgrade
 
 - Eval: `10`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-current-upgrade](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-current-upgrade)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-current-upgrade](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-current-upgrade)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -920,7 +920,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-harness-repair
 
 - Eval: `11`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-harness-repair](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-harness-repair)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-harness-repair](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-harness-repair)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -934,7 +934,7 @@ Generated: 2026-05-24T19:02:47.223Z
 ### route-workflow-check
 
 - Eval: `12`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-workflow-check](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-workflow-check)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-workflow-check](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-workflow-check)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -945,10 +945,10 @@ Generated: 2026-05-24T19:02:47.223Z
   - Includes inspector and migration dry-run in the evidence set.
   - Gives a readiness verdict grounded in command output.
 
-### route-agentic-dev-plan
+### route-repo-harness-plan
 
 - Eval: `13`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-agentic-dev-plan](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-agentic-dev-plan)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-repo-harness-plan](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-repo-harness-plan)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -959,10 +959,10 @@ Generated: 2026-05-24T19:02:47.223Z
   - Produces one recommended action path.
   - Separates plan output from implementation.
 
-### route-agentic-dev-review
+### route-repo-harness-review
 
 - Eval: `14`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-agentic-dev-review](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-agentic-dev-review)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-repo-harness-review](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-repo-harness-review)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)
@@ -973,10 +973,10 @@ Generated: 2026-05-24T19:02:47.223Z
   - Covers product, engineering, design, and DevEx when relevant.
   - Keeps implementation separate from review.
 
-### route-agentic-dev-autoplan
+### route-repo-harness-autoplan
 
 - Eval: `15`
-- Workspace: [../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-agentic-dev-autoplan](../agentic-dev-skill-workspace/iteration-20260525-030242/codex/without_skill/route-agentic-dev-autoplan)
+- Workspace: [../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-repo-harness-autoplan](../repo-harness-skill-workspace/iteration-20260525-030242/codex/without_skill/route-repo-harness-autoplan)
 - Changed files: none
 - Diff summary: no diff captured
 - Agent status: dry_run (exit 0)

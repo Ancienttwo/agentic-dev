@@ -154,7 +154,7 @@ sync_claude_alias_links() {
   mkdir -p "$CLAUDE_SKILLS_ROOT"
   local alias_name
   local alias_dest
-  for alias_name in agentic-dev agentic-dev-skill; do
+  for alias_name in repo-harness repo-harness-skill; do
     alias_dest="$CLAUDE_SKILLS_ROOT/$alias_name"
     remove_managed_dest "$alias_dest"
     ln -s "$SOURCE_ROOT" "$alias_dest"
@@ -170,21 +170,21 @@ sync_claude_alias_copies() {
   mkdir -p "$CLAUDE_SKILLS_ROOT"
   local alias_name
   local alias_dest
-  for alias_name in agentic-dev agentic-dev-skill; do
+  for alias_name in repo-harness repo-harness-skill; do
     alias_dest="$CLAUDE_SKILLS_ROOT/$alias_name"
     sync_copy "$alias_dest"
     echo "[sync-installed] Claude skill copy: $alias_dest"
   done
 }
 
-canonical_dest="$CODEX_SKILLS_ROOT/agentic-dev"
+canonical_dest="$CODEX_SKILLS_ROOT/repo-harness"
 if [[ "$LINK_INSTALLED_COPIES" == "1" ]]; then
   mkdir -p "$CODEX_SKILLS_ROOT"
   remove_managed_dest "$canonical_dest"
   ln -s "$SOURCE_ROOT" "$canonical_dest"
   echo "[sync-installed] canonical skill link: $canonical_dest -> $SOURCE_ROOT"
 
-  for legacy_name in agentic-dev-skill; do
+  for legacy_name in repo-harness-skill; do
     legacy_dest="$CODEX_SKILLS_ROOT/$legacy_name"
     create_legacy_alias "$legacy_dest"
     echo "[sync-installed] legacy runtime alias: $legacy_dest -> $SOURCE_ROOT"
@@ -200,7 +200,7 @@ fi
 sync_copy "$canonical_dest"
 echo "[sync-installed] canonical skill copy: $canonical_dest"
 
-for legacy_name in agentic-dev-skill; do
+for legacy_name in repo-harness-skill; do
   legacy_dest="$CODEX_SKILLS_ROOT/$legacy_name"
   sync_copy "$legacy_dest"
 

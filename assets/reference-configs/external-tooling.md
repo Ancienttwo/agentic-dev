@@ -7,14 +7,14 @@ skill routing lives in `docs/reference-configs/agentic-development-flow.md`.
 - `Waza` supplies `/think`, `/hunt`, and `/check` for daily small/medium work
 - Codex automation requires `health`, `check`, and `diagram-design` from `~/.codex/skills`
 - `gbrain` supports knowledge capture, repo sync, and handoff retrieval
-- `CodeGraph` is required Codex agent readiness for code navigation and impact tracing
+- `CodeGraph` is required agent readiness for code navigation and impact tracing
 
 Waza is Codex-first in this contract. `~/.codex/skills` is the Codex runtime
 source, while `~/.agents/skills` is only the skills CLI staging/cache path used
 to receive upstream `tw93/Waza` updates before syncing verified copies into
 Codex.
 
-`agentic-dev init` is allowed to bootstrap the workflow-owned runtime skills in
+`repo-harness init` is allowed to bootstrap the workflow-owned runtime skills in
 one pass: Waza (`check`, `design`, `health`, `hunt`, `learn`, `read`, `think`,
 `write`) plus `diagram-design` for Codex and/or Claude. It must not silently
 install unrelated toolchains.
@@ -118,8 +118,8 @@ bun add -g gbrain
 
 ### CodeGraph
 
-`CodeGraph` is required readiness for Codex agent code navigation. It speeds up
-agent exploration for indexed TypeScript and other supported languages, but it
+`CodeGraph` is required readiness for agent code navigation. It speeds up
+Codex and Claude exploration for indexed TypeScript and other supported languages, but it
 does not replace `.ai/context/capabilities.json`, workflow checks, tests,
 architecture drift events, or shell-script review.
 
@@ -141,24 +141,28 @@ bash scripts/ensure-codegraph.sh --init
 bash scripts/ensure-codegraph.sh --sync
 ```
 
-Do not ask users to copy MCP TOML by hand. The user-facing path is one terminal
-command, or explicit authorization for their agent to run the same command:
+Do not ask users to copy MCP TOML or Claude JSON by hand. The user-facing path
+is one terminal command, or explicit authorization for their agent to run the
+same command:
 
 ```bash
-npm install -g @colbymchenry/codegraph && mkdir -p ~/.local/bin && ln -sfn "$(npm config get prefix)/bin/codegraph" ~/.local/bin/codegraph && PATH="$HOME/.local/bin:$PATH" codegraph install --target codex --location global --yes
+npm install -g @colbymchenry/codegraph && mkdir -p ~/.local/bin && ln -sfn "$(npm config get prefix)/bin/codegraph" ~/.local/bin/codegraph && PATH="$HOME/.local/bin:$PATH" repo-harness tools configure codegraph --target both --location global
 ```
 
-This writes global Codex MCP config and may create `~/.codex/AGENTS.md`, so do
-not run CodeGraph setup automatically from `agentic-dev init`, `migrate`, or `upgrade`.
-Restart Codex after the installer finishes so the MCP server is discovered.
-If a Codex launch environment still cannot find `codegraph`, an authorized
-agent should diagnose `PATH` and the `~/.local/bin/codegraph` shim. Do not make
-the user hand-edit MCP TOML as the fallback.
+This delegates host-specific MCP config to CodeGraph's target adapters for
+Codex and Claude, so do not run CodeGraph setup automatically from
+`repo-harness init`, `migrate`, or `upgrade`. Restart Codex after the installer
+finishes so the MCP server is discovered; Claude Code should pick up its config
+according to its own settings reload behavior. If a launch environment still
+cannot find `codegraph`, an authorized agent should diagnose `PATH` and the
+`~/.local/bin/codegraph` shim. Do not make the user hand-edit MCP config as the
+fallback.
 
-For troubleshooting only, inspect the Codex config snippet without writing:
+For troubleshooting only, inspect host config snippets without writing:
 
 ```bash
 codegraph install --print-config codex
+codegraph install --print-config claude
 ```
 
 Project-local indexes are ignored runtime state:
@@ -252,10 +256,10 @@ icloud/brain/<project>/*
 For this repo, use:
 
 ```text
-icloud/brain/agentic-dev/*
+icloud/brain/repo-harness/*
 ```
 
-`icloud/brain/agentic-dev-skill/*` and `icloud/brain/project-initializer/*`
+`icloud/brain/repo-harness-skill/*` and `icloud/brain/project-initializer/*`
 are legacy alias paths and should remain as redirects/indexes during the
 compatibility window.
 

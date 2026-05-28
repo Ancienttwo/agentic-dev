@@ -1,5 +1,5 @@
 /**
- * `agentic-dev install --target codex|claude|both --location global|local`
+ * `repo-harness install --target codex|claude|both --location global|local`
  *
  * Resolves --target to AgentTarget list, calls target.install(loc, opts)
  * for each, prints WriteResult lines. Idempotent: re-run with no diff
