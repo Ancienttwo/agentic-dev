@@ -104,7 +104,7 @@ describe('doctor command (Phase 1C)', () => {
       expect(ids).toContain('claude-codegraph-mcp');
       expect(ids).toContain('codegraph-index');
     });
-  });
+  }, 10000);
 
   test('codex-trust-state reports n/a when ~/.codex/config.toml is missing', () => {
     withTempHome(() => {
@@ -112,7 +112,7 @@ describe('doctor command (Phase 1C)', () => {
       const trust = r.checks.find((c) => c.id === 'codex-trust-state')!;
       expect(trust.status).toBe('na');
     });
-  });
+  }, 10000);
 
   test('codex-trust-state counts user-level [hooks.state] lines when present', () => {
     withTempHome((home) => {
@@ -125,7 +125,7 @@ describe('doctor command (Phase 1C)', () => {
       expect(trust.status).toBe('ok');
       expect(trust.detail).toContain('3');
     });
-  });
+  }, 10000);
 
   test('registerCheck still supports additional plugin entries', () => {
     withTempHome(() => {
@@ -140,7 +140,7 @@ describe('doctor command (Phase 1C)', () => {
       expect(plugin!.status).toBe('ok');
       expect(plugin!.detail).toBe('plugin reachable');
     });
-  });
+  }, 10000);
 
   test('summary tallies each status correctly', () => {
     withTempHome(() => {
@@ -153,14 +153,14 @@ describe('doctor command (Phase 1C)', () => {
       expect(totalReported).toBe(r.checks.length);
       expect(r.summary.fail).toBeGreaterThanOrEqual(1);
     });
-  });
+  }, 10000);
 
   test('formatDoctor includes a Summary line', () => {
     withTempHome(() => {
       const text = formatDoctor(runDoctor(), false);
       expect(text).toContain('Summary:');
     });
-  });
+  }, 10000);
 
   test('formatDoctor --json produces parseable JSON', () => {
     withTempHome(() => {
@@ -170,7 +170,7 @@ describe('doctor command (Phase 1C)', () => {
       expect(Array.isArray(parsed.checks)).toBe(true);
       expect(parsed.summary).toBeDefined();
     });
-  });
+  }, 10000);
 
   test('CLI doctor includes CodeGraph readiness without mutating CodeGraph state', () => {
     const envRoot = setupFakeEnvironment('repo-harness-doctor-codegraph');

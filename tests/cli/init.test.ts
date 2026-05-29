@@ -8,9 +8,13 @@ import {
   writeFileSync,
   chmodSync,
 } from "fs";
+import { spawnSync } from "child_process";
 import { tmpdir } from "os";
 import { join } from "path";
 import { runInit, syncCrossReviewSkills } from "../../src/cli/commands/init";
+
+const ROOT = join(import.meta.dir, "..", "..");
+const CLI = join(ROOT, "src/cli/index.ts");
 
 function makeExecutable(path: string, body: string): void {
   writeFileSync(path, body);
@@ -66,6 +70,34 @@ function setupFakeSource(root: string): void {
   writeFileSync(
     join(root, "assets", "skills", "claude-review", "SKILL.md"),
     "---\nname: claude-review\n---\n",
+  );
+}
+
+function writeFakeCodegraph(fakeBin: string, logFile: string): void {
+  makeExecutable(
+    join(fakeBin, "codegraph"),
+    [
+      "#!/bin/bash",
+      "set -euo pipefail",
+      `echo "codegraph $*" >> "${logFile}"`,
+      "case \"${1:-}\" in",
+      "  \"--version\") echo '0.9.6' ;;",
+      "  \"status\")",
+      "    if [[ -f .codegraph/initialized ]]; then",
+      "      echo 'CodeGraph Status'",
+      "      echo 'Index is up to date'",
+      "    else",
+      "      echo 'CodeGraph Status'",
+      "      echo 'Not initialized'",
+      "      echo 'Run \"codegraph init\" to initialize'",
+      "    fi",
+      "    ;;",
+      "  \"init\") mkdir -p .codegraph; touch .codegraph/initialized; echo 'initialized' ;;",
+      "  \"install\") echo 'installed' ;;",
+      "  *) exit 1 ;;",
+      "esac",
+      "",
+    ].join("\n"),
   );
 }
 
@@ -204,6 +236,90 @@ describe("init command", () => {
       rmSync(tmp, { recursive: true, force: true });
     }
   });
+
+  test("CLI --no-codegraph disables the init CodeGraph step", () => {
+    const tmp = join(tmpdir(), `repo-harness-init-cli-codegraph-${Date.now()}`);
+    try {
+      mkdirSync(tmp, { recursive: true });
+      const res = spawnSync(
+        "bun",
+        [
+          CLI,
+          "init",
+          "--repo",
+          tmp,
+          "--dry-run",
+          "--no-sync-skill",
+          "--no-host-adapters",
+          "--no-external-skills",
+          "--no-verify",
+          "--no-codegraph",
+          "--json",
+        ],
+        {
+          cwd: ROOT,
+          encoding: "utf-8",
+        },
+      );
+
+      expect(res.status).toBe(0);
+      const result = JSON.parse(res.stdout);
+      const codegraphStep = result.steps.find((step: { step: string }) => step.step === "ensure codegraph index");
+      expect(codegraphStep?.status).toBe("skipped");
+      expect(codegraphStep?.detail).toBe("disabled");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  }, 15000);
+
+  test("configures CodeGraph MCP only when explicitly requested", () => {
+    const tmp = join(tmpdir(), `repo-harness-init-configure-codegraph-${Date.now()}`);
+    const source = join(tmp, "source");
+    const repo = join(tmp, "repo");
+    const home = join(tmp, "home");
+    const fakeBin = join(tmp, "bin");
+    const logFile = join(tmp, "codegraph.log");
+    try {
+      mkdirSync(source, { recursive: true });
+      mkdirSync(repo, { recursive: true });
+      mkdirSync(home, { recursive: true });
+      mkdirSync(fakeBin, { recursive: true });
+      setupFakeSource(source);
+      writeFakeCodegraph(fakeBin, logFile);
+
+      const result = runInit({
+        repo,
+        sourceRoot: source,
+        syncSkill: false,
+        hostAdapters: false,
+        externalSkills: false,
+        verify: false,
+        configureCodegraphMcp: true,
+        env: {
+          ...process.env,
+          HOME: home,
+          PATH: `${fakeBin}:${process.env.PATH ?? ""}`,
+          AGENTIC_DEV_CODEGRAPH_ALLOW_REPO_LOCAL: "0",
+        },
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.steps.find((step) => step.step === "ensure codegraph index")?.detail).toContain(
+        "init-index:changed",
+      );
+      const configureStep = result.steps.find((step) => step.step === "configure codegraph mcp");
+      expect(configureStep?.status).toBe("ok");
+      expect(configureStep?.detail).toContain("configure-codex:changed");
+      expect(configureStep?.detail).toContain("configure-claude:changed");
+
+      const log = readFileSync(logFile, "utf-8");
+      expect(log).toContain("codegraph init -i .");
+      expect(log).toContain("codegraph install --target codex --location global --yes");
+      expect(log).toContain("codegraph install --target claude --location global --yes");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  }, 15000);
 });
 
 describe("syncCrossReviewSkills", () => {

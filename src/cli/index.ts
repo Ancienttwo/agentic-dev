@@ -41,7 +41,7 @@ export function buildProgram(): Command {
   program
     .name('repo-harness')
     .description('Repo-local agentic development harness CLI')
-    .version('0.1.1')
+    .version('0.1.2')
     .exitOverride();
 
   program

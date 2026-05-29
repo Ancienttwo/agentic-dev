@@ -4,9 +4,13 @@ All notable changes to this skill are documented here.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-05-29
+
 ### Added
 
 - Added `repo-harness init` as a one-shot existing-repo bootstrap that defaults `--repo` to the current working directory, refreshes host adapters, applies the harness, installs Waza runtime skills, syncs `diagram-design`, and verifies the repo-local workflow.
+- Added `repo-harness init --no-codegraph` and `--configure-codegraph` so existing-repo bootstrap can either skip CodeGraph readiness or explicitly register CodeGraph MCP after building the index.
+- Added `check:release` / `prepublishOnly` npm release gates that reject already-published package versions before running tests, workflow checks, migration dry-run, and pack dry-run.
 
 ### Changed
 
@@ -20,6 +24,7 @@ All notable changes to this skill are documented here.
 ### Fixed
 
 - Rebuilt Claude skill aliases during installed-copy sync so `~/.claude/skills/project-initializer` cannot remain on a stale legacy repo while Codex runtime aliases are current.
+- Reduced full-suite release flakiness by giving `doctor` environment-probe tests a wider timeout budget.
 
 ## [5.2.3] - 2026-05-27
 
