@@ -4,7 +4,7 @@
 > **Plan**: plans/plan-20260530-0142-think-users-ancienttwo-agents-skillsthink-skill-md.md
 > **Contract**: tasks/contracts/think-users-ancienttwo-agents-skillsthink-skill-md.contract.md
 > **Review**: tasks/reviews/think-users-ancienttwo-agents-skillsthink-skill-md.review.md
-> **Last Updated**: 2026-05-30 02:07
+> **Last Updated**: 2026-05-30 02:23
 > **Lifecycle**: notes
 
 ## Design Decisions
@@ -17,6 +17,7 @@
 ## Deviations From Plan Or Spec
 
 - None on scope. The implementation stayed inside hook state, prompt routing, finish/verify helpers, generated templates, docs, and tests.
+- Full-suite verification exposed existing CodeGraph/doctor tests that run real readiness probes for 5-8 seconds in this worktree. Their timeouts were widened only to match the verified runtime; product behavior was not changed.
 
 ## Tradeoffs Considered
 

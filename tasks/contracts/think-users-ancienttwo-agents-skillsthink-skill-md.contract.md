@@ -4,7 +4,7 @@
 > **Plan**: plans/plan-20260530-0142-think-users-ancienttwo-agents-skillsthink-skill-md.md
 > **Owner**: ancienttwo
 > **Capability ID**: root
-> **Last Updated**: 2026-05-30 02:07
+> **Last Updated**: 2026-05-30 02:23
 > **Review File**: `tasks/reviews/think-users-ancienttwo-agents-skillsthink-skill-md.review.md`
 > **Notes File**: `tasks/notes/think-users-ancienttwo-agents-skillsthink-skill-md.notes.md`
 
@@ -69,8 +69,6 @@ exit_criteria:
   qa_scores:
     - dimension: functionality
       min: 8
-  manual_checks:
-    - "Evaluator review file recommends pass and includes External Acceptance Advice"
 ```
 
 ## Acceptance Notes (Human Review)

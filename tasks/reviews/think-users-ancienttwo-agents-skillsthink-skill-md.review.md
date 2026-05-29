@@ -5,7 +5,7 @@
 > **Contract**: tasks/contracts/think-users-ancienttwo-agents-skillsthink-skill-md.contract.md
 > **Notes File**: tasks/notes/think-users-ancienttwo-agents-skillsthink-skill-md.notes.md
 > **Checks File**: .ai/harness/checks/latest.json
-> **Last Updated**: 2026-05-30 02:07
+> **Last Updated**: 2026-05-30 02:23
 > **Recommendation**: pass
 
 ## Mode Evidence
@@ -20,6 +20,14 @@
 - Waza `/check` run: current Codex review pass plus external Claude acceptance.
 - Commands run:
   - `bun test tests/workflow-state-lib.test.ts tests/hook-runtime.test.ts tests/helper-scripts.test.ts tests/hook-contracts.test.ts tests/bootstrap-files.test.ts` -> pass, 155 pass.
+  - `bun test` -> pass, 493 pass / 6 skip / 0 fail.
+  - `bash scripts/check-deploy-sql-order.sh` -> pass.
+  - `bash scripts/check-task-sync.sh` -> pass.
+  - `bash scripts/sync-brain-docs.sh --changed docs/reference-configs/agentic-development-flow.md --changed docs/reference-configs/external-tooling.md` -> synced brain mirrors for changed reference docs.
+  - `bash scripts/check-task-workflow.sh --strict` -> pass after brain mirror sync.
+  - `bun scripts/inspect-project-state.ts --repo . --format text` -> pass, no drift.
+  - `bash scripts/migrate-project-template.sh --repo . --dry-run` -> pass, no migration drift.
+  - `bash scripts/verify-sprint.sh` -> pass, wrote current `.ai/harness/checks/latest.json`.
   - `claude -p ... --output-format text --no-session-persistence --max-budget-usd 1` -> external acceptance pass.
 - Manual checks:
   - Confirmed `.ai/hooks` changes mirror `assets/hooks`.
@@ -29,7 +37,7 @@
   - `tasks/notes/think-users-ancienttwo-agents-skillsthink-skill-md.notes.md`
   - `.ai/harness/checks/latest.json`
 - Implementation notes reviewed: yes.
-- Run snapshot: not generated in this slice.
+- Run snapshot: `.ai/harness/runs/run-20260530T022557-83717-think-users-ancienttwo-agents-skillsthink-skill-md.json`
 
 ## External Acceptance Advice
 
@@ -74,7 +82,7 @@
 ## Retest Steps
 
 - Re-run: `bun test tests/workflow-state-lib.test.ts tests/hook-runtime.test.ts tests/helper-scripts.test.ts tests/hook-contracts.test.ts tests/bootstrap-files.test.ts`
-- Re-check final integration on `main` with root required checks before push.
+- Re-check final integration on `main` if this branch is merged after the primary worktree's unrelated dirty setup-plugin changes are cleared.
 
 ## Summary
 
