@@ -270,6 +270,23 @@ Most common guards:
   - durable capability progress -> `tasks/workstreams/`
   - release history -> `docs/CHANGELOG.md`
 
+## Acknowledgements and Tooling Dependencies
+
+`repo-harness` is built around a small set of external skills and repos that
+proved useful while this project was being designed, debugged, and released.
+They are acknowledged here because they shaped the workflow contract, but they
+are not all bundled product dependencies.
+
+| Tool or repo | Used for | Dependency shape |
+| --- | --- | --- |
+| gstack skills, including `document-release`, `office-hours`, `plan-eng-review`, and `plan-design-review` | Product discovery, plan review, design review, and post-ship documentation hygiene | External operator workflow; advisory by default |
+| Waza skills, including `think`, `hunt`, `check`, `health`, `design`, `learn`, `read`, and `write` | Daily planning, bug hunts, verification, health checks, and Codex-first skill sync | Installed through the skills CLI into host skill roots |
+| `diagram-design` | Human-readable architecture and system-flow diagrams when Mermaid is not enough | Runtime-referenced skill, not vendored into generated repos |
+| `gbrain` | Knowledge sync, handoff retrieval, and long-form repo memory | Optional external CLI and index |
+| CodeGraph (`@colbymchenry/codegraph`) | Symbol-aware navigation, impact tracing, and readiness checks for this self-host repo | Dev dependency in this repo; generated repos stay global-MCP-first unless policy opts in |
+| Bun | Source checkout execution, tests, template assembly, and release checks | Required local runtime for maintainers |
+| `commander` | `repo-harness` CLI command parsing | Runtime npm dependency |
+
 ## Action Command Skills
 
 Source-owned command skill facades live in `assets/skill-commands/`. They keep
